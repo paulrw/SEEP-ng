@@ -48,9 +48,9 @@ import com.esotericsoftware.kryo.serializers.MapSerializer;
 * ControlHandlerWorker. This class is in charge of managing control messages.
 */
 
-public class ControlHandlerWorker implements Runnable{
+public class OldControlHandlerWorker implements Runnable{
 
-	final private Logger LOG = LoggerFactory.getLogger(ControlHandlerWorker.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldControlHandlerWorker.class);
 	
 	private Socket incomingSocket = null;
 	private CoreRE owner = null;
@@ -58,7 +58,7 @@ public class ControlHandlerWorker implements Runnable{
 	private boolean goOn;
 	private Kryo k = null;
 
-	public ControlHandlerWorker(Socket incomingSocket, CoreRE owner){
+	public OldControlHandlerWorker(Socket incomingSocket, CoreRE owner){
 		this.incomingSocket = incomingSocket;
 		this.owner = owner;
 		this.goOn = true;

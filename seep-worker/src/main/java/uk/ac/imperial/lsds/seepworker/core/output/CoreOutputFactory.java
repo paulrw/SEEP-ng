@@ -34,7 +34,7 @@ public class CoreOutputFactory {
 			OutputAdapter oa = OutputAdapterFactory.buildOutputAdapterOfTypeForOps(streamId, doCon);
 			outputAdapters.add(oa);
 		}
-		CoreOutput cOutput = new CoreOutput(outputAdapters);	
+		CoreOutput cOutput = new CoreOutput(outputAdapters);
 		return cOutput;
 	}
 }

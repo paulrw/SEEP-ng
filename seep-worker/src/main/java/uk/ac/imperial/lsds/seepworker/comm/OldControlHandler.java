@@ -24,9 +24,9 @@ import uk.ac.imperial.lsds.seepworker.runtimeengine.CoreRE;
 * ControlHandler. This class is in charge of managing control connections and attach them to a given thread that is in charge of serving them.
 */
 
-public class ControlHandler implements Runnable{
+public class OldControlHandler implements Runnable{
 
-	final private Logger LOG = LoggerFactory.getLogger(ControlHandler.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldControlHandler.class);
 	
 	//The core that owns this control handler
 	private CoreRE owner;
@@ -59,7 +59,7 @@ public class ControlHandler implements Runnable{
 		this.goOn = goOn;
 	}
 
-	public ControlHandler(CoreRE owner, int connPort){
+	public OldControlHandler(CoreRE owner, int connPort){
 		this.owner = owner;
 		this.connPort = connPort;
 		this.goOn = true;
@@ -77,7 +77,7 @@ public class ControlHandler implements Runnable{
 				//Place new connections in a new thread. We have a thread per upstream connection
 				Socket incomingConn = controlServerSocket.accept();
 				String threadName = incomingConn.getInetAddress().toString();
-				Thread newConn = new Thread(new ControlHandlerWorker(incomingConn, owner), "chw-"+threadName+"-T");
+				Thread newConn = new Thread(new OldControlHandlerWorker(incomingConn, owner), "chw-"+threadName+"-T");
 				newConn.start();
 			}
 			controlServerSocket.close();

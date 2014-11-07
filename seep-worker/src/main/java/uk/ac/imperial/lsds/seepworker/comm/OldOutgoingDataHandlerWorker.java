@@ -30,16 +30,16 @@ import com.esotericsoftware.kryo.io.ByteBufferOutputStream;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-public class OutgoingDataHandlerWorker implements Runnable{
+public class OldOutgoingDataHandlerWorker implements Runnable{
 
-	final private Logger LOG = LoggerFactory.getLogger(OutgoingDataHandlerWorker.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldOutgoingDataHandlerWorker.class);
 	
 	// TX data
 	private Selector selector;
 	
 	private boolean goOn = true;
 	
-	public OutgoingDataHandlerWorker(Selector selector){
+	public OldOutgoingDataHandlerWorker(Selector selector){
 		this.selector = selector;
 	}
 	

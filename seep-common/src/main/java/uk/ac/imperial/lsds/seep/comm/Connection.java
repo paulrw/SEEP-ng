@@ -1,7 +1,10 @@
 package uk.ac.imperial.lsds.seep.comm;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
@@ -41,6 +44,22 @@ public class Connection {
 		// TODO: reopen if closed
 		
 		return null;
+	}
+	
+//	public SocketChannel getSocketChannel(){
+//		SocketAddress sa = s.getLocalSocketAddress();
+//		SocketChannel channel = null;
+//		try {
+//			channel = SocketChannel.open(sa);
+//		} 
+//		catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return channel;
+//	}
+	
+	public InetSocketAddress getInetSocketAddress(){
+		return new InetSocketAddress(this.ep.getIp(), this.ep.getPort());
 	}
 	
 	public void destroy(){

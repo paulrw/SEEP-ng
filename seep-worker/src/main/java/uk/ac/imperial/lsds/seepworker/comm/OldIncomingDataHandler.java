@@ -25,9 +25,9 @@ import uk.ac.imperial.lsds.seepworker.runtimeengine.DataStructureAdapter;
 * IncomingDataHandler. This is in charge of managing incoming data connections and associate a thread to them
 */
 
-public class IncomingDataHandler implements Runnable{
+public class OldIncomingDataHandler implements Runnable{
 
-	final private Logger LOG = LoggerFactory.getLogger(IncomingDataHandler.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldIncomingDataHandler.class);
 	
 	//private Operator owner;
 	private CoreRE owner;
@@ -44,7 +44,7 @@ public class IncomingDataHandler implements Runnable{
 		this.connPort = connPort;
 	}
 
-	public IncomingDataHandler(CoreRE owner, int connPort, Map<String, Integer> idxMapper, DataStructureAdapter dsa){
+	public OldIncomingDataHandler(CoreRE owner, int connPort, Map<String, Integer> idxMapper, DataStructureAdapter dsa){
 		this.owner = owner;
 		this.connPort = connPort;
 		//this.selector = initSelector();
@@ -62,7 +62,7 @@ public class IncomingDataHandler implements Runnable{
 			LOG.info("-> IncomingDataHandler listening in port: {}", connPort);
 			//Upstream id
 			while(goOn){
-				Thread newConn = new Thread(new IncomingDataHandlerWorker(incDataServerSocket.accept(), owner, idxMapper, dsa));
+				Thread newConn = new Thread(new OldIncomingDataHandlerWorker(incDataServerSocket.accept(), owner, idxMapper, dsa));
 				newConn.start();
 			}
 			incDataServerSocket.close();

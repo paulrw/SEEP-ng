@@ -30,9 +30,9 @@ import uk.ac.imperial.lsds.seep.infrastructure.Node;
  * BasicCommunicationUtils. This class provides simple methods to communicate between master and secondary nodes
  */
 
-public class NodeManagerCommunication {
+public class OldNodeManagerCommunication {
 	
-	final private Logger LOG = LoggerFactory.getLogger(NodeManagerCommunication.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldNodeManagerCommunication.class);
 	
     public boolean sendObject(Node n, Object o) {
         return sendObject(n, 0, o);

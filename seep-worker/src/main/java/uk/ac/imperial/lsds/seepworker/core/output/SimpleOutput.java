@@ -1,10 +1,10 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
+import java.nio.channels.Selector;
 import java.util.Map;
 
-import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
+import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
@@ -12,15 +12,26 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 public class SimpleOutput implements OutputAdapter {
 
 	private int streamId;
-	private List<DownstreamConnection> cons;
 	private Router router;
-	private Map<Integer, OutputQueue> outputQueues;
+	private Map<Integer, OutputBuffer> outputBuffers;
 	
-	public SimpleOutput(List<DownstreamConnection> cons){
-		this.cons = cons;
-		this.router = Router.buildRouterFor(cons);
-		this.streamId = cons.get(0).getStreamId();
-		this.outputQueues = createOutputQueuesFor(cons);
+	private Selector s;
+	
+	public SimpleOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, DataOrigin dOrigin){
+		this.router = router;
+		this.streamId = streamId;
+		this.outputBuffers = outputBuffers;
+		// we're only implementing network for now
+		if(dOrigin == DataOrigin.NETWORK){
+			try {
+				s = Selector.open();
+			} 
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 
 	@Override
@@ -30,20 +41,20 @@ public class SimpleOutput implements OutputAdapter {
 
 	@Override
 	public void send(OTuple o) {
-		outputQueues.get(0).dispatch(o.getData());
+		outputBuffers.get(0).write(o.getData());
 		
 	}
 
 	@Override
 	public void sendAll(OTuple o) {
-		// TODO Auto-generated method stub
-		// send (write) to all queues
+		for(OutputBuffer ob : outputBuffers.values()){
+			ob.write(o.getData());
+		}
 	}
 
 	@Override
 	public void sendKey(OTuple o, int key) {
-		// TODO Auto-generated method stub
-		// send to the queue that hash
+		// TODO;
 	}
 
 	@Override
@@ -88,11 +99,6 @@ public class SimpleOutput implements OutputAdapter {
 		// careful again
 	}
 	
-	private Map<Integer, OutputQueue> createOutputQueuesFor(List<DownstreamConnection> cons){
-		Map<Integer, OutputQueue> outputs = new HashMap<>();
-		
-		return outputs;
-	}
 	
 	class Sender implements Runnable {
 

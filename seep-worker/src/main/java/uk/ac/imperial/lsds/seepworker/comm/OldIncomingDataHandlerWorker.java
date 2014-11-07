@@ -34,9 +34,9 @@ import uk.ac.imperial.lsds.seepworker.runtimeengine.DataStructureI;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 
-public class IncomingDataHandlerWorker implements Runnable{
+public class OldIncomingDataHandlerWorker implements Runnable{
 
-	final private Logger LOG = LoggerFactory.getLogger(IncomingDataHandlerWorker.class);
+	final private Logger LOG = LoggerFactory.getLogger(OldIncomingDataHandlerWorker.class);
 	
 	private Socket upstreamSocket = null;
 	private CoreRE owner = null;
@@ -45,7 +45,7 @@ public class IncomingDataHandlerWorker implements Runnable{
 	private DataStructureAdapter dsa;
 	private Kryo k = null;
 	
-	public IncomingDataHandlerWorker(Socket upstreamSocket, CoreRE owner, Map<String, Integer> idxMapper, DataStructureAdapter dsa){
+	public OldIncomingDataHandlerWorker(Socket upstreamSocket, CoreRE owner, Map<String, Integer> idxMapper, DataStructureAdapter dsa){
 		//upstream id
 		this.upstreamSocket = upstreamSocket;
 		this.owner = owner;
