@@ -2,6 +2,4 @@ include \
 	"seep-common",
 	"seep-worker",
 	"seep-master",
-	"seep-java2sdg",
-	"seep-streamsql",
-	"seep-contribs"
+	"seep-java2sdg"
