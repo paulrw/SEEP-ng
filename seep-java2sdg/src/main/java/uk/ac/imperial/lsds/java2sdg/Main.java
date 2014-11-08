@@ -41,6 +41,7 @@ import uk.ac.imperial.lsds.java2sdg.flowanalysis.LiveVariableAnalysis;
 import uk.ac.imperial.lsds.java2sdg.flowanalysis.TEBoundaryAnalysis;
 import uk.ac.imperial.lsds.java2sdg.input.SourceCodeHandler;
 import uk.ac.imperial.lsds.java2sdg.output.DOTExporter;
+import uk.ac.imperial.lsds.java2sdg.output.GEXFExporter;
 
 public class Main {
 
@@ -53,7 +54,7 @@ public class Main {
 		// Define options
 		org.apache.commons.cli.Options options = new org.apache.commons.cli.Options();
 		options.addOption("h", "help", false, "print this message");
-		options.addOption("t", "target", true, "desired target. dot for DOT file or seepjar for SEEP runnable jar");
+		options.addOption("t", "target", true, "desired target. dot for DOT file OR gexf for GEXF files OR  seepjar for SEEP runnable jar");
 		options.addOption("o", "output", true, "desired output file name");
 		options.addOption("i", "input", true, "the name of the input program");
 		options.addOption("cp", "classpath", true, "the path to additional libraries and code used by the input program");
@@ -74,7 +75,7 @@ public class Main {
 		
 		// Get values
 		String className = null;
-		String pathToSeepJar = "../seep-system/target/seep-system-0.0.1-SNAPSHOT.jar";
+		String pathToSeepJar = "../seep-common/build/libs/seep-common-0.1.jar";
 		String pathToDriverFile = null;
 		String outputTarget = null;
 		String outputFileName = null;
@@ -116,7 +117,7 @@ public class Main {
 				System.err.println("t parameter cannot be empty. Please specify a target, dot/seepjar");
 				System.exit(0);
 			}
-			if(!(outputTarget.equals("dot") || outputTarget.equals("seepjar"))){
+			if(!(outputTarget.equals("dot") || outputTarget.equals("seepjar") || outputTarget.equals("gexf"))){
 				System.err.println("Invalid target option");
 				formatter.printHelp( "java2sdg", options );
 				System.exit(0);
@@ -130,7 +131,7 @@ public class Main {
 		
 		// Get java.home to access rt.jar, required by soot
 		String javaHome = System.getProperty("java.home");
-		String sootClassPath = javaHome+"/lib/rt.jar:"+pathToSeepJar+":./";
+		String sootClassPath = javaHome+"/lib/rt.jar:"+pathToSeepJar+":"+"../seep-worker/build/libs/seep-worker-0.1.jar"+":./";
 		String pathToSourceCode = pathToDriverFile+"/"+className;
 		
 		/** Parse input program source code. This stage performs operations at high level only **/
@@ -218,6 +219,12 @@ public class Main {
 			DOTExporter exporter = DOTExporter.getInstance();
 			exporter.export(sdg, outputFileName);
 			log.info("Exporting SDG to DOT file...OK");
+		}
+		else if(outputTarget.equals("gexf")){
+			log.info("Exporting GEXF to DOT file...");
+			GEXFExporter exporter = GEXFExporter.getInstance();
+			exporter.export(sdg, outputFileName);
+			log.info("Exporting GEXF to DOT file...OK");
 		}
 		else if(outputTarget.equals("seepjar")){
 			log.info("Exporting SEEP runnable query...");
