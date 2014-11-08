@@ -1,10 +1,8 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
-import java.io.IOException;
 import java.nio.channels.Selector;
 import java.util.Map;
 
-import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
@@ -17,21 +15,16 @@ public class SimpleOutput implements OutputAdapter {
 	
 	private Selector s;
 	
-	public SimpleOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, DataOrigin dOrigin){
+	public SimpleOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, Selector s){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
-		// we're only implementing network for now
-		if(dOrigin == DataOrigin.NETWORK){
-			try {
-				s = Selector.open();
-			} 
-			catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
+		this.s = s;
+	}
+	
+	@Override
+	public Map<Integer, OutputBuffer> getOutputBuffers(){
+		return outputBuffers;
 	}
 
 	@Override
@@ -41,7 +34,7 @@ public class SimpleOutput implements OutputAdapter {
 
 	@Override
 	public void send(OTuple o) {
-		outputBuffers.get(0).write(o.getData());
+		int remaining = outputBuffers.get(0).write(o.getData());
 		
 	}
 

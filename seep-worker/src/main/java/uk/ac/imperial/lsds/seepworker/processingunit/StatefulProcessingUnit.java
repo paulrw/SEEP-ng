@@ -739,7 +739,7 @@ public class StatefulProcessingUnit implements IProcessingUnit{
 			
 			long startcopy = System.currentTimeMillis();
 			
-			toBackup = StateWrapper.deepCopy(runningOpState, owner.getRuntimeClassLoader());
+//			toBackup = StateWrapper.deepCopy(runningOpState, owner.getRuntimeClassLoader());
 			ArrayList<OutputBuffer> outputBuffers = ctx.getOutputBuffers();
 			
 			long stopcopy = System.currentTimeMillis();

@@ -41,8 +41,8 @@ import uk.ac.imperial.lsds.seepworker.comm.OldNodeManagerCommunication;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPIHandler;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPINodeDescription;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPIRegistryEntry;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectInputStream;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectInputStream;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seepworker.operator.OldEndPoint;
 import uk.ac.imperial.lsds.seepworker.processingunit.Operator;
 import uk.ac.imperial.lsds.seepworker.processingunit.StateWrapper;
@@ -58,7 +58,7 @@ public class NodeManager{
 	final private static Logger LOG = LoggerFactory.getLogger(NodeManager.class);
 	
 	private WorkerNodeDescription nodeDescr;
-	private RuntimeClassLoader rcl = null;
+//	private RuntimeClassLoader rcl = null;
 	
 	//Endpoint of the central node
 	private int bindPort;
@@ -92,7 +92,7 @@ public class NodeManager{
 			e.printStackTrace();
 		}
         
-		rcl = new RuntimeClassLoader(new URL[0], this.getClass().getClassLoader());
+//		rcl = new RuntimeClassLoader(new URL[0], this.getClass().getClassLoader());
 		
 		if (NodeManager.enableRestAPI) {
 //			NodeManager.restAPIRegistry = new HashMap<>();
@@ -117,12 +117,12 @@ public class NodeManager{
 		// Get unique identifier for this node
 		int nodeId = nodeDescr.getNodeId();
 		//Initialize node engine ( CoreRE + ProcessingUnit )
-		CoreRE core = new CoreRE(nodeDescr, rcl);
+//		CoreRE core = new CoreRE(nodeDescr, rcl);
 		
 		//Local variables
 		ServerSocket serverSocket = null;
 		PrintWriter out = null;
-		ExtendedObjectInputStream ois = null;
+//		ExtendedObjectInputStream ois = null;
 		
 		Object o = null;
 		boolean listen = true;
@@ -139,27 +139,27 @@ public class NodeManager{
 				//Establish output stream
 				out = new PrintWriter(clientSocket.getOutputStream(), true);
 				//Establish input stream, which receives serialized objects
-				ois = new ExtendedObjectInputStream(clientSocket.getInputStream(), rcl);
+//				ois = new ExtendedObjectInputStream(clientSocket.getInputStream(), rcl);
 				//Read the serialized object sent.
-				ObjectStreamClass osc = ois.readClassDescriptor();
+//				ObjectStreamClass osc = ois.readClassDescriptor();
 				//Lazy load of the required class in case is an operator
-				if(!(osc.getName().equals("java.lang.String")) && !(osc.getName().equals("java.lang.Integer"))){
-					LOG.debug("-> Received Unknown Class -> {} <- Using custom class loader to resolve it", osc.getName());
-					rcl.loadClass(osc.getName());
-					o = ois.readObject();
-					if(o instanceof Operator){
-						LOG.debug("-> OPERATOR resolved, OP-ID: {}", ((Operator)o).getOperatorId());
-	                }
-					else if (o instanceof StateWrapper){
-						LOG.info("-> STATE resolved, Class: {}", o.getClass().getName());
-					}
-	                
-	                out.println("ack");
-	                out.flush();
-				}
-				else{
-					o = ois.readObject();
-				}
+//				if(!(osc.getName().equals("java.lang.String")) && !(osc.getName().equals("java.lang.Integer"))){
+//					LOG.debug("-> Received Unknown Class -> {} <- Using custom class loader to resolve it", osc.getName());
+////					rcl.loadClass(osc.getName());
+////					o = ois.readObject();
+//					if(o instanceof Operator){
+//						LOG.debug("-> OPERATOR resolved, OP-ID: {}", ((Operator)o).getOperatorId());
+//	                }
+//					else if (o instanceof StateWrapper){
+//						LOG.info("-> STATE resolved, Class: {}", o.getClass().getName());
+//					}
+//	                
+//	                out.println("ack");
+//	                out.flush();
+//				}
+//				else{
+////					o = ois.readObject();
+//				}
 
 				/**
 				 * refactoring to master node
@@ -205,43 +205,43 @@ public class NodeManager{
 							LOG.error("-> No access to the CODE");
 						}
 					}
-					if(tokens[0].equals("STOP")){
-						LOG.info("-> STOP Command");
-						core.stopDataProcessing();
-						
-	                    // Stop the monitoring slave, this node is stopping
-						LOG.warn("MONITOR SHOULD STOP HERE, REDESIGNING...");
-	                    //if (monitorSlave != null) {
-	                    //    monitorSlave.stop();
-	                    //}
-	                    
-	                    listen = false;
-						
-	                    LOG.info("Sending ACK message back to the master");
-	                    out.println("ack");
-						out.flush();
-	                    
-	                    //since listen=false now, finish the loop
-						continue;
-					}
-					if(tokens[0].equals("SET-RUNTIME")) {
-						LOG.info("-> SET-RUNTIME Command");
-						core.setRuntime();
-						out.println("ack");
-					}
-					if(tokens[0].equals("START")){
-						LOG.info("-> START Command");
-	                    core.startDataProcessingAsync();
-	                    
-	                    //We call the processData method on the source
-	                    /// \todo {Is START used? is necessary to answer with ack? why is this not using startOperator?}
-	                    out.println("ack");
-					}
-					if(tokens[0].equals("CLOCK")){
-						LOG.info("-> CLOCK Command");
-						NodeManager.clock = System.currentTimeMillis();
-						out.println("ack");
-					}
+//					if(tokens[0].equals("STOP")){
+//						LOG.info("-> STOP Command");
+//						core.stopDataProcessing();
+//						
+//	                    // Stop the monitoring slave, this node is stopping
+//						LOG.warn("MONITOR SHOULD STOP HERE, REDESIGNING...");
+//	                    //if (monitorSlave != null) {
+//	                    //    monitorSlave.stop();
+//	                    //}
+//	                    
+//	                    listen = false;
+//						
+//	                    LOG.info("Sending ACK message back to the master");
+//	                    out.println("ack");
+//						out.flush();
+//	                    
+//	                    //since listen=false now, finish the loop
+//						continue;
+//					}
+//					if(tokens[0].equals("SET-RUNTIME")) {
+//						LOG.info("-> SET-RUNTIME Command");
+//						core.setRuntime();
+//						out.println("ack");
+//					}
+//					if(tokens[0].equals("START")){
+//						LOG.info("-> START Command");
+//	                    core.startDataProcessingAsync();
+//	                    
+//	                    //We call the processData method on the source
+//	                    /// \todo {Is START used? is necessary to answer with ack? why is this not using startOperator?}
+//	                    out.println("ack");
+//					}
+//					if(tokens[0].equals("CLOCK")){
+//						LOG.info("-> CLOCK Command");
+//						NodeManager.clock = System.currentTimeMillis();
+//						out.println("ack");
+//					}
 				}
 				else if(o instanceof PhysicalSeepQuery){
 					/**
@@ -267,7 +267,7 @@ public class NodeManager{
 				}
 	           
 	            o = null;
-				ois.close();
+//				ois.close();
 				out.close();
 				clientSocket.close();
 			}
@@ -291,9 +291,9 @@ public class NodeManager{
 			System.out.println("IllegalThreadStateException, no problem, monitor thing");
 			itse.printStackTrace();
 		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} 
+//		catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		} 
 		catch (SecurityException e) {
 			e.printStackTrace();
 		} 
@@ -334,200 +334,200 @@ public class NodeManager{
 //}
 	
 	
-	public void _init() {
-		// Get unique identifier for this node
-		int nodeId = nodeDescr.getNodeId();
-		//Initialize node engine ( CoreRE + ProcessingUnit )
-		CoreRE core = new CoreRE(nodeDescr, rcl);
-		
-		//Local variables
-		ServerSocket serverSocket = null;
-		PrintWriter out = null;
-		ExtendedObjectInputStream ois = null;
-		
-		Object o = null;
-		boolean listen = true;
-		
-		try{
-			serverSocket = new ServerSocket(ownPort);
-			LOG.info("Waiting for incoming requests on port: {}", ownPort);
-			Socket clientSocket = null;
-			//Send bootstrap information
-			bcu.sendBootstrapInformation(bindPort, bindAddr, ownPort);
-			while(listen){
-				//Accept incoming connections
-				clientSocket = serverSocket.accept();
-				//Establish output stream
-				out = new PrintWriter(clientSocket.getOutputStream(), true);
-				//Establish input stream, which receives serialized objects
-				ois = new ExtendedObjectInputStream(clientSocket.getInputStream(), rcl);
-				//Read the serialized object sent.
-				ObjectStreamClass osc = ois.readClassDescriptor();
-				//Lazy load of the required class in case is an operator
-				if(!(osc.getName().equals("java.lang.String")) && !(osc.getName().equals("java.lang.Integer"))){
-					LOG.debug("-> Received Unknown Class -> {} <- Using custom class loader to resolve it", osc.getName());
-					rcl.loadClass(osc.getName());
-					o = ois.readObject();
-					if(o instanceof Operator){
-						LOG.debug("-> OPERATOR resolved, OP-ID: {}", ((Operator)o).getOperatorId());
-                    }
-					else if (o instanceof StateWrapper){
-						LOG.info("-> STATE resolved, Class: {}", o.getClass().getName());
-					}
-                    
-                    out.println("ack");
-                    out.flush();
-				}
-				else{
-					o = ois.readObject();
-				}
-                
-				//Check the class of the object received and initialized accordingly
-				if(o instanceof ArrayList<?>){
-					core.pushStarTopology((ArrayList<OldEndPoint>)o);
-                    
-                    out.println("ack");
-                    out.flush();
-				}
-				else if(o instanceof Operator){
-                    // Initialize monitor slave, start thread, we do it at
-                    // this stage because we need to know the node is running an operator
-                    int operatorId = ((Operator)o).getOperatorId();
-
-                    LOG.warn("A MONITOR SHOULD RUN HERE, DISABLED FOR REDESIGN...");
-                    //MonitorSlaveFactory factory = new MonitorSlaveFactory(operatorId);
-                    //monitorSlave = factory.create();
-
-                    //monitorT = new Thread(monitorSlave);
-                    //monitorT.start();
-
-                    LOG.info("-> Node Monitor running for operatorId={}", operatorId);
-                    
-					core.pushOperator((Operator)o);
-                    
-                    out.println("ack");
-                    out.flush();
-                }
-				else if(o instanceof Integer){
-					core.setOpReady((Integer)o);
-                    
-                    out.println("ack");
-                    out.flush();
-				}
-				else if(o instanceof String){
-					String tokens[] = ((String)o).split(" ");
-					
-                    LOG.debug("Tokens received: " +tokens[0]);
-					if(tokens[0].equals("CODE")){
-						LOG.info("-> CODE Command");
-						//Send ACK back
-						out.println("ack");
-						// Establish subconnection to receive the code
-						LOG.info("-> Waiting for receiving the CODE...");
-						Socket subConnection = serverSocket.accept();
-						DataInputStream dis = new DataInputStream(subConnection.getInputStream());
-						int codeSize = dis.readInt();
-						byte[] serializedFile = new byte[codeSize];
-						dis.readFully(serializedFile);
-						int bytesRead = serializedFile.length;
-						if(bytesRead != codeSize){
-							LOG.warn("Mismatch between read and file size");
-						}
-						else{
-							LOG.info("-> CODE received completely");
-						}
-						//Here I have the serialized bytes of the file, we materialize the real file
-						//For now the name of the file is always query.jar
-						FileOutputStream fos = new FileOutputStream(new File("query.jar"));
-						fos.write(serializedFile);
-						fos.close();
-						dis.close();
-						subConnection.close();
-						out.println("ack");
-						//At this point we should have the file on disk
-						File pathToCode = new File("query.jar");
-						if(pathToCode.exists()){
-							LOG.info("-> Loading CODE from: {}", pathToCode.getAbsolutePath());
-							loadCodeToRuntime(pathToCode);
-						}
-						else{
-							LOG.error("-> No access to the CODE");
-						}
-					}
-					if(tokens[0].equals("STOP")){
-						LOG.info("-> STOP Command");
-						core.stopDataProcessing();
-						
-                        // Stop the monitoring slave, this node is stopping
-						LOG.warn("MONITOR SHOULD STOP HERE, REDESIGNING...");
-                        //if (monitorSlave != null) {
-                        //    monitorSlave.stop();
-                        //}
-                        
-                        listen = false;
-						
-                        LOG.info("Sending ACK message back to the master");
-                        out.println("ack");
-						out.flush();
-                        
-                        //since listen=false now, finish the loop
-						continue;
-					}
-					if(tokens[0].equals("SET-RUNTIME")) {
-						LOG.info("-> SET-RUNTIME Command");
-						core.setRuntime();
-						out.println("ack");
-					}
-					if(tokens[0].equals("START")){
-						LOG.info("-> START Command");
-                        core.startDataProcessingAsync();
-                        
-                        //We call the processData method on the source
-                        /// \todo {Is START used? is necessary to answer with ack? why is this not using startOperator?}
-                        out.println("ack");
-					}
-					if(tokens[0].equals("CLOCK")){
-						LOG.info("-> CLOCK Command");
-						NodeManager.clock = System.currentTimeMillis();
-						out.println("ack");
-					}
-				}
-               
-                o = null;
-				ois.close();
-				out.close();
-				clientSocket.close();
-			}
-            
-            LOG.info("Waiting before stopping manager and terminating this process");
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex) {
-                LOG.error("Unable to wait for 5 seconds");
-            }
-            
-            serverSocket.close();
-            System.exit(0);
-		}
-		//For now send nack, probably this is not the best option...
-		catch(IOException io){
-			System.out.println("IOException: "+io.getMessage());
-			io.printStackTrace();
-		}
-		catch(IllegalThreadStateException itse){
-			System.out.println("IllegalThreadStateException, no problem, monitor thing");
-			itse.printStackTrace();
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} 
-		catch (SecurityException e) {
-			e.printStackTrace();
-		} 
-		catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} 
-	}
+//	public void _init() {
+//		// Get unique identifier for this node
+//		int nodeId = nodeDescr.getNodeId();
+//		//Initialize node engine ( CoreRE + ProcessingUnit )
+//		CoreRE core = new CoreRE(nodeDescr, rcl);
+//		
+//		//Local variables
+//		ServerSocket serverSocket = null;
+//		PrintWriter out = null;
+//		ExtendedObjectInputStream ois = null;
+//		
+//		Object o = null;
+//		boolean listen = true;
+//		
+//		try{
+//			serverSocket = new ServerSocket(ownPort);
+//			LOG.info("Waiting for incoming requests on port: {}", ownPort);
+//			Socket clientSocket = null;
+//			//Send bootstrap information
+//			bcu.sendBootstrapInformation(bindPort, bindAddr, ownPort);
+//			while(listen){
+//				//Accept incoming connections
+//				clientSocket = serverSocket.accept();
+//				//Establish output stream
+//				out = new PrintWriter(clientSocket.getOutputStream(), true);
+//				//Establish input stream, which receives serialized objects
+//				ois = new ExtendedObjectInputStream(clientSocket.getInputStream(), rcl);
+//				//Read the serialized object sent.
+//				ObjectStreamClass osc = ois.readClassDescriptor();
+//				//Lazy load of the required class in case is an operator
+//				if(!(osc.getName().equals("java.lang.String")) && !(osc.getName().equals("java.lang.Integer"))){
+//					LOG.debug("-> Received Unknown Class -> {} <- Using custom class loader to resolve it", osc.getName());
+//					rcl.loadClass(osc.getName());
+//					o = ois.readObject();
+//					if(o instanceof Operator){
+//						LOG.debug("-> OPERATOR resolved, OP-ID: {}", ((Operator)o).getOperatorId());
+//                    }
+//					else if (o instanceof StateWrapper){
+//						LOG.info("-> STATE resolved, Class: {}", o.getClass().getName());
+//					}
+//                    
+//                    out.println("ack");
+//                    out.flush();
+//				}
+//				else{
+//					o = ois.readObject();
+//				}
+//                
+//				//Check the class of the object received and initialized accordingly
+//				if(o instanceof ArrayList<?>){
+//					core.pushStarTopology((ArrayList<OldEndPoint>)o);
+//                    
+//                    out.println("ack");
+//                    out.flush();
+//				}
+//				else if(o instanceof Operator){
+//                    // Initialize monitor slave, start thread, we do it at
+//                    // this stage because we need to know the node is running an operator
+//                    int operatorId = ((Operator)o).getOperatorId();
+//
+//                    LOG.warn("A MONITOR SHOULD RUN HERE, DISABLED FOR REDESIGN...");
+//                    //MonitorSlaveFactory factory = new MonitorSlaveFactory(operatorId);
+//                    //monitorSlave = factory.create();
+//
+//                    //monitorT = new Thread(monitorSlave);
+//                    //monitorT.start();
+//
+//                    LOG.info("-> Node Monitor running for operatorId={}", operatorId);
+//                    
+//					core.pushOperator((Operator)o);
+//                    
+//                    out.println("ack");
+//                    out.flush();
+//                }
+//				else if(o instanceof Integer){
+//					core.setOpReady((Integer)o);
+//                    
+//                    out.println("ack");
+//                    out.flush();
+//				}
+//				else if(o instanceof String){
+//					String tokens[] = ((String)o).split(" ");
+//					
+//                    LOG.debug("Tokens received: " +tokens[0]);
+//					if(tokens[0].equals("CODE")){
+//						LOG.info("-> CODE Command");
+//						//Send ACK back
+//						out.println("ack");
+//						// Establish subconnection to receive the code
+//						LOG.info("-> Waiting for receiving the CODE...");
+//						Socket subConnection = serverSocket.accept();
+//						DataInputStream dis = new DataInputStream(subConnection.getInputStream());
+//						int codeSize = dis.readInt();
+//						byte[] serializedFile = new byte[codeSize];
+//						dis.readFully(serializedFile);
+//						int bytesRead = serializedFile.length;
+//						if(bytesRead != codeSize){
+//							LOG.warn("Mismatch between read and file size");
+//						}
+//						else{
+//							LOG.info("-> CODE received completely");
+//						}
+//						//Here I have the serialized bytes of the file, we materialize the real file
+//						//For now the name of the file is always query.jar
+//						FileOutputStream fos = new FileOutputStream(new File("query.jar"));
+//						fos.write(serializedFile);
+//						fos.close();
+//						dis.close();
+//						subConnection.close();
+//						out.println("ack");
+//						//At this point we should have the file on disk
+//						File pathToCode = new File("query.jar");
+//						if(pathToCode.exists()){
+//							LOG.info("-> Loading CODE from: {}", pathToCode.getAbsolutePath());
+//							loadCodeToRuntime(pathToCode);
+//						}
+//						else{
+//							LOG.error("-> No access to the CODE");
+//						}
+//					}
+//					if(tokens[0].equals("STOP")){
+//						LOG.info("-> STOP Command");
+//						core.stopDataProcessing();
+//						
+//                        // Stop the monitoring slave, this node is stopping
+//						LOG.warn("MONITOR SHOULD STOP HERE, REDESIGNING...");
+//                        //if (monitorSlave != null) {
+//                        //    monitorSlave.stop();
+//                        //}
+//                        
+//                        listen = false;
+//						
+//                        LOG.info("Sending ACK message back to the master");
+//                        out.println("ack");
+//						out.flush();
+//                        
+//                        //since listen=false now, finish the loop
+//						continue;
+//					}
+//					if(tokens[0].equals("SET-RUNTIME")) {
+//						LOG.info("-> SET-RUNTIME Command");
+//						core.setRuntime();
+//						out.println("ack");
+//					}
+//					if(tokens[0].equals("START")){
+//						LOG.info("-> START Command");
+//                        core.startDataProcessingAsync();
+//                        
+//                        //We call the processData method on the source
+//                        /// \todo {Is START used? is necessary to answer with ack? why is this not using startOperator?}
+//                        out.println("ack");
+//					}
+//					if(tokens[0].equals("CLOCK")){
+//						LOG.info("-> CLOCK Command");
+//						NodeManager.clock = System.currentTimeMillis();
+//						out.println("ack");
+//					}
+//				}
+//               
+//                o = null;
+//				ois.close();
+//				out.close();
+//				clientSocket.close();
+//			}
+//            
+//            LOG.info("Waiting before stopping manager and terminating this process");
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException ex) {
+//                LOG.error("Unable to wait for 5 seconds");
+//            }
+//            
+//            serverSocket.close();
+//            System.exit(0);
+//		}
+//		//For now send nack, probably this is not the best option...
+//		catch(IOException io){
+//			System.out.println("IOException: "+io.getMessage());
+//			io.printStackTrace();
+//		}
+//		catch(IllegalThreadStateException itse){
+//			System.out.println("IllegalThreadStateException, no problem, monitor thing");
+//			itse.printStackTrace();
+//		} 
+//		catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		} 
+//		catch (SecurityException e) {
+//			e.printStackTrace();
+//		} 
+//		catch (IllegalArgumentException e) {
+//			e.printStackTrace();
+//		} 
+//	}
 	
 	private void loadCodeToRuntime(File pathToCode){
 		URL urlToCode = null;
@@ -536,7 +536,7 @@ public class NodeManager{
 			System.out.println("Loading into class loader: "+urlToCode.toString());
 			URL[] urls = new URL[1];
 			urls[0] = urlToCode;
-			rcl.addURL(urlToCode);
+//			rcl.addURL(urlToCode);
 		}
 		catch (MalformedURLException e) {
 			e.printStackTrace();

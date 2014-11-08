@@ -58,7 +58,7 @@ public class OldIncomingDataHandlerWorker implements Runnable{
 	private Kryo initializeKryo(){
 		//optimize here kryo
 		Kryo k = new Kryo();
-		k.setClassLoader(owner.getRuntimeClassLoader());
+		//k.setClassLoader(owner.getRuntimeClassLoader());
 		
 		k.register(ArrayList.class, new ArrayListSerializer());
 		k.register(Payload.class);

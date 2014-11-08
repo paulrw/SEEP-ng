@@ -5,36 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
+import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.comm.Connection;
-import uk.ac.imperial.lsds.seepworker.comm.NetworkWriter;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 public class OutputAdapterFactory {
 
-	public static OutputAdapter buildOutputAdapterOfTypeForOps(int streamId, List<DownstreamConnection> cons){
-		
-		DataOrigin dOrigin = cons.get(0).getExpectedDataOriginOfDownstream();
-		Map<Integer, OutputBuffer> outputBuffers = createOutputQueuesFor(cons);
+	public static OutputAdapter buildOutputAdapterOfTypeNetworkForOps(int streamId, List<DownstreamConnection> cons, Selector s){
+		// Create a router for the outputAdapter with the downstreamConn info
 		Router r = Router.buildRouterFor(cons);
-		
-		//List<Connection> connections = getConnectionsFrom(cons);
-		
-		if(dOrigin == DataOrigin.NETWORK) {
-			//NetworkWriter nw = new NetworkWriter(cons, outputBuffers);
+
+		// Get a map of id-outputBuffer, where id is the downstream op id
+		Map<Integer, OutputBuffer> outputBuffers = new HashMap<>();
+		for(DownstreamConnection dc : cons){
+			int id = dc.getDownstreamOperator().getOperatorId();
+			Connection c = new Connection(((PhysicalOperator)dc.getDownstreamOperator()).getWrappingEndPoint());
+			OutputBuffer ob = new OutputBuffer(id, c);
+			outputBuffers.put(id, ob);
 		}
-		
-		OutputAdapter oa = new SimpleOutput(streamId, r, outputBuffers, dOrigin);
+		// TODO: left for configuration whether this should be a simpleoutput or something else...
+		OutputAdapter oa = new SimpleOutput(streamId, r, outputBuffers, s);
 		return oa;
 	}
-	
-	private static Map<Integer, OutputBuffer> createOutputQueuesFor(List<DownstreamConnection> cons){
-		Map<Integer, OutputBuffer> outputs = new HashMap<>();
-		for(DownstreamConnection dc : cons){
-			OutputBuffer ob = new OutputBuffer(dc.getStreamId(), dc.getDownstreamOperator().getOperatorId());
-			outputs.put(dc.getDownstreamOperator().getOperatorId(), ob);
-		}
-		return outputs;
-	}
+
 }

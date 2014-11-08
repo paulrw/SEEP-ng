@@ -8,30 +8,33 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
+import uk.ac.imperial.lsds.seepworker.core.output.Writer;
 
-public class NetworkWriter {
+public class NetworkWriter implements Writer {
 
 	private Selector selector;
+	private int streamId;
 	
 	private boolean working = false;
+	private Thread worker;
 	
 	// this will actually receive whatever objects we want to attach to the key
-	public NetworkWriter(List<Connection> cons, Map<Integer, OutputBuffer> outputBuffers){
+	public NetworkWriter(int streamId, Map<Integer, OutputBuffer> outputBuffers, Selector selector){
+		this.streamId = streamId;
 		try{
-			this.selector = Selector.open();
-			for(Connection c : cons){
+			for(OutputBuffer ob : outputBuffers.values()){	
+				Connection c = ob.getConnection();
 				SocketChannel channel = SocketChannel.open();
 				InetSocketAddress address = c.getInetSocketAddress();
 				
 		        Socket socket = channel.socket();
-		        socket.setKeepAlive(true);
-		        socket.setTcpNoDelay(true);
+		        socket.setKeepAlive(true); // Unlikely in non-production scenarios we'll be up for more than 2 hours but...
+		        socket.setTcpNoDelay(true); // Disabling Nagle's algorithm
 		        try {
 		            channel.connect(address);
 		        } 
@@ -43,17 +46,40 @@ public class NetworkWriter {
 		            channel.close();
 		            throw io;
 		        }
-				
 				channel.configureBlocking(false);
 				int interestSet = SelectionKey.OP_CONNECT;
 				SelectionKey key = channel.register(selector, interestSet);
-				// Receiver r = new Receiver()
-				key.attach(this);
+				key.attach(ob);
 			}
 		}
 		catch(IOException io){
 			io.printStackTrace();
 		}
+		worker = new Thread(new Worker());
+		worker.setName(this.getClass().getName());
+	}
+	
+	@Override
+	public void start() {
+		this.working = true;
+		worker.start();
+		// TODO: set uncaught exception handler, etc...
+	}
+
+	@Override
+	public void stop() {
+		working = false;
+		// TODO: cleaning stuff, etc
+	}
+	
+	private void setWritable(SelectionKey key){
+		final int newOps = key.interestOps() & ~SelectionKey.OP_WRITE;
+		key.interestOps(newOps);
+	}
+	
+	private void unsetWritable(SelectionKey key){
+		final int newOps = key.interestOps() & ~SelectionKey.OP_WRITE;
+		key.interestOps(newOps);
 	}
 	
 	class Worker implements Runnable{
@@ -70,6 +96,10 @@ public class NetworkWriter {
 					Iterator<SelectionKey> keyIt = selectedKeys.iterator();
 					while(keyIt.hasNext()){
 						SelectionKey key = keyIt.next();
+						
+						OutputBuffer ob = (OutputBuffer)key.attachment();
+						SocketChannel channel = (SocketChannel) key.channel();
+						
 						// connect events
 						if(key.isConnectable()){
 							SocketChannel sc = (SocketChannel) key.channel();
@@ -78,7 +108,10 @@ public class NetworkWriter {
 						}
 						// write events
 						if(key.isWritable()){
-							
+							// get attachment object (would be the active channel) 
+							// and write what we have in the buffer
+							channel.write(ob.getBuffer());
+							unsetWritable(key);
 						}
 					}
 					

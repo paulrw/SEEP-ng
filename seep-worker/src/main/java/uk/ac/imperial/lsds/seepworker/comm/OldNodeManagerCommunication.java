@@ -23,7 +23,6 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectOutputStream;
 import uk.ac.imperial.lsds.seep.infrastructure.Node;
 
 /**
@@ -44,7 +43,7 @@ public class OldNodeManagerCommunication {
 		int port = n.getPort();
 /// \bug {creating socket again and again.}
 		Socket connection = null;
-		ExtendedObjectOutputStream oos = null;
+		//ExtendedObjectOutputStream oos = null;
 		BufferedReader in = null;
 		boolean success = false;
 		try{
@@ -52,12 +51,12 @@ public class OldNodeManagerCommunication {
 				connection = new Socket(ip, port);
 				LOG.debug("-> BCU. New socket created, IP: "+ip.toString()+" Port: "+port);
 			}
-			oos = new ExtendedObjectOutputStream(connection.getOutputStream());
+			//oos = new ExtendedObjectOutputStream(connection.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			
             LOG.debug("Class about to send: "+o.getClass());
-			oos.writeClassDescriptor(ObjectStreamClass.lookup(o.getClass()));
-			oos.writeObject(o);
+//			oos.writeClassDescriptor(ObjectStreamClass.lookup(o.getClass()));
+//			oos.writeObject(o);
             
             LOG.debug("Waiting for ack/nack reply from operatorId [{}]", operatorId);
 			String reply = null;
@@ -74,7 +73,7 @@ public class OldNodeManagerCommunication {
 			else{
 				LOG.error("ERROR: MSG Received: {}",reply);
 			}
-			oos.close();
+//			oos.close();
 			in.close();
 			connection.close();
 		}

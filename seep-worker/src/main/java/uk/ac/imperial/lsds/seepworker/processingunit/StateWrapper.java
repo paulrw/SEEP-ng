@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import uk.ac.imperial.lsds.seep.state.State;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectInputStream;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectOutputStream;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectInputStream;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.ExtendedObjectOutputStream;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seepworker.runtimeengine.TimestampTracker;
 
 /**
@@ -105,30 +105,30 @@ public class StateWrapper implements Serializable, Cloneable{
 		return null;
 	}
 	
-	public static StateWrapper deepCopy(StateWrapper original, RuntimeClassLoader rcl){
-		Object obj = null;
-	    try {
-	    	// Write the object out to a byte array
-	        ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
-	        ExtendedObjectOutputStream out = new ExtendedObjectOutputStream(bos);
-	        synchronized(original){
-	        	out.writeObject(original);
-	        	out.flush();
-	        	out.close();
-	        }
-	        // Make an input stream from the byte array and read
-	        // a copy of the object back in.
-	        byte[] temp = bos.toByteArray();
-	        System.out.println("Serialised size: "+temp.length+" bytes");
-	        ExtendedObjectInputStream in = new ExtendedObjectInputStream(new ByteArrayInputStream(temp), rcl);
-	        obj = in.readObject();
-	    }
-	    catch(IOException e) {
-	    	e.printStackTrace();
-	    }
-	    catch(ClassNotFoundException cnfe) {
-	        cnfe.printStackTrace();
-	    }
-	    return (StateWrapper) obj;
-	}
+//	public static StateWrapper deepCopy(StateWrapper original, RuntimeClassLoader rcl){
+//		Object obj = null;
+//	    try {
+//	    	// Write the object out to a byte array
+//	        ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
+////	        ExtendedObjectOutputStream out = new ExtendedObjectOutputStream(bos);
+////	        synchronized(original){
+////	        	out.writeObject(original);
+////	        	out.flush();
+////	        	out.close();
+////	        }
+////	        // Make an input stream from the byte array and read
+////	        // a copy of the object back in.
+////	        byte[] temp = bos.toByteArray();
+////	        System.out.println("Serialised size: "+temp.length+" bytes");
+////	        ExtendedObjectInputStream in = new ExtendedObjectInputStream(new ByteArrayInputStream(temp), rcl);
+////	        obj = in.readObject();
+//	    }
+//	    catch(IOException e) {
+//	    	e.printStackTrace();
+//	    }
+//	    catch(ClassNotFoundException cnfe) {
+//	        cnfe.printStackTrace();
+//	    }
+//	    return (StateWrapper) obj;
+//	}
 }

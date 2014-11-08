@@ -37,7 +37,7 @@ import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.ControlT
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.ReconfigureConnection;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.Resume;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.StateChunk;
-import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seep.infrastructure.Node;
 import uk.ac.imperial.lsds.seepworker.operator.OldEndPoint;
 import uk.ac.imperial.lsds.seepworker.operator.InputDataIngestionMode;
@@ -65,7 +65,7 @@ public class CoreRE {
     private IProcessingUnit processingUnit = null;
     
 	private PUContext puCtx = null;
-	private RuntimeClassLoader rcl = null;
+//	private RuntimeClassLoader rcl = null;
 	private ArrayList<OldEndPoint> starTopology = null;
 	
 	private int backupUpstreamIndex = -1;
@@ -94,15 +94,15 @@ public class CoreRE {
 	// Track last ack processed by this op
 	private TimestampTracker ts_ack_vector = new TimestampTracker();
 		
-	public CoreRE(WorkerNodeDescription nodeDescr, RuntimeClassLoader rcl){
+	public CoreRE(WorkerNodeDescription nodeDescr, uk.ac.imperial.lsds.seep.infrastructure.RuntimeClassLoader rcl){
 		this.nodeDescr = nodeDescr;
-		this.rcl = rcl;		
+//		this.rcl = rcl;		
 		coreProcessLogic = new CoreProcessingLogic();
 	}
 	
-	public RuntimeClassLoader getRuntimeClassLoader(){
-		return rcl;
-	}
+//	public RuntimeClassLoader getRuntimeClassLoader(){
+//		return rcl;
+//	}
 	
 	public WorkerNodeDescription getNodeDescr(){
 		return nodeDescr;
