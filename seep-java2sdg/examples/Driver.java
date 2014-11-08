@@ -9,12 +9,12 @@
  *     Raul Castro Fernandez - initial API and implementation
  ******************************************************************************/
 import java.util.Vector;
-import uk.ac.imperial.lsds.seep.api.Partitioned;
-import uk.ac.imperial.lsds.seep.api.Partial;
-import uk.ac.imperial.lsds.seep.api.Global;
-import uk.ac.imperial.lsds.seep.api.Collection;
-import uk.ac.imperial.lsds.seep.api.Any;
-import uk.ac.imperial.lsds.seep.api.DriverProgram;
+import uk.ac.imperial.lsds.seep.api.annotations.Partitioned;
+import uk.ac.imperial.lsds.seep.api.annotations.Partial;
+import uk.ac.imperial.lsds.seep.api.annotations.Global;
+import uk.ac.imperial.lsds.seep.api.annotations.Collection;
+import uk.ac.imperial.lsds.seep.api.annotations.Any;
+import uk.ac.imperial.lsds.seep.api.annotations.DriverProgram;
 
 public class Driver implements DriverProgram{
 

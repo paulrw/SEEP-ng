@@ -9,9 +9,9 @@
  *     Raul Castro Fernandez - initial API and implementation
  ******************************************************************************/
 import java.util.Vector;
-import uk.ac.imperial.lsds.seep.api.Partitioned;
-import uk.ac.imperial.lsds.seep.api.DriverProgram;
-import uk.ac.imperial.lsds.seep.api.largestateimpls.SeepMap;
+import uk.ac.imperial.lsds.seep.api.annotations.Partitioned;
+import uk.ac.imperial.lsds.seep.api.annotations.DriverProgram;
+import uk.ac.imperial.lsds.seepworker.api.largestateimpls.SeepMap;
 
 public class UT2 implements DriverProgram{
 

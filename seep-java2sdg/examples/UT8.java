@@ -10,10 +10,10 @@
  ******************************************************************************/
 import java.util.Vector;
 import java.util.List;
-import uk.ac.imperial.lsds.seep.api.Partitioned;
-import uk.ac.imperial.lsds.seep.api.Partial;
-import uk.ac.imperial.lsds.seep.api.DriverProgram;
-import uk.ac.imperial.lsds.seep.api.largestateimpls.SeepMap;
+import uk.ac.imperial.lsds.seep.api.annotations.Partitioned;
+import uk.ac.imperial.lsds.seep.api.annotations.Partial;
+import uk.ac.imperial.lsds.seep.api.annotations.DriverProgram;
+import uk.ac.imperial.lsds.seepworker.api.largestateimpls.SeepMap;
 
 public class UT8 implements DriverProgram{
 
