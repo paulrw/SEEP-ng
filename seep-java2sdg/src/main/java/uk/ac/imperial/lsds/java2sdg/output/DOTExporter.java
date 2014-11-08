@@ -102,7 +102,7 @@ public class DOTExporter implements SDGExporter{
 			if(ob.getStateId() != -1){
 				String stateName = ob.getTE().getOpType().getStateName();
 				//output.add(""+stateName+" [shape=polygon,sides=4,peripheries=2,color=red,style=bold];\n");
-				output.add(""+ stateName +"[shape=doubleoctagon, color=Gold];\n");
+				output.add(""+ stateName +"[shape=doubleoctagon,color=Gold,style=bold];\n");
 				output.add(stateName+" -> "+ob.getId()+"[style=dotted];\n");
 				output.add(""+ob.getId()+" [color=Turquoise,style=filled];\n");
 			}
