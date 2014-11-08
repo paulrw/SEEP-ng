@@ -27,3 +27,4 @@ seep-streamsql/target/
 seep-java2sdg/showGraph.sh
 .DS_Store
 /bin/
+/build

@@ -35,7 +35,7 @@ public class PhysicalSeepQuery {
 				o.connectTo(dc.getDownstreamOperator(), dc.getStreamId(), dc.getSchema());
 			}
 		}
-		List<PhysicalOperator> pOps = new ArrayList<>(physicalOperators);
+		List<PhysicalOperator> pOps = new ArrayList<PhysicalOperator>(physicalOperators);
 		List<PhysicalOperator> pSources = new ArrayList<>();
 		PhysicalOperator pSink = null;
 		for(Operator o : lsq.getSources()) {
