@@ -5,6 +5,8 @@ public class BootstrapCommand implements CommandType {
 	private String ip;
 	private int port;
 	
+	// FIXME: include the data port, so that every worker can be configured in a dif one and the cluster knows
+	
 	public BootstrapCommand(){}
 	
 	public BootstrapCommand(String ip, int port){

@@ -24,9 +24,11 @@ public class InputAdapterFactory {
 			
 		}
 		else if(cType == ConnectionType.ONE_AT_A_TIME.ofType()){
-			// TODO: here we'll need a factory to create different internal implementation, 
+			// TODO: here we'll need a factory to create different internal implementation,
+			// Create network reader
+			//Reader r = new NetworkReader();
 			// one-queue-per-conn, one-single-queue, etc
-			ia = new DataStream(streamId, dOriginType, expectedSchema, ops);
+			ia = new NetworkDataStream(streamId, expectedSchema, ops);
 		}
 		else if(cType == ConnectionType.ORDERED.ofType()){
 			

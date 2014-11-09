@@ -7,6 +7,9 @@ public interface InputAdapter {
 
 	public short rType();
 	
+	public boolean requiresNetwork();
+	public boolean requiresFile();
+	
 	public ITuple pullDataItem();
 	public ITuple pullDataItems();
 	

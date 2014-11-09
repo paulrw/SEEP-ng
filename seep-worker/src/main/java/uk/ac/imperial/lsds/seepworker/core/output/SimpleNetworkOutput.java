@@ -1,25 +1,41 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 
-public class SimpleOutput implements OutputAdapter {
+public class SimpleNetworkOutput implements OutputAdapter {
 
+	final private boolean requiresNetworkWorker = true;
+	
 	private int streamId;
 	private Router router;
 	private Map<Integer, OutputBuffer> outputBuffers;
 	
 	private Selector s;
 	
-	public SimpleOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, Selector s){
+	private Map<Integer, SelectionKey> mapIdToSelKey;
+	
+	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, Selector s){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
 		this.s = s;
+		this.mapIdToSelKey = new HashMap<>();
+		for(SelectionKey sk : s.selectedKeys()){
+			OutputBuffer ob = (OutputBuffer)sk.attachment();
+			mapIdToSelKey.put(ob.id(), sk);
+		}
+	}
+	
+	@Override
+	public boolean requiresNetwork() {
+		return requiresNetworkWorker;
 	}
 	
 	@Override
@@ -34,8 +50,14 @@ public class SimpleOutput implements OutputAdapter {
 
 	@Override
 	public void send(OTuple o) {
-		int remaining = outputBuffers.get(0).write(o.getData());
-		
+		OutputBuffer ob = outputBuffers.get(0);
+		boolean canSend = ob.write(o.getData());
+		if(canSend){
+			SelectionKey sk = mapIdToSelKey.get(ob.id());
+			int interestOps = sk.interestOps() | SelectionKey.OP_WRITE;
+			sk.interestOps(interestOps);
+			s.wakeup();
+		}
 	}
 
 	@Override

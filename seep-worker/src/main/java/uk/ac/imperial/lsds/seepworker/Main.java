@@ -88,7 +88,7 @@ public class Main {
 		Comm comm = new IOComm(new JavaSerializer(), Executors.newCachedThreadPool());
 		
 		// Create conductor
-		Conductor c = new Conductor(wc);
+		Conductor c = new Conductor(Utils.getLocalIp(), wc);
 		
 		// Start master-worker communication manager
 		WorkerMasterAPIImplementation api = new WorkerMasterAPIImplementation(comm, c, wc);
@@ -104,8 +104,6 @@ public class Main {
 		
 		// bootstrap
 		String myIp = Utils.getStringRepresentationOfLocalIp();
-		
-		System.out.println("about to call bootstrap");
 		api.bootstrap(masterConnection, myIp, myPort);
 		
 		// NodeManager instantiation

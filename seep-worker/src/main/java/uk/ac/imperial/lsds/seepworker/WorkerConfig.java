@@ -20,6 +20,9 @@ public class WorkerConfig extends Config {
     public static final String LISTENING_PORT = "worker.port";
     private static final String LISTENING_PORT_DOC = "The port in which workers will receive commands from the master";
     
+    public static final String DATA_PORT = "data.port";
+    private static final String DATA_PORT_DOC = "The port used to receive data through the network";
+    
     public static final String MASTER_IP = "master.ip";
     private static final String MASTER_IP_DOC = "The Ip where the master is listening";
     
@@ -43,7 +46,8 @@ public class WorkerConfig extends Config {
 				.define(MASTER_IP, Type.STRING, Importance.HIGH, MASTER_IP_DOC)
 				.define(MASTER_CONNECTION_RETRIES, Type.INT, Integer.MAX_VALUE, Importance.LOW, MASTER_CONNECTION_RETRIES_DOC)
 				.define(MASTER_RETRY_BACKOFF_MS, Type.INT, 3000, Importance.LOW, MASTER_RETRY_BACKOFF_MS_DOC)
-				.define(ENGINE_TYPE, Type.INT, 0, Importance.MEDIUM, ENGINE_TYPE_DOC);
+				.define(ENGINE_TYPE, Type.INT, 0, Importance.MEDIUM, ENGINE_TYPE_DOC)
+				.define(DATA_PORT, Type.INT, 4500, Importance.MEDIUM, DATA_PORT_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

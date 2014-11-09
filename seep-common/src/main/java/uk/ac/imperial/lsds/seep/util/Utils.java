@@ -124,6 +124,17 @@ public class Utils {
 		return ipStr;
 	}
 	
+	public static InetAddress getLocalIp(){
+		InetAddress myIp = null;
+		try {
+			myIp = InetAddress.getLocalHost();
+		} 
+		catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return myIp;
+	}
+	
 	public static int hashString(String str){
 		// TODO: will this be enough?
 		return str.hashCode();

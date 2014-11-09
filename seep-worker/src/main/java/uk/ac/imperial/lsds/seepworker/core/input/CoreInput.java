@@ -15,4 +15,12 @@ public class CoreInput {
 		return inputAdapters;
 	}
 	
+	public boolean requiresConfiguringNetworkWorker(){
+		for(InputAdapter ia : inputAdapters){
+			if(ia.requiresNetwork())
+				return true;
+		}
+		return false;
+	}
+	
 }

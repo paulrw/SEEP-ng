@@ -9,4 +9,6 @@ public interface OutputAdapter extends API{
 	public int getStreamId();
 	public Map<Integer, OutputBuffer> getOutputBuffers();
 	
+	public boolean requiresNetwork();
+	
 }

@@ -24,10 +24,13 @@ public class OutputBuffer {
 		return c;
 	}
 
-	public int write(byte[] data){
+	public boolean write(byte[] data){
 		// control batching number and size, etc...
 		buf.put(data);
-		return buf.remaining();
+		
+		// check whether batch is full or timeout, etc...
+		
+		return false;
 	}
 	
 	public ByteBuffer getBuffer(){
