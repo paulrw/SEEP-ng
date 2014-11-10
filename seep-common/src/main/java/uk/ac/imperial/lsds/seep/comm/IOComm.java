@@ -182,9 +182,9 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public void send_async_parallel(final byte[] data, Set<Connection> cs) {
+	public void send_async_parallel(byte[] data, Set<Connection> cs) {
 		final IOComm cu = this;
-		for(final Connection c : cs){
+		for(Connection c : cs){
 			e.execute(new Runnable(){
 				@Override
 				public void run() {
