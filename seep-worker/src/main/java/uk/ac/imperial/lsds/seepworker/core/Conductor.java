@@ -16,6 +16,8 @@ import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class Conductor {
 
+	private WorkerConfig wc;
+	
 	private int dataPort;
 	private InetAddress myIp;
 	private NetworkSelector ns;
@@ -28,6 +30,7 @@ public class Conductor {
 	private SeepState state;
 	
 	public Conductor(InetAddress myIp, WorkerConfig wc){
+		this.wc = wc;
 		this.dataPort = wc.getInt(WorkerConfig.DATA_PORT);
 		int engineType = wc.getInt(WorkerConfig.ENGINE_TYPE);
 		engine = ProcessingEngineFactory.buildProcessingEngine(engineType);
@@ -60,10 +63,11 @@ public class Conductor {
 	private NetworkSelector maybeConfigureNetworkSelector(){
 		NetworkSelector ns = null;
 		if(coreInput.requiresConfiguringNetworkWorker()){
-			ns = new NetworkSelector();
-			ns.configureAccept(myIp, dataPort, new Object());
+			ns = new NetworkSelector(wc);
+			ns.configureAccept(myIp, dataPort);
 		}
 		if(coreOutput.requiresConfiguringNetworkWorker()){
+			if(ns == null) ns = new NetworkSelector(wc);
 			Set<OutputBuffer> obufs = coreOutput.getOutputBuffers();
 			ns.configureConnect(obufs);
 		}

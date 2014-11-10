@@ -36,7 +36,16 @@ public class WorkerConfig extends Config {
     private static final String MASTER_RETRY_BACKOFF_MS_DOC = "Time between retries when reconnecting to master";
     
     public static final String ENGINE_TYPE = "engine.type";
-    private static final String ENGINE_TYPE_DOC = "Defines the type of processing engine that will process data"; 
+    private static final String ENGINE_TYPE_DOC = "Defines the type of processing engine that will process data";
+    
+    public static final String NUM_NETWORK_READER_THREADS = "network.reader.threads.num";
+    private static final String NUM_NETWORK_READER_THREADS_DOC = "Total number of threads responsible for reading from the network";
+    
+    public static final String NUM_NETWORK_WRITER_THREADS = "network.writer.threads.num";
+    private static final String NUM_NETWORK_WRITER_THREADS_DOC = "Total number of threads responsible for writing to the network";
+    
+    public static final String MAX_PENDING_NETWORK_CONNECTION_PER_THREAD = "max.pending.connection.thread";
+    private static final String MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC = "Max. number of pending connections per thread";
     
 	
 	static{
@@ -47,7 +56,10 @@ public class WorkerConfig extends Config {
 				.define(MASTER_CONNECTION_RETRIES, Type.INT, Integer.MAX_VALUE, Importance.LOW, MASTER_CONNECTION_RETRIES_DOC)
 				.define(MASTER_RETRY_BACKOFF_MS, Type.INT, 3000, Importance.LOW, MASTER_RETRY_BACKOFF_MS_DOC)
 				.define(ENGINE_TYPE, Type.INT, 0, Importance.MEDIUM, ENGINE_TYPE_DOC)
-				.define(DATA_PORT, Type.INT, 4500, Importance.MEDIUM, DATA_PORT_DOC);
+				.define(DATA_PORT, Type.INT, 4500, Importance.MEDIUM, DATA_PORT_DOC)
+				.define(NUM_NETWORK_READER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_READER_THREADS_DOC)
+				.define(NUM_NETWORK_WRITER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_WRITER_THREADS_DOC)
+				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {
