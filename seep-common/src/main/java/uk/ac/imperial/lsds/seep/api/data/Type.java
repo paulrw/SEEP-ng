@@ -4,6 +4,10 @@ public abstract class Type {
 	
 	public abstract String toString();
 	
+	public enum JavaType{
+		BYTE, SHORT, INT, LONG, STRING, BYTES
+	}
+	
 	public static final Type BYTE = new Type() {
 		
 		public String toString(){
@@ -29,6 +33,13 @@ public abstract class Type {
 		
 		public String toString(){
 			return "LONG";
+		}
+	};
+	
+	public static final Type STRING = new Type(){
+		
+		public String toString(){
+			return "STRING";
 		}
 	};
 	

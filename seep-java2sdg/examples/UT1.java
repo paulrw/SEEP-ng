@@ -9,12 +9,14 @@
  *     Raul Castro Fernandez - initial API and implementation
  ******************************************************************************/
 import java.util.Vector;
+
 import uk.ac.imperial.lsds.seep.api.annotations.Partitioned;
 import uk.ac.imperial.lsds.seep.api.annotations.Partial;
 import uk.ac.imperial.lsds.seep.api.annotations.Global;
 import uk.ac.imperial.lsds.seep.api.annotations.Collection;
 import uk.ac.imperial.lsds.seep.api.annotations.Any;
 import uk.ac.imperial.lsds.seep.api.annotations.DriverProgram;
+import uk.ac.imperial.lsds.seep.api.data.Type.JavaType;
 
 public class UT1 implements DriverProgram{
 
@@ -24,8 +26,12 @@ public class UT1 implements DriverProgram{
 	private static final double DELTA = 0.3;
 
 	public void main(){
+		@File(path = "/data/test.txt")
+		@Schema(fields = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
 		Vector items = null; // get data somehow
 		train(items); // call function -> implies this is an entry point
+		@Network(endpoint = "localhost:5000")
+		@Schema(fields = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
 		int item = 5; // a simple item to classify;
 		test(item);
 	}

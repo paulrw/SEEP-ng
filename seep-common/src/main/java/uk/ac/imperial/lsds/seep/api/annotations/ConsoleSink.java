@@ -5,12 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import uk.ac.imperial.lsds.seep.api.data.Type.JavaType;
-
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.LOCAL_VARIABLE)
-public @interface Schema {
-	String[] fieldname();
-	JavaType[] types();
+public @interface ConsoleSink {
+
 }
