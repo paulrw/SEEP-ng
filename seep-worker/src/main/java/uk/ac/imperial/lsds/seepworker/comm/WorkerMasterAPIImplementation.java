@@ -39,9 +39,9 @@ public class WorkerMasterAPIImplementation {
 		this.retryBackOffMs = wc.getInt(WorkerConfig.MASTER_RETRY_BACKOFF_MS);
 	}
 	
-	public void bootstrap(Connection masterConn, String myIp, int myPort){
+	public void bootstrap(Connection masterConn, String myIp, int myPort, int dataPort){
 		this.myIp = myIp;
-		Command command = ProtocolCommandFactory.buildBootstrapCommand(myIp, myPort);
+		Command command = ProtocolCommandFactory.buildBootstrapCommand(myIp, myPort, dataPort);
 		
 		for (int i = 0; i < retriesToMaster; i++) {
 			System.out.println("sending bootstrap, attemps: "+i);
@@ -82,8 +82,11 @@ public class WorkerMasterAPIImplementation {
 		 * - initialization of one operator
 		 */
 		
+		// We don't know yet what is this for anyway...
 		Set<EndPoint> meshTopology = query.getMeshTopology(myOwnId);
+		
 		PhysicalOperator po = query.getOperatorLivingInExecutionUnitId(myOwnId);
+		c.deployPhysicalOperator(po);
 	}
 	
 	public void handleStartRuntime(StartRuntimeCommand src){

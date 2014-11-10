@@ -13,15 +13,20 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInform
 
 public class Collector implements API {
 
-	private final boolean send_not_defined;
+	private final boolean SEND_NOT_DEFINED;
+	
+	private OutputAdapter outputAdapter;
 	private List<OutputAdapter> outputAdapters;
 	private Map<Integer, OutputAdapter> streamIdToOutputAdapter;
 	
 	public Collector(List<OutputAdapter> outputAdapters){
 		if(outputAdapters.size() > 1)
-			send_not_defined = true;
-		else
-			send_not_defined = false;
+			SEND_NOT_DEFINED = true;
+		else {
+			SEND_NOT_DEFINED = false;
+			// Configure the unique outputadapter in this collector to avoid one lookup
+			outputAdapter = outputAdapters.get(0);
+		}
 		this.outputAdapters = outputAdapters;
 		this.streamIdToOutputAdapter = createMap(outputAdapters);
 	}
@@ -36,31 +41,30 @@ public class Collector implements API {
 	
 	@Override
 	public void send(OTuple o) {
-		if(send_not_defined){
+		if(SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
 		}
-		outputAdapters.get(0).send(o);
+		outputAdapter.send(o);
 	}
 
 	@Override
 	public void sendAll(OTuple o) {
-		if(send_not_defined){
+		if(SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
 		}
-		outputAdapters.get(0).sendAll(o);
+		outputAdapter.sendAll(o);
 	}
 
 	@Override
 	public void sendKey(OTuple o, int key) {
-		outputAdapters.get(0).sendKey(o, key);
+		outputAdapter.sendKey(o, key);
 	}
 
 	@Override
 	public void sendKey(OTuple o, String key) {
-		int numericKey = Utils.hashString(key);
-		outputAdapters.get(0).sendKey(o, numericKey);
+		outputAdapter.sendKey(o, key);
 	}
 
 	@Override

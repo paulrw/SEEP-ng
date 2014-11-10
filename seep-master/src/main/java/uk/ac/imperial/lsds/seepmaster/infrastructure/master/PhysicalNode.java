@@ -12,15 +12,10 @@ public class PhysicalNode implements ExecutionUnit {
 	
 	private EndPoint ep;
 	private int id;
-	
-//	public PhysicalNode(EndPoint ep) {
-//		this.ep = ep;
-//		this.id = ep.getIp().hashCode() + ep.getPort();
-//	}
 
-	public PhysicalNode(InetAddress ip, int port) {
+	public PhysicalNode(InetAddress ip, int port, int dataPort) {
 		this.id = Utils.computeIdFromIpAndPort(ip, port);
-		this.ep = new EndPoint(id, ip, port);
+		this.ep = new EndPoint(id, ip, port, dataPort);
 	}
 
 	@Override

@@ -1,11 +1,9 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.util.HashMap;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
+import uk.ac.imperial.lsds.seep.util.Utils;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 
@@ -17,20 +15,10 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	private Router router;
 	private Map<Integer, OutputBuffer> outputBuffers;
 	
-	private Selector s;
-	
-	private Map<Integer, SelectionKey> mapIdToSelKey;
-	
-	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers, Selector s){
+	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
-		this.s = s;
-		this.mapIdToSelKey = new HashMap<>();
-		for(SelectionKey sk : s.selectedKeys()){
-			OutputBuffer ob = (OutputBuffer)sk.attachment();
-			mapIdToSelKey.put(ob.id(), sk);
-		}
 	}
 	
 	@Override
@@ -53,53 +41,58 @@ public class SimpleNetworkOutput implements OutputAdapter {
 		OutputBuffer ob = outputBuffers.get(0);
 		boolean canSend = ob.write(o.getData());
 		if(canSend){
-			SelectionKey sk = mapIdToSelKey.get(ob.id());
-			int interestOps = sk.interestOps() | SelectionKey.OP_WRITE;
-			sk.interestOps(interestOps);
-			s.wakeup();
+//			SelectionKey sk = mapIdToSelKey.get(ob.id());
+//			int interestOps = sk.interestOps() | SelectionKey.OP_WRITE;
+//			sk.interestOps(interestOps);
+//			s.wakeup();
 		}
 	}
 
 	@Override
 	public void sendAll(OTuple o) {
+		boolean canSend = false;
 		for(OutputBuffer ob : outputBuffers.values()){
-			ob.write(o.getData());
+			boolean readyToSend = ob.write(o.getData());
+			canSend = canSend | readyToSend;
+		}
+		if(canSend){
+			
 		}
 	}
 
 	@Override
 	public void sendKey(OTuple o, int key) {
-		// TODO;
+		OutputBuffer obuf = router.route(outputBuffers, key);
+		boolean canSend =  obuf.write(o.getData());
+		if(canSend){
+			
+		}
 	}
 
 	@Override
 	public void sendKey(OTuple o, String key) {
-		// TODO Auto-generated method stub
-		// same
+		int hashedKey = Utils.hashString(key);
+		this.sendKey(o, hashedKey);
 	}
 
 	@Override
 	public void sendStreamid(int streamId, OTuple o) {
-		// TODO Auto-generated method stub
-		// non defined
+		// NON DEFINED
 	}
 
 	@Override
 	public void sendStreamidAll(int streamId, OTuple o) {
-		// TODO Auto-generated method stub
-		// non defined
+		// NON DEFINED
 	}
 
 	@Override
 	public void sendStreamidKey(int streamId, OTuple o, int key) {
-		// TODO Auto-generated method stub
-		// non defined
+		// NON DEFINED
 	}
 
 	@Override
 	public void sendStreamidKey(int streamId, OTuple o, String key) {
-		// TODO Auto-generated method stub
-		// non defined
+		// NON DEFINED
 	}
 
 	@Override
@@ -112,18 +105,6 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	public void send_opid(int opId, OTuple o) {
 		// TODO Auto-generated method stub
 		// careful again
-	}
-	
-	
-	class Sender implements Runnable {
-
-		@Override
-		public void run() {
-			
-			// check the output buffers, whatever that is and send downstream to the configured socket
-			// this would require a wait-notify mechanism, otherwise this guy will be working like crazy
-			
-		}	
 	}
 	
 }

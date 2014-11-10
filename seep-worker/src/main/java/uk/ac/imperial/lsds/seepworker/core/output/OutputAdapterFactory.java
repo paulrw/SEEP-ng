@@ -1,6 +1,5 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
-import java.nio.channels.Selector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +11,7 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 public class OutputAdapterFactory {
 
-	public static OutputAdapter buildOutputAdapterOfTypeNetworkForOps(int streamId, 
-			List<DownstreamConnection> cons, Selector s){
+	public static OutputAdapter buildOutputAdapterOfTypeNetworkForOps(int streamId, List<DownstreamConnection> cons){
 		// Create a router for the outputAdapter with the downstreamConn info
 		Router r = Router.buildRouterFor(cons);
 
@@ -26,7 +24,7 @@ public class OutputAdapterFactory {
 			outputBuffers.put(id, ob);
 		}
 		// TODO: left for configuration whether this should be a simpleoutput or something else...
-		OutputAdapter oa = new SimpleNetworkOutput(streamId, r, outputBuffers, s);
+		OutputAdapter oa = new SimpleNetworkOutput(streamId, r, outputBuffers);
 		return oa;
 	}
 

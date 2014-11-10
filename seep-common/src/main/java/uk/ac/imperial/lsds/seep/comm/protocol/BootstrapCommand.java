@@ -4,14 +4,14 @@ public class BootstrapCommand implements CommandType {
 
 	private String ip;
 	private int port;
-	
-	// FIXME: include the data port, so that every worker can be configured in a dif one and the cluster knows
+	private int dataPort;
 	
 	public BootstrapCommand(){}
 	
-	public BootstrapCommand(String ip, int port){
+	public BootstrapCommand(String ip, int port, int dataPort){
 		this.ip = ip;
 		this.port = port;
+		this.dataPort = dataPort;
 	}
 	
 	@Override
@@ -25,6 +25,10 @@ public class BootstrapCommand implements CommandType {
 	
 	public int getPort(){
 		return port;
+	}
+	
+	public int getDataPort(){
+		return dataPort;
 	}
 
 }

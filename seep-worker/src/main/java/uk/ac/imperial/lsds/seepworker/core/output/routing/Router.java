@@ -1,8 +1,10 @@
 package uk.ac.imperial.lsds.seepworker.core.output.routing;
 
 import java.util.List;
+import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class Router {
 
@@ -19,12 +21,16 @@ public class Router {
 		boolean stateful = cons.get(0).getDownstreamOperator().isStateful();
 		RoutingState rs = null;
 		if(stateful){
-			rs = new ConsistentHashingRoutingState();
+			rs = new ConsistentHashingRoutingState(cons);
 		}
 		else{
-			rs = new RoundRobinRoutingState();
+			rs = new RoundRobinRoutingState(cons);
 		}
 		return new Router(streamId, rs);
+	}
+	
+	public OutputBuffer route(Map<Integer, OutputBuffer> obufs, int key){
+		return rs.route(obufs, key);
 	}
 	
 }

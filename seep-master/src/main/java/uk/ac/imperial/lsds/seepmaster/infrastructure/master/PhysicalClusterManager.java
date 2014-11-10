@@ -28,8 +28,8 @@ public class PhysicalClusterManager implements InfrastructureManager {
 	}
 	
 	@Override
-	public ExecutionUnit buildExecutionUnit(InetAddress ip, int port) {
-		return new PhysicalNode(ip, port);
+	public ExecutionUnit buildExecutionUnit(InetAddress ip, int port, int dataPort) {
+		return new PhysicalNode(ip, port, dataPort);
 	}
 	
 	@Override

@@ -38,16 +38,8 @@ public class CoreOutputFactory {
 			
 			OutputAdapter oa = null;
 			if(dOrigin == DataOrigin.NETWORK){
-				// Selector shared by outputAdapter and the networkWriter guy
-				Selector s = null;
-				try {
-					s = Selector.open();
-				} 
-				catch (IOException e) {
-					e.printStackTrace();
-				}
 				// Create outputAdapter
-				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(streamId, doCon, s);
+				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(streamId, doCon);
 			}
 			outputAdapters.add(oa);
 		}

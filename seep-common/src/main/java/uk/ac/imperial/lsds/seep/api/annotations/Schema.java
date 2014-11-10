@@ -7,8 +7,9 @@ import java.lang.annotation.Target;
 
 import uk.ac.imperial.lsds.seep.config.ConfigDef.Type;
 
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target(ElementType.LOCAL_VARIABLE)
 public @interface Schema {
 	String[] fieldname();
 	Type[] types();

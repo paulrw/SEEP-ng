@@ -80,33 +80,6 @@ public class MasterWorkerCommManager {
 					else if(type == ProtocolAPI.CRASH.type()){
 						LOG.info("RX-> Crash command");
 					}
-					
-//					bis = new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
-//					String command = bis.readLine();
-//					if(command == null){
-//						//TODO: indicate error here
-//					}
-//					LOG.info("Received command: {}", command);
-//					String[] commandTokens = command.split(" ");
-//					String commandCode = commandTokens[0];
-//					Map<String, String> commandArguments = MasterWorkerAPI.arrayToMap(commandTokens);
-//					MasterWorkerAPI.API apiInstance = MasterWorkerAPI.getAPIByName(command);
-//					if(apiInstance != null){
-//						//TODO: indicate error here, no such command
-//						if (! MasterWorkerAPI.validatesCommand(apiInstance, commandArguments)){
-//							//TODO: indicate error here, args do not validate
-//						}
-//					}
-					
-//					if (MasterWorkerAPI.API.BOOTSTRAP.commandName().equals(commandCode)) {
-//						LOG.info("Bootstrap command");
-//						api.bootstrapCommand(commandArguments);
-//					}
-//					else if (MasterWorkerAPI.API.CRASH.commandName().equals(commandCode)) {
-//						LOG.info("Crash command");
-//						//TODO: implement
-//					}
-					
 				}
 				catch(IOException io){
 					io.printStackTrace();

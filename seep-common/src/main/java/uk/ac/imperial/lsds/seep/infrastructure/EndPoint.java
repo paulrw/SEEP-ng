@@ -7,11 +7,20 @@ public final class EndPoint {
 	private final int id;
 	private final InetAddress ip;
 	private final int port;
+	private final int dataPort;
 	
 	public EndPoint(int id, InetAddress ip, int port){
 		this.id = id;
 		this.ip = ip;
 		this.port = port;
+		this.dataPort = -1; // no data connection to this endpoint
+	}
+	
+	public EndPoint(int id, InetAddress ip, int port, int dataPort){
+		this.id = id;
+		this.ip = ip;
+		this.port = port;
+		this.dataPort = dataPort;
 	}
 	
 	public int getId(){
@@ -24,5 +33,9 @@ public final class EndPoint {
 
 	public int getPort() {
 		return port;
+	}
+	
+	public int getDataPort(){
+		return dataPort;
 	}
 }

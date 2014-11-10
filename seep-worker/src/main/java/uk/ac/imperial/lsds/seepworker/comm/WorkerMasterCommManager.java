@@ -19,7 +19,6 @@ import uk.ac.imperial.lsds.seep.comm.protocol.Command;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartRuntimeCommand;
-import uk.ac.imperial.lsds.seep.infrastructure.ExtendedObjectInputStream;
 import uk.ac.imperial.lsds.seep.infrastructure.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
@@ -73,7 +72,6 @@ public class WorkerMasterCommManager {
 				try{
 					// Blocking call
 					incomingSocket = serverSocket.accept();
-					//BufferedInputStream bis = new BufferedInputStream(incomingSocket.getInputStream());
 					InputStream is = incomingSocket.getInputStream();
 					out = new PrintWriter(incomingSocket.getOutputStream(), true);
 					Input i = new Input(is, 1000000);

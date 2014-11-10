@@ -4,8 +4,8 @@ import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 
 public class ProtocolCommandFactory {
 	
-	public static Command buildBootstrapCommand(String ip, int port){
-		BootstrapCommand bc = new BootstrapCommand(ip, port);
+	public static Command buildBootstrapCommand(String ip, int port, int dataPort){
+		BootstrapCommand bc = new BootstrapCommand(ip, port, dataPort);
 		Command c = new Command(bc);
 		return c;
 	}

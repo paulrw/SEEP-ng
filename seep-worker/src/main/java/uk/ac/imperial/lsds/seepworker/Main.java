@@ -83,6 +83,7 @@ public class Main {
 		Connection masterConnection = new Connection(new EndPoint(masterId, masterIp, masterPort));
 		
 		int myPort = wc.getInt(WorkerConfig.LISTENING_PORT);
+		int dataPort = wc.getInt(WorkerConfig.DATA_PORT);
 		
 		// Create workerMaster comm manager
 		Comm comm = new IOComm(new JavaSerializer(), Executors.newCachedThreadPool());
@@ -104,7 +105,7 @@ public class Main {
 		
 		// bootstrap
 		String myIp = Utils.getStringRepresentationOfLocalIp();
-		api.bootstrap(masterConnection, myIp, myPort);
+		api.bootstrap(masterConnection, myIp, myPort, dataPort);
 		
 		// NodeManager instantiation
 		//NodeManager nm = new NodeManager(masterPort, masterIp, ownPort);

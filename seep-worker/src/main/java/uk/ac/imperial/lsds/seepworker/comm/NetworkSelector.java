@@ -17,13 +17,19 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.comm.Connection;
+import uk.ac.imperial.lsds.seepworker.Main;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class NetworkSelector {
 
+	final private static Logger LOG = LoggerFactory.getLogger(NetworkSelector.class);
+	
 	private Selector acceptorSelector;
 	
 	private ServerSocketChannel listenerSocket;
