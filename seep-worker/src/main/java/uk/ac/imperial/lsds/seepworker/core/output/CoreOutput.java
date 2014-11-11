@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import uk.ac.imperial.lsds.seep.comm.Connection;
+import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 
 
 public class CoreOutput {
@@ -33,6 +33,12 @@ public class CoreOutput {
 				return true;
 		}
 		return false;
+	}
+	
+	public void setEventAPI(EventAPI eAPI){
+		for(OutputAdapter oa : outputAdapters){
+			oa.setEventAPI(eAPI);
+		}
 	}
 	
 }

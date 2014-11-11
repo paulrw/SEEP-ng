@@ -8,6 +8,7 @@ import uk.ac.imperial.lsds.seep.api.API;
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
 import uk.ac.imperial.lsds.seep.errors.DoYouKnowWhatYouAreDoingException;
 import uk.ac.imperial.lsds.seep.util.Utils;
+import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInformation;
 
@@ -84,8 +85,7 @@ public class Collector implements API {
 
 	@Override
 	public void sendStreamidKey(int streamId, OTuple o, String key) {
-		int numericKey = Utils.hashString(key);
-		streamIdToOutputAdapter.get(streamId).sendKey(o, numericKey);
+		streamIdToOutputAdapter.get(streamId).sendKey(o, key);
 	}
 
 	@Override

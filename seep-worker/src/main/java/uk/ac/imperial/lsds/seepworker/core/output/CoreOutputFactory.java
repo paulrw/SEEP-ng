@@ -1,7 +1,5 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
-import java.io.IOException;
-import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

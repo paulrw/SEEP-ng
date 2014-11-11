@@ -1,9 +1,11 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.data.OTuple;
-import uk.ac.imperial.lsds.seep.util.Utils;
+import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 
@@ -14,11 +16,17 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	private int streamId;
 	private Router router;
 	private Map<Integer, OutputBuffer> outputBuffers;
+	private EventAPI eAPI;
 	
 	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
+	}
+	
+	@Override
+	public void setEventAPI(EventAPI eAPI) {
+		this.eAPI = eAPI;
 	}
 	
 	@Override
@@ -41,38 +49,39 @@ public class SimpleNetworkOutput implements OutputAdapter {
 		OutputBuffer ob = outputBuffers.get(0);
 		boolean canSend = ob.write(o.getData());
 		if(canSend){
-//			SelectionKey sk = mapIdToSelKey.get(ob.id());
-//			int interestOps = sk.interestOps() | SelectionKey.OP_WRITE;
-//			sk.interestOps(interestOps);
-//			s.wakeup();
+			eAPI.readyForWrite(ob.id());
 		}
 	}
 
 	@Override
 	public void sendAll(OTuple o) {
-		boolean canSend = false;
+		List<Integer> ids = new ArrayList<>();
 		for(OutputBuffer ob : outputBuffers.values()){
-			boolean readyToSend = ob.write(o.getData());
-			canSend = canSend | readyToSend;
+			boolean canSend = ob.write(o.getData());
+			if(canSend) 
+				ids.add(ob.id());
 		}
-		if(canSend){
-			
+		if(ids.size() > 0){
+			eAPI.readyForWrite(ids);
 		}
 	}
 
 	@Override
 	public void sendKey(OTuple o, int key) {
-		OutputBuffer obuf = router.route(outputBuffers, key);
-		boolean canSend =  obuf.write(o.getData());
+		OutputBuffer ob = router.route(outputBuffers, key);
+		boolean canSend =  ob.write(o.getData());
 		if(canSend){
-			
+			eAPI.readyForWrite(ob.id());
 		}
 	}
 
+	/**
+	 * TODO: fix these non-defined things
+	 */
+	
 	@Override
 	public void sendKey(OTuple o, String key) {
-		int hashedKey = Utils.hashString(key);
-		this.sendKey(o, hashedKey);
+		// NON DEFINED
 	}
 
 	@Override

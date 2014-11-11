@@ -53,6 +53,7 @@ public class Conductor {
 		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(o);
 		
 		this.ns = maybeConfigureNetworkSelector();
+		coreOutput.setEventAPI(ns);
 		
 		engine.setTask(task);
 		engine.setSeepState(state);

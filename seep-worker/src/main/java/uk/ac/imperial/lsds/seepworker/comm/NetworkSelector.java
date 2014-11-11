@@ -13,7 +13,10 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -26,7 +29,7 @@ import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
-public class NetworkSelector {
+public class NetworkSelector implements EventAPI {
 
 	final private static Logger LOG = LoggerFactory.getLogger(NetworkSelector.class);
 	
@@ -46,6 +49,8 @@ public class NetworkSelector {
 	private Thread[] writerWorkers;
 	private int numWriterWorkers;
 	
+	private Map<Integer, SelectionKey> writerKeys;
+	
 	public NetworkSelector(WorkerConfig wc) {
 		this.numReaderWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_READER_THREADS); 
 		this.numWriterWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_WRITER_THREADS);
@@ -64,6 +69,7 @@ public class NetworkSelector {
 			writers[i] = new Writer(i);
 			writerWorkers[i] = new Thread(writers[i]);
 		}
+		this.writerKeys = new HashMap<>();
 		// Create the acceptorSelector
 		try {
 			this.acceptorSelector = Selector.open();
@@ -72,6 +78,25 @@ public class NetworkSelector {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void readyForWrite(int id){
+		SelectionKey key = writerKeys.get(id);
+		int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+		key.interestOps(interestOps);
+		key.selector().wakeup();
+	}
+	
+	@Override
+	public void readyForWrite(List<Integer> ids){
+		for(Integer id : ids){
+			SelectionKey key = writerKeys.get(id);
+			int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+			key.interestOps(interestOps);
+			key.selector().wakeup();
+		}
+	}
+	
 
 	public void configureAccept(InetAddress myIp, int dataPort){
 		ServerSocketChannel channel = null;
@@ -326,6 +351,8 @@ public class NetworkSelector {
 					int interestSet = SelectionKey.OP_CONNECT;
 					SelectionKey key = channel.register(writeSelector, interestSet);
 					key.attach(ob);
+					// Associate id - key in the networkSelectorMap
+					writerKeys.put(ob.id(), key);
 				}
 			}
 			catch(IOException io){

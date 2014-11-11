@@ -135,9 +135,4 @@ public class Utils {
 		return myIp;
 	}
 	
-	public static int hashString(String str){
-		// TODO: will this be enough?
-		return str.hashCode();
-	}
-	
 }
