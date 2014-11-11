@@ -47,6 +47,9 @@ public class WorkerConfig extends Config {
     public static final String MAX_PENDING_NETWORK_CONNECTION_PER_THREAD = "max.pending.connection.thread";
     private static final String MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC = "Max. number of pending connections per thread";
     
+    public static final String SIMPLE_INPUT_QUEUE_LENGTH = "simple.input.queue.length";
+    private static final String SIMPLE_INPUT_QUEUE_LENGTH_DOC = "The length of a simple input queue, in case this is configured";
+    
 	
 	static{
 		config = new ConfigDef().define(DEPLOYMENT_TARGET_TYPE, Type.INT, 0, Importance.HIGH, DEPLOYMENT_TARGET_TYPE_DOC)
@@ -59,7 +62,8 @@ public class WorkerConfig extends Config {
 				.define(DATA_PORT, Type.INT, 4500, Importance.MEDIUM, DATA_PORT_DOC)
 				.define(NUM_NETWORK_READER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_READER_THREADS_DOC)
 				.define(NUM_NETWORK_WRITER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_WRITER_THREADS_DOC)
-				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC);
+				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC)
+				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

@@ -12,6 +12,7 @@ import uk.ac.imperial.lsds.seep.comm.KryoFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.Command;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolCommandFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
+import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartRuntimeCommand;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
@@ -88,9 +89,9 @@ public class WorkerMasterAPIImplementation {
 		PhysicalOperator po = query.getOperatorLivingInExecutionUnitId(myOwnId);
 		c.deployPhysicalOperator(po);
 	}
-	
-	public void handleStartRuntime(StartRuntimeCommand src){
-		
+
+	public void handleStartQuery(StartQueryCommand sqc) {
+		c.startProcessing();
 	}
 	
 }

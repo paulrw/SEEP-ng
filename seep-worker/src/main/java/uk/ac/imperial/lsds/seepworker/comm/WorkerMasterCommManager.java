@@ -18,6 +18,7 @@ import uk.ac.imperial.lsds.seep.comm.protocol.CodeCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.Command;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
+import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartRuntimeCommand;
 import uk.ac.imperial.lsds.seep.infrastructure.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seep.util.Utils;
@@ -106,10 +107,10 @@ public class WorkerMasterCommManager {
 						api.handleQueryDeploy(qdc);
 						out.println("ack");
 					}
-					else if(cType == ProtocolAPI.STARTRUNTIME.type()){
+					else if(cType == ProtocolAPI.STARTQUERY.type()){
 						LOG.info("RX StartRuntime command");
-						StartRuntimeCommand src = c.getStartRuntimeCommand();
-						api.handleStartRuntime(src);
+						StartQueryCommand sqc = c.getStartQueryCommand();
+						api.handleStartQuery(sqc);
 						out.println("ack");
 					}
 				}

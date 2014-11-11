@@ -10,6 +10,8 @@ public interface InputAdapter {
 	public boolean requiresNetwork();
 	public boolean requiresFile();
 	
+	public void pushData(byte[] data);
+	
 	public ITuple pullDataItem();
 	public ITuple pullDataItems();
 	

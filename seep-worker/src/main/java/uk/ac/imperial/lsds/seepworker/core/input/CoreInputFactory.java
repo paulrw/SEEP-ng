@@ -9,10 +9,11 @@ import java.util.Map;
 import uk.ac.imperial.lsds.seep.api.ConnectionType;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
+import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class CoreInputFactory {
 
-	public static CoreInput buildCoreInputForOperator(PhysicalOperator o){
+	public static CoreInput buildCoreInputForOperator(WorkerConfig wc, PhysicalOperator o){
 		List<InputAdapter> inputAdapters = new LinkedList<>();
 		// Create an InputAdapter per upstream connection -> know with the streamId
 		Map<Integer, List<UpstreamConnection>> streamToOpConn = new HashMap<>();
@@ -44,7 +45,7 @@ public class CoreInputFactory {
 		// Build an input adapter per streamId
 		for(Integer streamId : streamToOpConn.keySet()){
 			List<UpstreamConnection> upCon = streamToOpConn.get(streamId);
-			InputAdapter ia = InputAdapterFactory.buildInputAdapterOfTypeForOps(streamId, upCon);
+			InputAdapter ia = InputAdapterFactory.buildInputAdapterOfTypeForOps(wc, streamId, upCon);
 			inputAdapters.add(ia);
 		}
 		CoreInput cInput = new CoreInput(inputAdapters);

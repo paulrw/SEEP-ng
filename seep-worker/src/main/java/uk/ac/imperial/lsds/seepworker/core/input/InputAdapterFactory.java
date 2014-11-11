@@ -8,10 +8,11 @@ import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class InputAdapterFactory {
 
-	public static InputAdapter buildInputAdapterOfTypeForOps(int streamId, List<UpstreamConnection> upc){
+	public static InputAdapter buildInputAdapterOfTypeForOps(WorkerConfig wc, int streamId, List<UpstreamConnection> upc){
 		InputAdapter ia = null;
 		short cType = upc.get(0).getConnectionType().ofType();
 		DataOrigin dOriginType = upc.get(0).getDataOrigin();
@@ -28,7 +29,7 @@ public class InputAdapterFactory {
 			// Create network reader
 			//Reader r = new NetworkReader();
 			// one-queue-per-conn, one-single-queue, etc
-			ia = new NetworkDataStream(streamId, expectedSchema, ops);
+			ia = new NetworkDataStream(wc, streamId, expectedSchema, ops);
 		}
 		else if(cType == ConnectionType.ORDERED.ofType()){
 			

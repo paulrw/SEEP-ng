@@ -48,7 +48,7 @@ public class Conductor {
 	
 	public void deployPhysicalOperator(PhysicalOperator o){
 		// This creates one inputAdapter per upstream stream Id
-		coreInput = CoreInputFactory.buildCoreInputForOperator(o);
+		coreInput = CoreInputFactory.buildCoreInputForOperator(wc, o);
 		// This creates one outputAdapter per downstream stream Id
 		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(o);
 		
@@ -59,20 +59,29 @@ public class Conductor {
 		engine.setSeepState(state);
 		engine.setCoreInput(coreInput);
 		engine.setCoreOutput(coreOutput);
+		
+		// Initialize system
+		task.setUp(); // setup method of task
+		engine.start(); // start engine processing loop
+		if(ns != null) ns.start(); // start network selector, if any
 	}
 	
 	private NetworkSelector maybeConfigureNetworkSelector(){
 		NetworkSelector ns = null;
 		if(coreInput.requiresConfiguringNetworkWorker()){
-			ns = new NetworkSelector(wc);
+			ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
 			ns.configureAccept(myIp, dataPort);
 		}
 		if(coreOutput.requiresConfiguringNetworkWorker()){
-			if(ns == null) ns = new NetworkSelector(wc);
+			if(ns == null) ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
 			Set<OutputBuffer> obufs = coreOutput.getOutputBuffers();
 			ns.configureConnect(obufs);
 		}
 		return ns;
+	}
+	
+	public void startProcessing(){
+		// TODO: figure out whether it's necessary to differentiate sources from the rest or not...
 	}
 	
 	public void plugSeepTask(SeepTask task){

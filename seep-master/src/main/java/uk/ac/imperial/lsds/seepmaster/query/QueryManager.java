@@ -111,9 +111,6 @@ public class QueryManager {
 		LOG.info("Building physicalQuery from logicalQuery...");
 		originalQuery = createOriginalPhysicalQuery();
 		LOG.debug("Building physicalQuery from logicalQuery...OK {}", originalQuery.toString());
-		// 4 deploy query to nodes
-		// first send starTopology
-		// send operator, serialization of operator
 		Set<Integer> involvedEUId = originalQuery.getIdOfEUInvolved();
 		Set<Connection> connections = inf.getConnectionsTo(involvedEUId);
 		sendQueryInformationToNodes(connections);
@@ -207,6 +204,8 @@ public class QueryManager {
 		// Send physical query to all nodes
 		Command queryDeploy = ProtocolCommandFactory.buildQueryDeployCommand(originalQuery);
 		comm.send_object_sync(queryDeploy, connections, k);
+		
+		/** Is this necessary? **/
 		
 		// Send start runtime command to all nodes to finish deployment
 		Command runtime = ProtocolCommandFactory.buildStartRuntimeCommand();

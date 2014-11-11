@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+@Deprecated
 public class InputBuffer {
 	
 	private ByteBuffer buf;

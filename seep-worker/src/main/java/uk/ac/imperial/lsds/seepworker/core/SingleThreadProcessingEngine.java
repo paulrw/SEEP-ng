@@ -52,13 +52,13 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 	@Override
 	public void start() {
 		working = true;
-		
+		this.worker.start();
 	}
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-		
+		working = false;
+		// TODO: additional cleaning required
 	}
 	
 	private class Worker implements Runnable{

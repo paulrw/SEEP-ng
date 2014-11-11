@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -24,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.comm.Connection;
-import uk.ac.imperial.lsds.seepworker.Main;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
+import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
@@ -33,12 +34,10 @@ public class NetworkSelector implements EventAPI {
 
 	final private static Logger LOG = LoggerFactory.getLogger(NetworkSelector.class);
 	
-	private Selector acceptorSelector;
-	
 	private ServerSocketChannel listenerSocket;
-	
-	private boolean working = false;
-	private Thread worker;
+	private Selector acceptorSelector;
+	private boolean acceptorWorking = false;
+	private Thread acceptorWorker;
 	
 	private Reader[] readers;
 	private Writer[] writers;
@@ -51,7 +50,10 @@ public class NetworkSelector implements EventAPI {
 	
 	private Map<Integer, SelectionKey> writerKeys;
 	
-	public NetworkSelector(WorkerConfig wc) {
+	// incoming id - local input adapter
+	private Map<Integer, InputAdapter> iapMap;
+	
+	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
 		this.numReaderWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_READER_THREADS); 
 		this.numWriterWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_WRITER_THREADS);
 		this.totalNumberPendingConnectionsPerThread = wc.getInt(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD);
@@ -127,12 +129,20 @@ public class NetworkSelector implements EventAPI {
 	}
 	
 	public void start(){
-		this.working = true;
-		this.worker.start();
+		this.acceptorWorking = true;
+		// Start writers
+		for(Thread w : writerWorkers){
+			w.start();
+		}
+		// Start readers
+		for(Thread r : readerWorkers){
+			r.start();
+		}
+		this.acceptorWorker.start();
 	}
 	
 	public void stop(){
-		this.working = false;
+		this.acceptorWorking = false;
 	}
 	
 	class AcceptorWorker implements Runnable {
@@ -143,7 +153,7 @@ public class NetworkSelector implements EventAPI {
 			int readerIdx = 0;
 			int totalReaders = readers.length;
 			
-			while(working){
+			while(acceptorWorking){
 				try{
 					int readyChannels = acceptorSelector.select();
 					while(readyChannels == 0){
@@ -206,6 +216,7 @@ public class NetworkSelector implements EventAPI {
 		
 		@Override
 		public void run() {
+			boolean waitingForConnectionIdentifier = true;
 			while(working){
 				// First handle potential new connections that have been queued up
 				handleNewConnections();
@@ -219,9 +230,14 @@ public class NetworkSelector implements EventAPI {
 					while(keyIt.hasNext()){
 						SelectionKey key = keyIt.next();
 						if(key.isReadable()){
-							InputBuffer ib = (InputBuffer)key.attachment();
+							if(waitingForConnectionIdentifier){
+								handleConnectionIdentifier(key);
+								waitingForConnectionIdentifier = false;
+							}
+							InputAdapter ia = (InputAdapter)key.attachment();
 							SocketChannel channel = (SocketChannel) key.channel();
-							ib.networkRead(channel);
+							byte[] readData = readData(channel);
+							ia.pushData(readData);
 						}
 					}
 					keyIt.remove();
@@ -232,6 +248,28 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
+		private byte[] readData(SocketChannel channel){
+			// TODO: read a byte[] and push it to the input adapter
+			return null;
+		}
+		
+		private void handleConnectionIdentifier(SelectionKey key){
+			ByteBuffer dst = ByteBuffer.allocate(Integer.SIZE);
+			try {
+				((SocketChannel)key.channel()).read(dst);
+			} 
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			int id = dst.getInt();
+			Map<Integer, InputAdapter> iapMap = (Map<Integer, InputAdapter>)key.attachment();
+			InputAdapter responsibleForThisChannel = iapMap.get(id);
+			// Once we've identified the inputAdapter responsible for this channel we attach the new object
+			key.attach(null);
+			key.attach(responsibleForThisChannel);
+		}
+		
 		private void handleNewConnections(){
 			SocketChannel incomingCon = null;
 			while((incomingCon = pendingConnections.poll()) != null){
@@ -239,7 +277,9 @@ public class NetworkSelector implements EventAPI {
 					incomingCon.configureBlocking(false);
 					incomingCon.socket().setTcpNoDelay(true);
 					// register new incoming connection in the thread-local selector
-					incomingCon.register(readSelector, SelectionKey.OP_READ, new InputBuffer());
+					SelectionKey key = incomingCon.register(readSelector, SelectionKey.OP_READ);
+					// We attach the inputAdapterProvider Map, so that we can identify the channel once it starts
+					key.attach(iapMap);
 				}
 				catch(SocketException se){
 					se.printStackTrace();
@@ -286,6 +326,7 @@ public class NetworkSelector implements EventAPI {
 		
 		@Override
 		public void run(){
+			boolean needsToSendIdentifier = true;
 			while(working){
 				// First handle potential new connections that have been queued up
 				handleNewConnections();
@@ -309,6 +350,13 @@ public class NetworkSelector implements EventAPI {
 						if(key.isWritable()){
 							OutputBuffer ob = (OutputBuffer)key.attachment();
 							SocketChannel channel = (SocketChannel)key.channel();
+							
+							if(needsToSendIdentifier){
+								handleSendIdentifier(ob, channel);
+								unsetWritable(key);
+								needsToSendIdentifier = false;
+							}
+							
 							channel.write(ob.getBuffer());
 							unsetWritable(key);
 						}
@@ -318,6 +366,18 @@ public class NetworkSelector implements EventAPI {
 				catch(IOException ioe){
 					ioe.printStackTrace();
 				}
+			}
+		}
+		
+		private void handleSendIdentifier(OutputBuffer ob, SocketChannel channel){
+			int id = ob.id();
+			ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE);
+			bb.putInt(id);
+			try {
+				channel.write(bb);
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 		

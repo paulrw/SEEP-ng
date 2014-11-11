@@ -1,5 +1,6 @@
 package uk.ac.imperial.lsds.seep.comm.protocol;
 
+@Deprecated
 public class StartRuntimeCommand implements CommandType {
 	
 	public StartRuntimeCommand(){}

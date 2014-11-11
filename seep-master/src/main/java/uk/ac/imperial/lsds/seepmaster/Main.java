@@ -47,35 +47,12 @@ public class Main {
 		int uiType = mc.getInt(MasterConfig.UI_TYPE);
 		UI ui = UIFactory.createUI(uiType, qm, inf);
 		LOG.info("Created UI of type: {}", UIFactory.nameUIOfType(uiType));
-		//OldMasterController mc = OldMasterController.getInstance();
-		//ManagerWorker manager = new ManagerWorker(this, port);
-		//Thread centralManagerT = new Thread(manager, "managerWorkerT");
-		//centralManagerT.start();
-		//mc.init();
-		
 		String queryPathFile = mc.getString(MasterConfig.QUERY_FILE);
 		String baseClass = mc.getString(MasterConfig.BASECLASS_NAME);
 		LOG.info("Loading query {} with baseClass: {} from local file...", queryPathFile, baseClass);
 		qm.loadQueryFromFile(queryPathFile, baseClass);
 		LOG.info("Loading query...OK");
-		ui.start();
-		
-		//LogicalSeepQuery lsq = null;
-		// If the user provided a query when launching the master node...
-//		if(args[0] != null){
-//			System.out.println(args.length);
-//			if(!(args.length > 1)){
-//				System.out.println("Error. Main Master <path_to_query.jar> <Base_class_name>");
-//				System.exit(0);
-//			}
-//			// Then we execute the compose method and get the QueryPlan back
-//			//lsq = mc.executeComposeFromQuery(args[0], args[1]);
-//			//lsq = qm.executeComposeFromQuery(args[0], args[1]);
-//			
-//			// Once we have the QueryPlan from the user submitted query, we submit the query plan to the MasterController
-//			//mc.submitQuery(lsq);
-//		}
-		
+		ui.start();		
 	}
 	
 	public static void main(String args[]){
@@ -99,7 +76,7 @@ public class Main {
 		
 		// Merge both properties, command line has preference
 		Properties validatedProperties = Utils.overwriteSecondPropertiesWithFirst(commandLineProperties, fileProperties);
-		// TODO: validte properties, making sure all required are there
+		// TODO: validate properties, making sure all required are there
 		MasterConfig mc = new MasterConfig(validatedProperties);
 		Main instance = new Main();
 		instance.executeMaster(args, mc);
