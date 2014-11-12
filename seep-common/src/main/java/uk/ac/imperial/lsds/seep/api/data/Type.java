@@ -35,6 +35,7 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			return Byte.BYTES;
 		}
+		
 	};
 	
 	public static final Type SHORT = new Type() {
