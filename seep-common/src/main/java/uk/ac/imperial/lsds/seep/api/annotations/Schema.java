@@ -12,5 +12,5 @@ import uk.ac.imperial.lsds.seep.api.data.Type.JavaType;
 @Target(ElementType.LOCAL_VARIABLE)
 public @interface Schema {
 	String[] fieldname();
-	JavaType[] types();
+	JavaType[] type();
 }

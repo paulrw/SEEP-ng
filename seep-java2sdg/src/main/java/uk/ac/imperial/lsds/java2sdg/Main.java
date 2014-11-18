@@ -147,7 +147,8 @@ public class Main {
 		log.info("Setting soot classpath: "+sootClassPath);
 		Scene.v().setSootClassPath(sootClassPath);
 		Options.v().setPhaseOption("jb", "preserve-source-annotations");
-		log.info("Loading class...");
+		log.info("Loading class: "+ className);
+		
 		SootClass c = null;
 		try{
 			System.out.println();
@@ -170,6 +171,15 @@ public class Main {
 		Iterator<SootField> fieldsIterator = fields.iterator();
 		Map<String, InternalStateRepr> stateElements = Util.extractStateInformation(fieldsIterator);
 		log.info("Extracting state information...OK");
+		
+		/*
+		 * pgaref test
+		 */
+		
+		for(String tmp : stateElements.keySet() ){
+			System.out.println("key: "+ tmp  + " Element: " + stateElements.get(tmp).toString() );
+		}
+		
 		
 		// List relevant methods (the ones that need to be analyzed)
 		log.info("Extracting workflows...");

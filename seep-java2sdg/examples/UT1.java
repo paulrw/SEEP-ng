@@ -17,6 +17,10 @@ import uk.ac.imperial.lsds.seep.api.annotations.Collection;
 import uk.ac.imperial.lsds.seep.api.annotations.Any;
 import uk.ac.imperial.lsds.seep.api.annotations.DriverProgram;
 import uk.ac.imperial.lsds.seep.api.data.Type.JavaType;
+import uk.ac.imperial.lsds.seep.api.annotations.File;
+import uk.ac.imperial.lsds.seep.api.annotations.Schema;
+import uk.ac.imperial.lsds.seep.api.annotations.Network;
+
 
 public class UT1 implements DriverProgram{
 
@@ -27,11 +31,11 @@ public class UT1 implements DriverProgram{
 
 	public void main(){
 		@File(path = "/data/test.txt")
-		@Schema(fields = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
+		@Schema(fieldname = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
 		Vector items = null; // get data somehow
 		train(items); // call function -> implies this is an entry point
 		@Network(endpoint = "localhost:5000")
-		@Schema(fields = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
+		@Schema(fieldname = {"userId, ts, mail"}, types = {JavaType.INT, JavaType.LONG, JavaType.STRING})
 		int item = 5; // a simple item to classify;
 		test(item);
 	}
