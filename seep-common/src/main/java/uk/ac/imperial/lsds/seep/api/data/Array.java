@@ -47,4 +47,9 @@ public class Array extends Type {
         return size;
 	}
 
+	@Override
+	public boolean isVariableSize() {
+		return type.isVariableSize();
+	}
+
 }

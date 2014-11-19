@@ -9,6 +9,7 @@ public abstract class Type {
 	public abstract void write(ByteBuffer buffer, Object o);
 	public abstract Object read(ByteBuffer buffer);
 	public abstract int sizeOf(Object o);
+	public abstract boolean isVariableSize();
 	
 	public enum JavaType{
 		BYTE, SHORT, INT, LONG, STRING, BYTES
@@ -35,6 +36,11 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			return Byte.BYTES;
 		}
+
+		@Override
+		public boolean isVariableSize() {
+			return false;
+		}
 		
 	};
 	
@@ -59,6 +65,11 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			return Short.BYTES;
 		}
+
+		@Override
+		public boolean isVariableSize() {
+			return false;
+		}
 	};
 	
 	public static final Type INT = new Type() {
@@ -82,6 +93,11 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			return Integer.BYTES;
 		}
+
+		@Override
+		public boolean isVariableSize() {
+			return false;
+		}
 	};
 	
 	public static final Type LONG = new Type() {
@@ -104,6 +120,12 @@ public abstract class Type {
 		@Override
 		public int sizeOf(Object o) {
 			return Long.BYTES;
+		}
+
+
+		@Override
+		public boolean isVariableSize() {
+			return false;
 		}
 	};
 	
@@ -149,6 +171,44 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			return Short.BYTES + uk.ac.imperial.lsds.seep.util.Utils.utf8Length((String)o);
 		}
+
+		@Override
+		public boolean isVariableSize() {
+			return true;
+		}
+	};
+	
+	public static final Type SHORTSTRING = new Type(){
+
+		private final int maxSize = 64; // bytes
+		
+		@Override
+		public String toString() {
+			return "SHORTSTRING";
+		}
+
+		@Override
+		public void write(ByteBuffer buffer, Object o) {
+			// TODO;
+			
+		}
+
+		@Override
+		public Object read(ByteBuffer buffer) {
+			// TODO:
+			return null;
+		}
+
+		@Override
+		public int sizeOf(Object o) {
+			return maxSize;
+		}
+
+		@Override
+		public boolean isVariableSize() {
+			return false;
+		}
+		
 	};
 	
 	public static final Type BYTES = new Type() {
@@ -179,6 +239,11 @@ public abstract class Type {
 		public int sizeOf(Object o) {
 			ByteBuffer buffer = (ByteBuffer) o;
             return Integer.BYTES + buffer.remaining();
+		}
+
+		@Override
+		public boolean isVariableSize() {
+			return true;
 		}
 	};
 	

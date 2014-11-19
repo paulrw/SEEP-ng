@@ -9,21 +9,45 @@ import uk.ac.imperial.lsds.seep.util.Utils;
 
 public class Schema {
 	
-	private final byte schemaId;
+	private final int schemaId;
 	private final Type[] fields;
 	private final String[] names;
-	private Map<String, Integer> mapping = new HashMap<String, Integer>();
-	
-	private Schema(byte schemaId, Type[] fields, String[] names){
+	private final boolean variableSize;
+	// Maps fieldName to fieldPosition (fields are ordered in a certain way)
+	private Map<String, Integer> mapFieldNameToFieldPosition = new HashMap<>();
+		
+	private Schema(int schemaId, Type[] fields, String[] names){
 		this.schemaId = schemaId;
 		this.fields = fields;
 		this.names = names;
+		boolean variableSizeSchema = false;
 		for(int i = 0; i < names.length; i++){
-			mapping.put(names[i], 0);
+			mapFieldNameToFieldPosition.put(names[i], i);
+			if(fields[i].isVariableSize()) variableSizeSchema = true;
 		}
+		this.variableSize = variableSizeSchema;
 	}
 	
-	public byte schemaId(){
+	public boolean isVariableSize(){
+		return this.variableSize;
+	}
+	
+	public boolean hasField(String fieldName){
+		return mapFieldNameToFieldPosition.containsKey(fieldName);
+	}
+	
+	public boolean typeCheck(String fieldName, Type type){
+		return mapFieldNameToFieldPosition.get(fieldName).equals(type);
+	}
+	
+	public int getFieldPosition(String fieldName){
+		if(mapFieldNameToFieldPosition.containsKey(fieldName)){
+			return mapFieldNameToFieldPosition.get(fieldName);
+		}
+		return -1;
+	}
+	
+	public int schemaId(){
 		return schemaId;
 	}
 	
@@ -36,11 +60,11 @@ public class Schema {
 	}
 	
 	public Type getField(String name){
-		if(!mapping.containsKey(name)){
+		if(!mapFieldNameToFieldPosition.containsKey(name)){
 			System.out.println("ERROR");
 			System.exit(0);
 		}
-		return fields[mapping.get(name)];
+		return fields[mapFieldNameToFieldPosition.get(name)];
 	}
 	
 	@Override

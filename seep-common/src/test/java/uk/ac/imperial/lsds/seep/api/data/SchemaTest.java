@@ -108,5 +108,41 @@ public class SchemaTest {
 		
 		
 	}
+	
+	@Test
+	public void writeAndReadFixedSizeSchemaTest(){
+		
+		// Fixed size schema
+		int u = 15;
+		long t = System.currentTimeMillis();
+		
+		Schema outputSchema = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
+		OTuple output = new OTuple(outputSchema);
+		
+		output.setInt("userId", u);
+		output.setLong("ts", t);
+		
+		byte[] serializedData = output.serialize();
+		
+		ITuple input = new ITuple(outputSchema); // share output and input schema in the simplest case
+		input.setData(serializedData);
+		
+		int userId = input.getInt("userId");
+		long ts = input.getLong("ts");
+		
+		assertEquals(u, userId);
+		assertEquals(t, ts);
+		
+	}
+	
+	@Test
+	public void writeAndReadVariableSizeSchemaTest(){
+		
+		// Variable size schema
+		// TODO;
+				
+		assertTrue(true);
+		
+	}
 
 }
