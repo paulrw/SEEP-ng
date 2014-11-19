@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import uk.ac.imperial.lsds.java2sdg.Main;
@@ -53,13 +54,19 @@ public class SourceCodeHandler {
 	
 	//FIXME: only for debugging
 	public void printLineAnnotation(){
-		for(Map.Entry<Integer, SDGAnnotation> entry : line_sdgAnnotation.entrySet()){
+		TreeMap<Integer,SDGAnnotation> sorted_map = new TreeMap<Integer, SDGAnnotation>();
+		sorted_map.putAll(line_sdgAnnotation);
+		for(Map.Entry<Integer, SDGAnnotation> entry : sorted_map.entrySet()){
 			System.out.println("Line: "+entry.getKey()+" Value: "+entry.getValue().toString());
 		}
 	}
 	
 	public void printCode(){
-		
+		int count = 0;
+		for(String line : lines){
+			System.out.println("Line: "+ count + " Code: " + line);
+			count++;
+		}
 	}
 	
 	public SDGAnnotation getSDGAnnotationAtLine(int line){
@@ -118,6 +125,22 @@ public class SourceCodeHandler {
 				else if(line.contains("merge")){
 					line_sdgAnnotation.put(lineNumber, SDGAnnotation.COLLECTION);
 				}
+				/*
+				 * New Code
+				 */
+				else if(line.contains("@Schema")){
+					line_sdgAnnotation.put(lineNumber, SDGAnnotation.SCHEMA);
+				}
+				else if(line.contains("@Network")){
+					line_sdgAnnotation.put(lineNumber, SDGAnnotation.NETWORK);
+				}
+				else if(line.contains("@File")){
+					line_sdgAnnotation.put(lineNumber, SDGAnnotation.FILE);
+				}
+				else if(line.contains("@ConsoleSink")){
+					line_sdgAnnotation.put(lineNumber, SDGAnnotation.CONSOLESINK);
+				}
+				
 				lines.add(line);
 				writer.write(line+"\n");
 				lineNumber++;
