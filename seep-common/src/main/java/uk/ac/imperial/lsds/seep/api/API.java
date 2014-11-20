@@ -1,18 +1,17 @@
 package uk.ac.imperial.lsds.seep.api;
 
-import uk.ac.imperial.lsds.seep.api.data.OTuple;
 
 public interface API {
 
-	public void send(OTuple o);
-	public void sendAll(OTuple o);
-	public void sendKey(OTuple o, int key);
-	public void sendKey(OTuple o, String key);
-	public void sendStreamid(int streamId, OTuple o);
-	public void sendStreamidAll(int streamId, OTuple o);
-	public void sendStreamidKey(int streamId, OTuple o, int key);
-	public void sendStreamidKey(int streamId, OTuple o, String key);
-	public void send_index(int index, OTuple o);
-	public void send_opid(int opId, OTuple o);
+	public void send(byte[] o);
+	public void sendAll(byte[] o);
+	public void sendKey(byte[] o, int key);
+	public void sendKey(byte[] o, String key);
+	public void sendStreamid(int streamId, byte[] o);
+	public void sendStreamidAll(int streamId, byte[] o);
+	public void sendStreamidKey(int streamId, byte[] o, int key);
+	public void sendStreamidKey(int streamId, byte[] o, String key);
+	public void send_index(int index, byte[] o);
+	public void send_opid(int opId, byte[] o);
 	
 }

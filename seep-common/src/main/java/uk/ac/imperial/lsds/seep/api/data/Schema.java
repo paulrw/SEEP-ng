@@ -37,7 +37,37 @@ public class Schema {
 	}
 	
 	public boolean typeCheck(String fieldName, Type type){
-		return mapFieldNameToFieldPosition.get(fieldName).equals(type);
+		return fields[mapFieldNameToFieldPosition.get(fieldName)].equals(type);
+	}
+	
+	public boolean typeCheck(String fieldName, Object o){
+		Type t = fields[mapFieldNameToFieldPosition.get(fieldName)];
+		if (t.toString().equals(Type.BYTE.toString())){
+			if(o instanceof Byte){
+				return true;
+			}
+		}
+		else if(t.toString().equals(Type.SHORT.toString())){
+			if(o instanceof Short){
+				return true;
+			}
+		}
+		else if(t.toString().equals(Type.INT.toString())){
+			if(o instanceof Integer){
+				return true;
+			}
+		}
+		else if(t.toString().equals(Type.LONG.toString())){
+			if(o instanceof Long){
+				return true;
+			}
+		}
+		else if(t.toString().equals(Type.STRING.toString())){
+			if(o instanceof String){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public int getFieldPosition(String fieldName){
@@ -79,7 +109,7 @@ public class Schema {
 		return sb.toString();
 	}
 	
-	public static class SchemaBuilder{
+	public static class SchemaBuilder {
 		
 		// Only one instance is safe as schemaId is handled internally automatically
 		private static SchemaBuilder instance = null;

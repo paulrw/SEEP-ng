@@ -50,6 +50,10 @@ public class WorkerConfig extends Config {
     public static final String SIMPLE_INPUT_QUEUE_LENGTH = "simple.input.queue.length";
     private static final String SIMPLE_INPUT_QUEUE_LENGTH_DOC = "The length of a simple input queue, in case this is configured";
     
+    public static final String BATCH_SIZE = "batch.size";
+    private static final String BATCH_SIZE_DOC = "Recommended maximum batch size in bytes. Note that this is not enforced, the system"
+    													+ "will try to achieve this size on a best effort basis";
+    
 	
 	static{
 		config = new ConfigDef().define(DEPLOYMENT_TARGET_TYPE, Type.INT, 0, Importance.HIGH, DEPLOYMENT_TARGET_TYPE_DOC)
@@ -63,7 +67,8 @@ public class WorkerConfig extends Config {
 				.define(NUM_NETWORK_READER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_READER_THREADS_DOC)
 				.define(NUM_NETWORK_WRITER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_WRITER_THREADS_DOC)
 				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC)
-				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC);
+				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC)
+				.define(BATCH_SIZE, Type.INT, 512, Importance.HIGH, BATCH_SIZE_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

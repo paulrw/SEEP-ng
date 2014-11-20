@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.API;
-import uk.ac.imperial.lsds.seep.api.data.OTuple;
 import uk.ac.imperial.lsds.seep.errors.DoYouKnowWhatYouAreDoingException;
-import uk.ac.imperial.lsds.seep.util.Utils;
-import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInformation;
 
@@ -41,7 +38,7 @@ public class Collector implements API {
 	}
 	
 	@Override
-	public void send(OTuple o) {
+	public void send(byte[] o) {
 		if(SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
@@ -50,7 +47,7 @@ public class Collector implements API {
 	}
 
 	@Override
-	public void sendAll(OTuple o) {
+	public void sendAll(byte[] o) {
 		if(SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
@@ -59,43 +56,43 @@ public class Collector implements API {
 	}
 
 	@Override
-	public void sendKey(OTuple o, int key) {
+	public void sendKey(byte[] o, int key) {
 		outputAdapter.sendKey(o, key);
 	}
 
 	@Override
-	public void sendKey(OTuple o, String key) {
+	public void sendKey(byte[] o, String key) {
 		outputAdapter.sendKey(o, key);
 	}
 
 	@Override
-	public void sendStreamid(int streamId, OTuple o) {
+	public void sendStreamid(int streamId, byte[] o) {
 		streamIdToOutputAdapter.get(streamId).send(o);
 	}
 
 	@Override
-	public void sendStreamidAll(int streamId, OTuple o) {
+	public void sendStreamidAll(int streamId, byte[] o) {
 		streamIdToOutputAdapter.get(streamId).sendAll(o);
 	}
 
 	@Override
-	public void sendStreamidKey(int streamId, OTuple o, int key) {
+	public void sendStreamidKey(int streamId, byte[] o, int key) {
 		streamIdToOutputAdapter.get(streamId).sendKey(o, key);
 	}
 
 	@Override
-	public void sendStreamidKey(int streamId, OTuple o, String key) {
+	public void sendStreamidKey(int streamId, byte[] o, String key) {
 		streamIdToOutputAdapter.get(streamId).sendKey(o, key);
 	}
 
 	@Override
-	public void send_index(int index, OTuple o) {
+	public void send_index(int index, byte[] o) {
 		throw new DoYouKnowWhatYouAreDoingException("This is mostly a debugging method, you should not be playing with the"
 				+ "underlying communication directly otherwise...");
 	}
 
 	@Override
-	public void send_opid(int opId, OTuple o) {
+	public void send_opid(int opId, byte[] o) {
 		throw new DoYouKnowWhatYouAreDoingException("You seem to know too much about the topology of this dataflow...");
 	}
 	

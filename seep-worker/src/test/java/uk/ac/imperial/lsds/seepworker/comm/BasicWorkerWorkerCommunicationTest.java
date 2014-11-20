@@ -1,7 +1,5 @@
 package uk.ac.imperial.lsds.seepworker.comm;
 
-import static org.junit.Assert.assertTrue;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -50,7 +48,7 @@ public class BasicWorkerWorkerCommunicationTest {
 		
 		// create outputbuffer for the client
 		Connection c = new Connection(new EndPoint(clientId, myIp, listeningPort));
-		OutputBuffer ob = new OutputBuffer(clientId, c);
+		OutputBuffer ob = new OutputBuffer(null, clientId, c);
 		Set<OutputBuffer> obs = new HashSet<>();
 		obs.add(ob);
 		ds.configureConnect(obs);

@@ -6,7 +6,6 @@ import java.util.Set;
 
 import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 
-
 public class CoreOutput {
 	
 	private List<OutputAdapter> outputAdapters;

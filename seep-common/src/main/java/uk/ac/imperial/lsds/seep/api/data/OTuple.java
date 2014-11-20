@@ -9,8 +9,8 @@ public class OTuple {
 	private Schema schema;
 	private Object[] values;
 	private Map<String, Integer> mapFieldToOffset;
+	private final int fixedSchemaSize;
 	
-//	private ByteBuffer wrapper;
 	private byte[] data;
 	
 	public OTuple(Schema schema){
@@ -20,6 +20,10 @@ public class OTuple {
 		if(! schema.isVariableSize()){
 			// This only happens once
 			this.populateOffsets();
+			this.fixedSchemaSize = this.calculateSizeFromSchema();
+		}
+		else {
+			this.fixedSchemaSize = -1; // variable size, so it needs to be computed per tuple
 		}
 	}
 	
@@ -44,15 +48,35 @@ public class OTuple {
 		}
 	}
 	
-//	public void setData(byte[] data){
-//		this.data = data;
-//	}
-//	
 	public byte[] getData(){
 		return data;
 	}
 	
-	public void setByte(String fieldName, byte b){
+//	public byte[] create(Schema schema, String[] fields, Object[] vs) {
+//		if(fields.length != vs.length){
+//			// TODO: error here
+//			System.exit(0);
+//		}
+//		if(fields.length != schema.fields().length){
+//			// TODO: error here
+//			System.exit(0);
+//		}
+//		values = new Object[vs.length];
+//		for(int i = 0; i < fields.length; i++){
+//			Object toTypeCheck = vs[i];
+//			if(! schema.typeCheck(fields[i], toTypeCheck)){
+//				// TODO: error here
+//				System.exit(0);
+//			}
+//			else{
+//				values[i] = toTypeCheck;
+//			}
+//		}
+//		this.populateOffsets();
+//		//return );
+//	}
+	
+	public OTuple setByte(String fieldName, byte b){
 		if(! schema.hasField(fieldName)){
 			// TODO:
 		}
@@ -61,9 +85,10 @@ public class OTuple {
 		}
 		int position = schema.getFieldPosition(fieldName);
 		values[position] = b;
+		return this;
 	}
 	
-	public void setShort(String fieldName, short s){
+	public OTuple setShort(String fieldName, short s){
 		if(! schema.hasField(fieldName)){
 			// TODO:
 		}
@@ -72,9 +97,10 @@ public class OTuple {
 		}
 		int position = schema.getFieldPosition(fieldName);
 		values[position] = s;
+		return this;
 	}
 	
-	public void setInt(String fieldName, int i){
+	public OTuple setInt(String fieldName, int i){
 		if(! schema.hasField(fieldName)){
 			// TODO:
 		}
@@ -83,9 +109,10 @@ public class OTuple {
 		}
 		int position = schema.getFieldPosition(fieldName);
 		values[position] = i;
+		return this;
 	}
 	
-	public void setLong(String fieldName, long l){
+	public OTuple setLong(String fieldName, long l){
 		if(! schema.hasField(fieldName)){
 			// TODO:
 		}
@@ -94,16 +121,21 @@ public class OTuple {
 		}
 		int position = schema.getFieldPosition(fieldName);
 		values[position] = l;
+		return this;
 	}
 	
-	public void setString(String fieldName, String str){
+	public OTuple setString(String fieldName, String str){
 //		int offset = mapFieldToOffset.get(fieldName);
 //		wrapper.position(offset);
 //		wrapper.put(b);
+		return this;
 	}
 	
-	public byte[] serialize(){
-		int requiredSize = calculateSizeFromSchema();
+	public byte[] getBytes(){
+		int requiredSize = this.fixedSchemaSize;
+		if(schema.isVariableSize()){
+			requiredSize = calculateSizeFromSchema(); 
+		}
 		data = new byte[requiredSize];
 		ByteBuffer wrapper = ByteBuffer.wrap(data);
 		for(int i = 0; i < values.length; i++){

@@ -50,7 +50,7 @@ public class Conductor {
 		// This creates one inputAdapter per upstream stream Id
 		coreInput = CoreInputFactory.buildCoreInputForOperator(wc, o);
 		// This creates one outputAdapter per downstream stream Id
-		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(o);
+		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(wc, o);
 		
 		this.ns = maybeConfigureNetworkSelector();
 		coreOutput.setEventAPI(ns);

@@ -28,7 +28,6 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
-import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class NetworkSelector implements EventAPI {
@@ -421,7 +420,7 @@ public class NetworkSelector implements EventAPI {
 								needsToSendIdentifier = false;
 							}
 							else{
-								channel.write(ob.getBuffer());
+								write(ob, channel);
 								unsetWritable(key);
 							}
 						}
@@ -430,6 +429,21 @@ public class NetworkSelector implements EventAPI {
 				catch(IOException ioe){
 					ioe.printStackTrace();
 				}
+			}
+		}
+		
+		private void write(OutputBuffer ob, SocketChannel channel){
+			ByteBuffer buf = ob.getBuffer();
+			synchronized(buf){
+				buf.flip();
+				try {
+					channel.write(buf);
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+				buf.clear();
+				ob.notifyOfSpace();
 			}
 		}
 		

@@ -8,10 +8,11 @@ import java.util.Map;
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
+import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class CoreOutputFactory {
 
-	public static CoreOutput buildCoreOutputForOperator(PhysicalOperator o){
+	public static CoreOutput buildCoreOutputForOperator(WorkerConfig wc, PhysicalOperator o){
 		List<OutputAdapter> outputAdapters = new ArrayList<>();
 		// Create an InputAdapter per upstream connection -> know with the streamId
 		Map<Integer, List<DownstreamConnection>> streamToOpConn = new HashMap<>();
@@ -37,7 +38,7 @@ public class CoreOutputFactory {
 			OutputAdapter oa = null;
 			if(dOrigin == DataOrigin.NETWORK){
 				// Create outputAdapter
-				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(streamId, doCon);
+				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(wc, streamId, doCon);
 			}
 			outputAdapters.add(oa);
 		}
