@@ -15,23 +15,30 @@ public class NetworkDataStream implements InputAdapter{
 	final private boolean REQUIRES_NETWORK = true;
 	final private boolean REQUIRES_FILE = false;
 	
+	private InputBuffer buffer;
 	private BlockingQueue<byte[]> queue;
 	private int queueSize;
 	
 	final private int streamId;
 
-	private Schema expectedSchema;
+	//private Schema expectedSchema;
 	private ITuple iTuple;
 	
 	private List<Operator> ops;
 	
 	public NetworkDataStream(WorkerConfig wc, int streamId, Schema expectedSchema, List<Operator> ops) {
 		this.streamId = streamId;
-		this.expectedSchema = expectedSchema;
 		this.ops = ops;
 		this.queueSize = wc.getInt(WorkerConfig.SIMPLE_INPUT_QUEUE_LENGTH);
 		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
 		this.iTuple = new ITuple(expectedSchema);
+		
+		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.BATCH_SIZE));
+	}
+	
+	@Override
+	public InputBuffer getInputBuffer(){
+		return buffer;
 	}
 	
 	@Override
@@ -55,6 +62,7 @@ public class NetworkDataStream implements InputAdapter{
 			queue.put(data);
 		} 
 		catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

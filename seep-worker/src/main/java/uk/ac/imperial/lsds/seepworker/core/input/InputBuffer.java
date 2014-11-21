@@ -1,26 +1,23 @@
 package uk.ac.imperial.lsds.seepworker.core.input;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.Channel;
+import java.util.ArrayList;
+import java.util.List;
 
-@Deprecated
 public class InputBuffer {
 	
 	private ByteBuffer buf;
 	
-	public InputBuffer(){
+	public List<byte[]> completedReads;
+	
+	public InputBuffer(int size){
+		buf = ByteBuffer.allocate(size);
+		completedReads = new ArrayList<>();
+	}
+	
+	public boolean readFrom(Channel channel){
 		
+		return false;
 	}
-	
-	public void networkRead(SocketChannel channel){
-		try {
-			channel.read(buf);
-		} 
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 }

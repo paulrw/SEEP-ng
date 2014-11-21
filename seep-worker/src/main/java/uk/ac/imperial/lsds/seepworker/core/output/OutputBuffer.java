@@ -27,7 +27,7 @@ public class OutputBuffer {
 		return c;
 	}
 
-	public boolean write(byte[] data){
+	public boolean write(byte[] data) {
 		while(buf.remaining() < data.length){
 			// If there is not space enough, then block until there is
 			waitForSpace();

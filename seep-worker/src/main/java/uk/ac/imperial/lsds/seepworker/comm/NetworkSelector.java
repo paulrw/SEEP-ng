@@ -28,6 +28,7 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
+import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class NetworkSelector implements EventAPI {
@@ -282,8 +283,14 @@ public class NetworkSelector implements EventAPI {
 							else{
 								InputAdapter ia = (InputAdapter)key.attachment();
 								SocketChannel channel = (SocketChannel) key.channel();
-								byte[] readData = readData(channel);
-								ia.pushData(readData);
+								InputBuffer buffer = ia.getInputBuffer();
+								boolean completeReads = buffer.readFrom(channel);
+								if(completeReads){
+									for(int i = 0; i < buffer.completedReads.size(); i++){
+										byte[] data = buffer.completedReads.get(i);
+										ia.pushData(data);
+									}
+								}
 							}
 						}
 					}
@@ -292,11 +299,6 @@ public class NetworkSelector implements EventAPI {
 					ioe.printStackTrace();
 				}
 			}
-		}
-		
-		private byte[] readData(SocketChannel channel){
-			// TODO: read a byte[] and push it to the input adapter
-			return null;
 		}
 		
 		private void handleConnectionIdentifier(SelectionKey key){

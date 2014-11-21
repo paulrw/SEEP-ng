@@ -52,29 +52,31 @@ public class OTuple {
 		return data;
 	}
 	
-//	public byte[] create(Schema schema, String[] fields, Object[] vs) {
-//		if(fields.length != vs.length){
-//			// TODO: error here
-//			System.exit(0);
-//		}
-//		if(fields.length != schema.fields().length){
-//			// TODO: error here
-//			System.exit(0);
-//		}
-//		values = new Object[vs.length];
-//		for(int i = 0; i < fields.length; i++){
-//			Object toTypeCheck = vs[i];
-//			if(! schema.typeCheck(fields[i], toTypeCheck)){
-//				// TODO: error here
-//				System.exit(0);
-//			}
-//			else{
-//				values[i] = toTypeCheck;
-//			}
-//		}
-//		this.populateOffsets();
-//		//return );
-//	}
+	public byte[] create(Schema schema, String[] fields, Object[] vs) {
+		OTuple o = new OTuple(schema);
+		if(fields.length != vs.length){
+			// TODO: error here
+			System.exit(0);
+		}
+		if(fields.length != schema.fields().length){
+			// TODO: error here
+			System.exit(0);
+		}
+		Object[] values = new Object[vs.length];
+		for(int i = 0; i < fields.length; i++){
+			Object toTypeCheck = vs[i];
+			if(! schema.typeCheck(fields[i], toTypeCheck)){
+				// TODO: error here
+				System.exit(0);
+			}
+			else{
+				values[i] = toTypeCheck;
+			}
+		}
+		o.values = values;
+		this.populateOffsets();
+		return o.getBytes();
+	}
 	
 	public OTuple setByte(String fieldName, byte b){
 		if(! schema.hasField(fieldName)){
