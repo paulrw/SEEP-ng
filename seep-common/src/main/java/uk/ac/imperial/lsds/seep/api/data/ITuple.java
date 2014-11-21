@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.ac.imperial.lsds.seep.util.Utils;
+
 /**
  * Tuple is a class that contains data in a byte[] form and an accompanying schema. Data will be deserialized only when
  * is explicitly needed, which will reduce overhead in many cases. All overhead is then pushed to the application, not part
@@ -137,6 +139,39 @@ public class ITuple {
 //		wrapper.position(offset);
 //		return wrapper.get();
 		return null;
+	}
+	
+	public Object get(String fieldName){
+		if(! schema.hasField(fieldName)){
+			// TODO: error no field
+		}
+		int offset = mapFieldToOffset.get(fieldName);
+		wrapper.position(offset);
+		Object o = null;
+		Type t = schema.getField(fieldName);
+		if(t == Type.BYTE){
+			o = wrapper.get();
+		} else if(t == Type.INT){
+			o = wrapper.getInt();
+		} else if(t == Type.SHORT){
+			o = wrapper.getShort();
+		} else if(t == Type.LONG){
+			o = wrapper.getLong();
+		} else if(t == Type.STRING){
+			// TODO: read a string
+		}
+		return o;
+	}
+	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		for(String fieldName : schema.names()){
+			Object o = this.get(fieldName);
+			sb.append(fieldName+": "+o.toString());
+			sb.append(Utils.NL);
+		}
+		return sb.toString();
 	}
 	
 }
