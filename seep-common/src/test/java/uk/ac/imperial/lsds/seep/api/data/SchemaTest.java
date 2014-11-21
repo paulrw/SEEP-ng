@@ -122,7 +122,7 @@ public class SchemaTest {
 		output.setInt("userId", u);
 		output.setLong("ts", t);
 		
-		byte[] serializedData = output.serialize();
+		byte[] serializedData = output.getBytes();
 		
 		ITuple input = new ITuple(outputSchema); // share output and input schema in the simplest case
 		input.setData(serializedData);
