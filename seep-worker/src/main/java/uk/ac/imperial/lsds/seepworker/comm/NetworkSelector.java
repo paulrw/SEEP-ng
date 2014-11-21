@@ -181,6 +181,17 @@ public class NetworkSelector implements EventAPI {
 		this.acceptorWorking = false;
 	}
 	
+	public void destroyNow(){
+		this.stop();
+		
+		for(Reader r : readers){
+			r.stop();
+		}
+		for(Writer w : writers){
+			w.stop();
+		}
+	}
+	
 	class AcceptorWorker implements Runnable {
 
 		@Override
@@ -257,6 +268,11 @@ public class NetworkSelector implements EventAPI {
 			this.readSelector.wakeup();
 		}
 		
+		private void unsetReadable(SelectionKey key){
+			final int newOps = key.interestOps() & ~SelectionKey.OP_READ;
+			key.interestOps(newOps);
+		}
+		
 		@Override
 		public void run() {
 			LOG.info("Started Reader worker: {}", Thread.currentThread().getName());
@@ -284,8 +300,9 @@ public class NetworkSelector implements EventAPI {
 								InputAdapter ia = (InputAdapter)key.attachment();
 								SocketChannel channel = (SocketChannel) key.channel();
 								InputBuffer buffer = ia.getInputBuffer();
-								boolean completeReads = buffer.readFrom(channel);
-								if(completeReads){
+								boolean completedReads = buffer.readFrom(channel);
+								unsetReadable(key);
+								if(completedReads){
 									for(int i = 0; i < buffer.completedReads.size(); i++){
 										byte[] data = buffer.completedReads.get(i);
 										ia.pushData(data);
@@ -439,7 +456,8 @@ public class NetworkSelector implements EventAPI {
 			synchronized(buf){
 				buf.flip();
 				try {
-					channel.write(buf);
+					int writtenBytes = channel.write(buf);
+					System.out.println("written: "+writtenBytes);
 				}
 				catch (IOException e) {
 					e.printStackTrace();

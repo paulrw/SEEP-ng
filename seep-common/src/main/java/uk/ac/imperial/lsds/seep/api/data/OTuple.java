@@ -52,29 +52,27 @@ public class OTuple {
 		return data;
 	}
 	
-	public byte[] create(Schema schema, String[] fields, Object[] vs) {
+	public static byte[] create(Schema schema, String[] fields, Object[] vs) {
 		OTuple o = new OTuple(schema);
 		if(fields.length != vs.length){
-			// TODO: error here
-			System.exit(0);
+			throw new SchemaException("Mismatch between fieldNames and values");
 		}
 		if(fields.length != schema.fields().length){
-			// TODO: error here
-			System.exit(0);
+			throw new SchemaException("Mismatch between input fields and schema fields");
 		}
 		Object[] values = new Object[vs.length];
 		for(int i = 0; i < fields.length; i++){
 			Object toTypeCheck = vs[i];
 			if(! schema.typeCheck(fields[i], toTypeCheck)){
-				// TODO: error here
-				System.exit(0);
+				String error = "Field: "+fields[i].toString()+" does not type check";
+				throw new SchemaException(error);
 			}
 			else{
 				values[i] = toTypeCheck;
 			}
 		}
 		o.values = values;
-		this.populateOffsets();
+		o.populateOffsets();
 		return o.getBytes();
 	}
 	
