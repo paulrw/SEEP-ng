@@ -1,6 +1,8 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 import uk.ac.imperial.lsds.seep.comm.Connection;
@@ -12,12 +14,16 @@ public class OutputBuffer {
 	private Connection c;
 	
 	private ByteBuffer buf;
+	private int batchSize;
+	private Deque<byte[]> batchQueue;
+	private int currentPayloadSize = 0;
 	
 	public OutputBuffer(WorkerConfig wc, int opId, Connection c){
 		this.opId = opId;
 		this.c = c;
-		int batchSize = wc.getInt(WorkerConfig.BATCH_SIZE);
+		this.batchSize = wc.getInt(WorkerConfig.BATCH_SIZE);
 		buf = ByteBuffer.allocate(batchSize + TupleInfo.PER_BATCH_OVERHEAD_SIZE);
+		batchQueue = new ArrayDeque<>();
 	}
 	
 	public int id(){
@@ -29,27 +35,46 @@ public class OutputBuffer {
 	}
 
 	public boolean write(byte[] data) {
-		System.out.println("1 remaining: "+buf.remaining()+" < data.length: "+data.length);
-		while(buf.remaining() < data.length){
-			// If there is not space enough, then block until there is
-			waitForSpace();
+		// If there is no data in the queue, then we can always add, regardless any other parameter
+		if(currentPayloadSize == 0){
+			batchQueue.add(data);
+			currentPayloadSize = data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
 		}
-		synchronized(buf){
-			int dataLength = data.length;
-			buf.put((byte) 0); // control: 1 byte
-			buf.putInt(1); // num_bytes_per_batch: 4 byte FIXME: get this number properly
-			System.out.println("position 5: "+(dataLength + TupleInfo.NUM_TUPLES_BATCH_OVERHEAD));
-			buf.putInt(dataLength + TupleInfo.NUM_TUPLES_BATCH_OVERHEAD); // batch_size: 4 byte
-			System.out.println("DataLength: "+dataLength);
-			buf.putInt(dataLength); // tuple_length: 4 byte
-			buf.put(data); // data
-		}
-		// Assumes that all tuples are similar sized...
-		System.out.println("2 remaining: "+buf.remaining()+" < data.length: "+data.length);
-		if(buf.remaining() < data.length){
+		int sizeIfDataIsWritten = TupleInfo.PER_BATCH_OVERHEAD_SIZE
+				+ currentPayloadSize 
+				+ data.length 
+				+ TupleInfo.TUPLE_SIZE_OVERHEAD;
+		System.out.println("sizeIfDataIsWritten: "+sizeIfDataIsWritten+" batchSize: "+batchSize);
+		if(sizeIfDataIsWritten > batchSize){
+			if(buf.remaining() < currentPayloadSize){
+				// In this case, we have a batch completed, but the queue is full, so we should block
+				waitForSpace();
+			}
+			System.out.println("buffer position should be zero: "+buf.position());
+			// We can and must send the batch now
+			int numTuplesInBatch = batchQueue.size();
+			buf.put((byte)0); // control: 1 byte
+			buf.putInt(numTuplesInBatch); // num_tuples: 4 bytes
+			buf.putInt(currentPayloadSize); // batch_size: 4 bytes
+			for(int i = 0; i < numTuplesInBatch; i++){
+				byte[] el = batchQueue.poll();
+				buf.putInt(el.length);
+				buf.put(el);
+			}
+			System.out.println("Buf position should be whatever is written: "+buf.position());
+			// add first tuple of the next batch
+			batchQueue.add(data);
+			// reset the size
+			currentPayloadSize = data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
+			System.out.println("currentPayloadSize after writing: "+currentPayloadSize);
 			return true;
 		}
-		return false;
+		else{
+			// queue, cannot send yet
+			batchQueue.add(data);
+			currentPayloadSize = currentPayloadSize + data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
+			return false;
+		}
 	}
 	
 	private void waitForSpace(){
@@ -59,7 +84,6 @@ public class OutputBuffer {
 			}
 		}
 		catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

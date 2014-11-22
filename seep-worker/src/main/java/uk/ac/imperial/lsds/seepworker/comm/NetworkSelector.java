@@ -301,10 +301,14 @@ public class NetworkSelector implements EventAPI {
 								SocketChannel channel = (SocketChannel) key.channel();
 								InputBuffer buffer = ia.getInputBuffer();
 								boolean completedReads = buffer.readFrom(channel);
-								unsetReadable(key);
+								System.out.println("completed reads: "+completedReads);
 								if(completedReads){
+									// Only unset read interest if there were fully READS
+									unsetReadable(key);
+									System.out.println("comp reads: "+buffer.completedReads.size());
 									for(int i = 0; i < buffer.completedReads.size(); i++){
 										byte[] data = buffer.completedReads.get(i);
+										System.out.println("Pushing data with size: "+data.length);
 										ia.pushData(data);
 									}
 								}
@@ -439,8 +443,11 @@ public class NetworkSelector implements EventAPI {
 								needsToSendIdentifier = false;
 							}
 							else{
-								write(ob, channel);
-								unsetWritable(key);
+								boolean fullyWritten = write(ob, channel);
+								if(fullyWritten){
+									// only remove interest if fully written, otherwise keep pushing the socket buffer
+									unsetWritable(key);
+								}
 							}
 						}
 					}
@@ -451,19 +458,28 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
-		private void write(OutputBuffer ob, SocketChannel channel){
+		private boolean write(OutputBuffer ob, SocketChannel channel){
 			ByteBuffer buf = ob.getBuffer();
 			synchronized(buf){
+				int totalBytesToWrite = buf.remaining();
+				int writtenBytes = 0;
 				buf.flip();
 				try {
-					int writtenBytes = channel.write(buf);
+					writtenBytes = channel.write(buf);
 					System.out.println("written: "+writtenBytes);
 				}
 				catch (IOException e) {
 					e.printStackTrace();
 				}
-				buf.clear();
-				ob.notifyOfSpace();
+				System.out.println("writtenBytes: "+writtenBytes+" totalToWrite: "+totalBytesToWrite);
+				if(writtenBytes == totalBytesToWrite){
+					System.out.println("clearing buffer, and eveyrthing is fine...");
+					buf.clear();
+					ob.notifyOfSpace();
+					return true;
+				}
+				System.exit(0);
+				return false;
 			}
 		}
 		

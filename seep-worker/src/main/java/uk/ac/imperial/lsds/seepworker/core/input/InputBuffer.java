@@ -11,51 +11,34 @@ import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 
 public class InputBuffer {
 	
-//	private int expectedSize = -1;
 	private ByteBuffer buffer;
 	
 	public List<byte[]> completedReads;
 	
 	public InputBuffer(int size){
-		buffer = ByteBuffer.allocate(size);
+		buffer = ByteBuffer.allocate(size*4);
 		completedReads = new ArrayList<>();
 	}
 	
 	public boolean readFrom(Channel channel){
-		System.out.println("Here we are...");
 		try {
 			int readBytes = ((SocketChannel)channel).read(buffer);
 			System.out.println("just read: "+readBytes);
-			int position = buffer.position();
-			System.out.println("Position after reading: "+position+" compare to: "+TupleInfo.PER_BATCH_OVERHEAD_SIZE);
+			int position = buffer.position(); // tells us how much have been read, this may be called several times
 			if(position < TupleInfo.PER_BATCH_OVERHEAD_SIZE){
-				return false;
+				return false; // we do not have enough info for even one tuple
 			}
-//			if(expectedSize != -1){
-//				if(position >= expectedSize){
-//					// new read completed here
-//					byte[] completedRead = new byte[expectedSize];
-//					buffer.get(completedRead, TupleInfo.BATCH_SIZE_OFFSET, position);
-//					completedReads.add(completedRead);
-//					expectedSize = -1;
-//					buffer.compact();
-//					return true;
-//				}
-//				else{
-//					return false;
-//				}
-//			}
-//			else{
 			// fresh read
 			System.out.println("FRESH READ, current position: "+buffer.position());
 			buffer.position(TupleInfo.CONTROL_OVERHEAD);
 			int numTuples = buffer.getInt();
 			int batchSize = buffer.getInt();
-//			expectedSize = batchSize;
 			int remaining = buffer.remaining();
 			System.out.println("numTuples: "+numTuples+" remaining: "+remaining+" batchSize: "+batchSize);
-			if(remaining >= batchSize){
+			if(remaining >= batchSize){ // >= cause we do not have exact sized batches due to variable sized tuples
+//				System.out.println("a");
 				for(int i = 0; i < numTuples; i++){
+//					System.out.println("b");
 					int tupleSize = buffer.getInt();
 					System.out.println("Tuple size: "+tupleSize);
 					byte[] completedRead = new byte[tupleSize];
@@ -64,14 +47,12 @@ public class InputBuffer {
 					System.out.println("completedRead length: "+completedRead.length);
 					completedReads.add(completedRead);
 				}
-//				expectedSize = -1;
-				buffer.compact();
+				buffer.clear(); // leave buffer ready for next read op
 				return true;
 			}
 			else{
 				return false;
 			}
-//			}
 		} 
 		catch (IOException e) {
 			e.printStackTrace();

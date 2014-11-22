@@ -94,7 +94,7 @@ public class BasicWorkerWorkerCommunicationTest {
 		iapMap = new HashMap<>();
 		Properties p = new Properties();
 		p.setProperty("master.ip", "127.0.0.1");
-		p.setProperty("batch.size", "27");
+		p.setProperty("batch.size", "20");
 		WorkerConfig fake = new WorkerConfig(p);
 		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
 		iapMap.put(clientId, nds);
@@ -128,7 +128,9 @@ public class BasicWorkerWorkerCommunicationTest {
 		}
 		// Create tuple and send it to the other worker
 		byte[] serializedData = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{3, 23423L});
+		//byte[] serializedData2 = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{4, 8384L});
 		System.out.println("Total data to send: "+serializedData.length);
+		//ob.write(serializedData);
 		boolean canSend = ob.write(serializedData);
 		if(canSend){
 			System.out.println("Notifying to send");
@@ -139,6 +141,9 @@ public class BasicWorkerWorkerCommunicationTest {
 		
 		ITuple incomingTuple = nds.pullDataItem(); // blocking until there's something to receive
 		System.out.println(incomingTuple.toString());
+		
+//		ITuple incomingTuple2 = nds.pullDataItem(); // blocking until there's something to receive
+//		System.out.println(incomingTuple2.toString());
 		
 		while(true){
 			try {
