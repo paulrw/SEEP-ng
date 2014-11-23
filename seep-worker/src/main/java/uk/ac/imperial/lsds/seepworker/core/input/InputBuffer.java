@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 
@@ -13,49 +13,78 @@ public class InputBuffer {
 	
 	private ByteBuffer buffer;
 	
-	public List<byte[]> completedReads;
+	public Deque<byte[]> completedReads;
 	
 	public InputBuffer(int size){
-		buffer = ByteBuffer.allocate(size*4);
-		completedReads = new ArrayList<>();
+		buffer = ByteBuffer.allocate(size);
+		completedReads = new ArrayDeque<>();
 	}
 	
-	public boolean readFrom(Channel channel){
-		try {
-			int readBytes = ((SocketChannel)channel).read(buffer);
-			System.out.println("just read: "+readBytes);
-			int position = buffer.position(); // tells us how much have been read, this may be called several times
-			if(position < TupleInfo.PER_BATCH_OVERHEAD_SIZE){
-				return false; // we do not have enough info for even one tuple
-			}
-			// fresh read
-			System.out.println("FRESH READ, current position: "+buffer.position());
-			buffer.position(TupleInfo.CONTROL_OVERHEAD);
-			int numTuples = buffer.getInt();
+	public boolean canReadFullBatch(int fromPosition, int limit){
+		// Check whether we can read a complete batch
+
+		int initialPosition = buffer.position();
+		int initialLimit = buffer.limit();
+		
+		buffer.position(fromPosition);
+		buffer.limit(limit);
+		int remaining = buffer.remaining();
+		if(remaining < TupleInfo.PER_BATCH_OVERHEAD_SIZE){
+			// Reset buffer back to initial status and wait for more data to arrive
+			buffer.limit(initialLimit);
+			buffer.position(initialPosition);
+			return false;
+		} 
+		else{
+			buffer.position(fromPosition + TupleInfo.BATCH_SIZE_OFFSET);
 			int batchSize = buffer.getInt();
-			int remaining = buffer.remaining();
-			System.out.println("numTuples: "+numTuples+" remaining: "+remaining+" batchSize: "+batchSize);
-			if(remaining >= batchSize){ // >= cause we do not have exact sized batches due to variable sized tuples
-//				System.out.println("a");
-				for(int i = 0; i < numTuples; i++){
-//					System.out.println("b");
-					int tupleSize = buffer.getInt();
-					System.out.println("Tuple size: "+tupleSize);
-					byte[] completedRead = new byte[tupleSize];
-					System.out.println("Read from: "+buffer.position()+" these many bytes: "+tupleSize);
-					buffer.get(completedRead, 0, tupleSize);
-					System.out.println("completedRead length: "+completedRead.length);
-					completedReads.add(completedRead);
-				}
-				buffer.clear(); // leave buffer ready for next read op
-				return true;
-			}
-			else{
+			buffer.limit(initialLimit);
+			buffer.position(initialPosition);
+			if(remaining < batchSize){
 				return false;
 			}
-		} 
-		catch (IOException e) {
+			return true;
+		}
+	}
+	
+	public boolean readFrom(Channel channel, InputAdapter ia){
+		boolean dataRemainingInBuffer = true;
+		int readBytes = 0;
+		try {
+			readBytes = ((SocketChannel)channel).read(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		int initialLimit = buffer.position();
+		int fromPosition = 0;
+		while(dataRemainingInBuffer){
+			if(canReadFullBatch(fromPosition, initialLimit)){
+				buffer.limit(initialLimit);
+				buffer.position(fromPosition);
+				
+				byte control = buffer.get();
+				int numTuples = buffer.getInt();
+				int batchSize = buffer.getInt();
+				for(int i = 0; i < numTuples; i++){
+					int tupleSize = buffer.getInt();
+					byte[] completedRead = new byte[tupleSize];
+					buffer.get(completedRead, 0, tupleSize);
+					ia.pushData(completedRead);
+				}
+				fromPosition = buffer.position(); // Update position for next iteration
+			}
+			else{
+				if(buffer.hasRemaining()){
+					buffer.compact(); // make space to complete chunked read
+					return false;
+				}
+				else{
+					dataRemainingInBuffer = false;
+					buffer.clear();
+					return true; // Fully read buffer
+				}
+			}
 		}
 		return false;
 	}

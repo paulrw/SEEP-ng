@@ -24,6 +24,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
@@ -119,18 +120,22 @@ public class NetworkSelector implements EventAPI {
 	@Override
 	public void readyForWrite(int id){
 		SelectionKey key = writerKeys.get(id);
-		int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
-		key.interestOps(interestOps);
-		key.selector().wakeup();
+		synchronized(key){
+			int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+			key.interestOps(interestOps);
+			key.selector().wakeup();
+		}
 	}
 	
 	@Override
 	public void readyForWrite(List<Integer> ids){
 		for(Integer id : ids){
 			SelectionKey key = writerKeys.get(id);
-			int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
-			key.interestOps(interestOps);
-			key.selector().wakeup();
+			synchronized(key){
+				int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+				key.interestOps(interestOps);
+				key.selector().wakeup();
+			}
 		}
 	}
 
@@ -147,7 +152,7 @@ public class NetworkSelector implements EventAPI {
 		catch (ClosedChannelException cce) {
 			// TODO Auto-generated catch block
 			cce.printStackTrace();
-		} 
+		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -268,11 +273,6 @@ public class NetworkSelector implements EventAPI {
 			this.readSelector.wakeup();
 		}
 		
-		private void unsetReadable(SelectionKey key){
-			final int newOps = key.interestOps() & ~SelectionKey.OP_READ;
-			key.interestOps(newOps);
-		}
-		
 		@Override
 		public void run() {
 			LOG.info("Started Reader worker: {}", Thread.currentThread().getName());
@@ -300,18 +300,7 @@ public class NetworkSelector implements EventAPI {
 								InputAdapter ia = (InputAdapter)key.attachment();
 								SocketChannel channel = (SocketChannel) key.channel();
 								InputBuffer buffer = ia.getInputBuffer();
-								boolean completedReads = buffer.readFrom(channel);
-								System.out.println("completed reads: "+completedReads);
-								if(completedReads){
-									// Only unset read interest if there were fully READS
-									unsetReadable(key);
-									System.out.println("comp reads: "+buffer.completedReads.size());
-									for(int i = 0; i < buffer.completedReads.size(); i++){
-										byte[] data = buffer.completedReads.get(i);
-										System.out.println("Pushing data with size: "+data.length);
-										ia.pushData(data);
-									}
-								}
+								buffer.readFrom(channel, ia);
 							}
 						}
 					}
@@ -351,7 +340,6 @@ public class NetworkSelector implements EventAPI {
 		
 		private void handleNewConnections(){
 			SocketChannel incomingCon = null;
-			System.out.println("checking new incoming conns: "+this.pendingConnections.size());
 			while((incomingCon = this.pendingConnections.poll()) != null){
 				try{
 					incomingCon.configureBlocking(false);
@@ -409,13 +397,12 @@ public class NetworkSelector implements EventAPI {
 		public void run(){
 			LOG.info("Started Writer worker: {}", Thread.currentThread().getName());
 			boolean needsToSendIdentifier = true;
+			boolean ongoingWrite = false;
 			while(working){
 				// First handle potential new connections that have been queued up
 				handleNewConnections();
 				try {
 					int readyChannels = writeSelector.select();
-					System.out.println("writeS total selected keys: "+writeSelector.selectedKeys().size());
-					System.out.println("writeS total key set: "+writeSelector.keys().size());
 					if(readyChannels == 0){
 						continue;
 					}
@@ -443,10 +430,16 @@ public class NetworkSelector implements EventAPI {
 								needsToSendIdentifier = false;
 							}
 							else{
-								boolean fullyWritten = write(ob, channel);
-								if(fullyWritten){
-									// only remove interest if fully written, otherwise keep pushing the socket buffer
-									unsetWritable(key);
+								synchronized(key){
+									boolean fullyWritten = write(ob, channel, ongoingWrite);
+									if(fullyWritten){
+										// only remove interest if fully written, otherwise keep pushing the socket buffer
+										ongoingWrite = false;
+										unsetWritable(key);
+									}
+									else{
+										ongoingWrite = true; // complete write next iteration
+									}
 								}
 							}
 						}
@@ -458,27 +451,44 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
-		private boolean write(OutputBuffer ob, SocketChannel channel){
+		private boolean write(OutputBuffer ob, SocketChannel channel, boolean ongoingWrite){
 			ByteBuffer buf = ob.getBuffer();
-			synchronized(buf){
-				int totalBytesToWrite = buf.remaining();
-				int writtenBytes = 0;
-				buf.flip();
-				try {
-					writtenBytes = channel.write(buf);
-					System.out.println("written: "+writtenBytes);
+			if(! ongoingWrite){
+				// Write data into buffer
+				buf.position(TupleInfo.PER_BATCH_OVERHEAD_SIZE);
+				List<byte[]> dataForBatch = ob.bq.poll();
+				int numTuples = 0;
+				int batchSize = 0;
+				for(int i = 0; i<dataForBatch.size(); i++){
+					byte[] data = dataForBatch.get(i);
+					int tupleSize = data.length;
+					buf.putInt(data.length);
+					buf.put(data);
+					numTuples++;
+					batchSize = batchSize + tupleSize + TupleInfo.TUPLE_SIZE_OVERHEAD;
 				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-				System.out.println("writtenBytes: "+writtenBytes+" totalToWrite: "+totalBytesToWrite);
-				if(writtenBytes == totalBytesToWrite){
-					System.out.println("clearing buffer, and eveyrthing is fine...");
-					buf.clear();
-					ob.notifyOfSpace();
-					return true;
-				}
-				System.exit(0);
+				int position = buf.position();
+				buf.position(TupleInfo.NUM_TUPLES_BATCH_OFFSET);
+				buf.putInt(numTuples);
+				buf.putInt(batchSize);
+				buf.position(position);
+				buf.flip(); // get buffer ready to be copied
+			}
+			
+			// Copy buffer to channel
+			int totalBytesToWrite = buf.remaining();
+			int writtenBytes = 0;
+			try {
+				writtenBytes = channel.write(buf);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(writtenBytes == totalBytesToWrite){
+				buf.clear();
+				return true;
+			}
+			else{
 				return false;
 			}
 		}

@@ -94,7 +94,7 @@ public class BasicWorkerWorkerCommunicationTest {
 		iapMap = new HashMap<>();
 		Properties p = new Properties();
 		p.setProperty("master.ip", "127.0.0.1");
-		p.setProperty("batch.size", "20");
+		p.setProperty("batch.size", "10");
 		WorkerConfig fake = new WorkerConfig(p);
 		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
 		iapMap.put(clientId, nds);
@@ -123,13 +123,15 @@ public class BasicWorkerWorkerCommunicationTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		/** 1 send **/
+		
 		// Create tuple and send it to the other worker
 		byte[] serializedData = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{3, 23423L});
 		//byte[] serializedData2 = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{4, 8384L});
-		System.out.println("Total data to send: "+serializedData.length);
+		System.out.println("Tuple length: "+serializedData.length);
 		//ob.write(serializedData);
 		boolean canSend = ob.write(serializedData);
 		if(canSend){
@@ -144,6 +146,24 @@ public class BasicWorkerWorkerCommunicationTest {
 		
 //		ITuple incomingTuple2 = nds.pullDataItem(); // blocking until there's something to receive
 //		System.out.println(incomingTuple2.toString());
+		
+		/** 2 send **/
+		// Create tuple and send it to the other worker
+		byte[] serializedData2 = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{4, 848448L});
+		System.out.println("Tuple length: "+serializedData2.length);
+		boolean canSend2 = ob.write(serializedData2);
+		if(canSend2){
+			System.out.println("Notifying to send");
+			((EventAPI)ds).readyForWrite(clientId);
+		} else{
+			System.out.println("CANNOT send yet");
+		}
+		
+		ITuple incomingTuple2 = nds.pullDataItem(); // blocking until there's something to receive
+		System.out.println(incomingTuple2.toString());
+		
+		ITuple incomingTuple3 = nds.pullDataItem(); // blocking until there's something to receive
+		System.out.println(incomingTuple3.toString());
 		
 		while(true){
 			try {

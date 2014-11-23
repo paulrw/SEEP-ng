@@ -54,6 +54,12 @@ public class WorkerConfig extends Config {
     private static final String BATCH_SIZE_DOC = "Recommended maximum batch size in bytes. Note that this is not enforced, the system"
     													+ "will try to achieve this size on a best effort basis";
     
+    public static final String SEND_APP_BUFFER_SIZE = "tx.buffer.size";
+    private static final String SEND_APP_BUFFER_SIZE_DOC = "Sets the size for the buffer used to send data";
+    
+    public static final String RECEIVE_APP_BUFFER_SIZE = "rx.buffer.size";
+    private static final String RECEIVE_APP_BUFFER_SIZE_DOC = "Set the receive buffer for the app to receive data";
+    
 	
 	static{
 		config = new ConfigDef().define(DEPLOYMENT_TARGET_TYPE, Type.INT, 0, Importance.HIGH, DEPLOYMENT_TARGET_TYPE_DOC)
@@ -68,7 +74,9 @@ public class WorkerConfig extends Config {
 				.define(NUM_NETWORK_WRITER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_WRITER_THREADS_DOC)
 				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC)
 				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC)
-				.define(BATCH_SIZE, Type.INT, 512, Importance.HIGH, BATCH_SIZE_DOC);
+				.define(BATCH_SIZE, Type.INT, 512, Importance.HIGH, BATCH_SIZE_DOC)
+				.define(SEND_APP_BUFFER_SIZE, Type.INT, 10000, Importance.MEDIUM, SEND_APP_BUFFER_SIZE_DOC)
+				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 10000, Importance.MEDIUM, RECEIVE_APP_BUFFER_SIZE);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

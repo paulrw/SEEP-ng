@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seepworker.core.input;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
@@ -18,12 +19,10 @@ public class NetworkDataStream implements InputAdapter{
 	private InputBuffer buffer;
 	private BlockingQueue<byte[]> queue;
 	private int queueSize;
+	private AtomicInteger tuplesInQueue;
 	
 	final private int streamId;
-
-	//private Schema expectedSchema;
 	private ITuple iTuple;
-	
 	private List<Operator> ops;
 	
 	public NetworkDataStream(WorkerConfig wc, int streamId, Schema expectedSchema, List<Operator> ops) {
@@ -32,8 +31,8 @@ public class NetworkDataStream implements InputAdapter{
 		this.queueSize = wc.getInt(WorkerConfig.SIMPLE_INPUT_QUEUE_LENGTH);
 		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
 		this.iTuple = new ITuple(expectedSchema);
-		
-		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.BATCH_SIZE));
+		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE));
+		this.tuplesInQueue = new AtomicInteger(0);
 	}
 	
 	@Override
