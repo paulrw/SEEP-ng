@@ -75,8 +75,8 @@ public class WorkerConfig extends Config {
 				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC)
 				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC)
 				.define(BATCH_SIZE, Type.INT, 512, Importance.HIGH, BATCH_SIZE_DOC)
-				.define(SEND_APP_BUFFER_SIZE, Type.INT, 10000, Importance.MEDIUM, SEND_APP_BUFFER_SIZE_DOC)
-				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 10000, Importance.MEDIUM, RECEIVE_APP_BUFFER_SIZE);
+				.define(SEND_APP_BUFFER_SIZE, Type.INT, 10000, Importance.HIGH, SEND_APP_BUFFER_SIZE_DOC)
+				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 10000, Importance.HIGH, RECEIVE_APP_BUFFER_SIZE_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

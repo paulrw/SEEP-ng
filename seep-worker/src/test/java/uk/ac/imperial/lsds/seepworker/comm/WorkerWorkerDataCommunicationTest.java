@@ -33,7 +33,9 @@ public class WorkerWorkerDataCommunicationTest {
 		iapMap = new HashMap<>();
 		Properties p = new Properties();
 		p.setProperty("master.ip", "127.0.0.1");
-		p.setProperty("batch.size", "4000");
+		p.setProperty("batch.size", "400"); // 25 - 25 - 400
+		p.setProperty("rx.buffer.size", "817"); // 66 - 116 - 817
+		p.setProperty("tx.buffer.size", "817"); // 66 - 116 - 817
 		WorkerConfig fake = new WorkerConfig(p);
 		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
 		iapMap.put(clientId, nds);
@@ -43,7 +45,7 @@ public class WorkerWorkerDataCommunicationTest {
 		InetAddress myIp = null;
 		try {
 			myIp = InetAddress.getByName("127.0.0.1");
-		} 
+		}
 		catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
