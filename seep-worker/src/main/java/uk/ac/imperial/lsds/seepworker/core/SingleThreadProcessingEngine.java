@@ -3,6 +3,9 @@ package uk.ac.imperial.lsds.seepworker.core;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.API;
 import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
@@ -11,9 +14,12 @@ import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapterReturnType;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
 
 public class SingleThreadProcessingEngine implements ProcessingEngine {
 
+	final private Logger LOG = LoggerFactory.getLogger(SingleThreadProcessingEngine.class.getName());
+	
 	private boolean working = false;
 	private Thread worker;
 	
@@ -41,7 +47,6 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 	@Override
 	public void setTask(SeepTask task) {
 		this.task = task;
-		
 	}
 	
 	@Override
@@ -66,10 +71,13 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 		@Override
 		public void run() {
 			List<InputAdapter> inputAdapters = coreInput.getInputAdapters();
+			LOG.info("Configuring SINGLETHREAD processing engine with {} inputAdapters", inputAdapters.size());
 			Iterator<InputAdapter> it = inputAdapters.iterator();
 			short one = InputAdapterReturnType.ONE.ofType();
 			short many = InputAdapterReturnType.MANY.ofType();
-			API api = new Collector(coreOutput.getOutputAdapters());
+			List<OutputAdapter> outputAdapters = coreOutput.getOutputAdapters();
+			LOG.info("Configuring SINGLETHREAD processing engine with {} outputAdapters", outputAdapters.size());
+			API api = new Collector(outputAdapters);
 			while(working){
 				while(it.hasNext()){
 					InputAdapter ia = it.next();

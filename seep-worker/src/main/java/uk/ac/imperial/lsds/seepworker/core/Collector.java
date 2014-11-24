@@ -11,22 +11,36 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInform
 
 public class Collector implements API {
 
-	private final boolean SEND_NOT_DEFINED;
+	private final boolean NOT_SEND_API;
+	private final boolean SINGLE_SEND_NOT_DEFINED;
 	
 	private OutputAdapter outputAdapter;
 	private List<OutputAdapter> outputAdapters;
 	private Map<Integer, OutputAdapter> streamIdToOutputAdapter;
 	
 	public Collector(List<OutputAdapter> outputAdapters){
-		if(outputAdapters.size() > 1)
-			SEND_NOT_DEFINED = true;
-		else {
-			SEND_NOT_DEFINED = false;
-			// Configure the unique outputadapter in this collector to avoid one lookup
-			outputAdapter = outputAdapters.get(0);
+		int numOutputAdapters = outputAdapters.size();
+		if(numOutputAdapters > 0){
+			NOT_SEND_API = false;
+			if(numOutputAdapters == 1){
+				SINGLE_SEND_NOT_DEFINED = false;
+				// Configure the unique outputadapter in this collector to avoid one lookup
+				outputAdapter = outputAdapters.get(0);
+			}
+			else{
+				SINGLE_SEND_NOT_DEFINED = true;
+				this.outputAdapters = outputAdapters;
+				this.streamIdToOutputAdapter = createMap(outputAdapters);
+			}	
 		}
-		this.outputAdapters = outputAdapters;
-		this.streamIdToOutputAdapter = createMap(outputAdapters);
+		else if(numOutputAdapters == 0){
+			NOT_SEND_API = true;
+			SINGLE_SEND_NOT_DEFINED = true;
+		}
+		else{
+			NOT_SEND_API = true;
+			SINGLE_SEND_NOT_DEFINED = true;
+		}
 	}
 	
 	private Map<Integer, OutputAdapter> createMap(List<OutputAdapter> outputAdapters){
@@ -39,7 +53,8 @@ public class Collector implements API {
 	
 	@Override
 	public void send(byte[] o) {
-		if(SEND_NOT_DEFINED){
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
+		if(SINGLE_SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
 		}
@@ -48,7 +63,8 @@ public class Collector implements API {
 
 	@Override
 	public void sendAll(byte[] o) {
-		if(SEND_NOT_DEFINED){
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
+		if(SINGLE_SEND_NOT_DEFINED){
 			throw new NotEnoughRoutingInformation("There are more than one streamId downstream; you must specify where "
 					+ "you are sending to");
 		}
@@ -57,31 +73,37 @@ public class Collector implements API {
 
 	@Override
 	public void sendKey(byte[] o, int key) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		outputAdapter.sendKey(o, key);
 	}
 
 	@Override
 	public void sendKey(byte[] o, String key) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		outputAdapter.sendKey(o, key);
 	}
 
 	@Override
 	public void sendStreamid(int streamId, byte[] o) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).send(o);
 	}
 
 	@Override
 	public void sendStreamidAll(int streamId, byte[] o) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).sendAll(o);
 	}
 
 	@Override
 	public void sendStreamidKey(int streamId, byte[] o, int key) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).sendKey(o, key);
 	}
 
 	@Override
 	public void sendStreamidKey(int streamId, byte[] o, String key) {
+		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).sendKey(o, key);
 	}
 

@@ -205,11 +205,11 @@ public class QueryManager {
 		Command queryDeploy = ProtocolCommandFactory.buildQueryDeployCommand(originalQuery);
 		comm.send_object_sync(queryDeploy, connections, k);
 		
-		/** Is this necessary? **/
+		/** Is this necessary? NO!!!**/
 		
-		// Send start runtime command to all nodes to finish deployment
-		Command runtime = ProtocolCommandFactory.buildStartRuntimeCommand();
-		comm.send_object_sync(runtime, connections, k);
+//		// Send start runtime command to all nodes to finish deployment
+//		Command runtime = ProtocolCommandFactory.buildStartRuntimeCommand();
+//		comm.send_object_sync(runtime, connections, k);
 	}
 	
 	public void startQuery(){

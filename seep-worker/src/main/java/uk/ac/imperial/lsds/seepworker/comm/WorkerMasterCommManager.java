@@ -19,7 +19,6 @@ import uk.ac.imperial.lsds.seep.comm.protocol.Command;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
-import uk.ac.imperial.lsds.seep.comm.protocol.StartRuntimeCommand;
 import uk.ac.imperial.lsds.seep.infrastructure.RuntimeClassLoader;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
@@ -104,14 +103,14 @@ public class WorkerMasterCommManager {
 //							po.getSeepTask().processData(a);
 //						}
 //						System.out.println("QUERY: "+psq.toString());
-						api.handleQueryDeploy(qdc);
 						out.println("ack");
+						api.handleQueryDeploy(qdc);
 					}
 					else if(cType == ProtocolAPI.STARTQUERY.type()){
 						LOG.info("RX StartRuntime command");
 						StartQueryCommand sqc = c.getStartQueryCommand();
-						api.handleStartQuery(sqc);
 						out.println("ack");
+						api.handleStartQuery(sqc);
 					}
 				}
 				catch(IOException io){
@@ -129,98 +128,7 @@ public class WorkerMasterCommManager {
 				}
 			}		
 		}	
-	}
-	
-//	// Establish input stream, which receives serialized objects
-//	ois = new ExtendedObjectInputStream(incomingSocket.getInputStream(), rcl);
-//	out = new PrintWriter(incomingSocket.getOutputStream(), true);
-//	// Read the serialized object sent.
-//	ObjectStreamClass osc = ois.readClassDescriptor();
-//	Object o = ois.readObject();
-//	
-//	if(!osc.getName().equals("java.lang.String")){
-//		// Dynamically loading all received classes
-//		rcl.loadClass(osc.getName());
-//		PhysicalSeepQuery psq = (PhysicalSeepQuery)o;
-//		System.out.println(psq);
-//		// do something with this
-//	}
-//
-//	String command = (String)o;
-//	
-//	if(command == null){
-//		//TODO: indicate error here
-//	}
-//	String[] commandTokens = command.split(" ");
-//	String commandCode = commandTokens[0];
-//	Map<String, String> commandArguments = MasterWorkerAPI.arrayToMap(commandTokens);
-//	MasterWorkerAPI.API apiInstance = MasterWorkerAPI.getAPIByName(command);
-//	if(apiInstance != null){
-//		//TODO: indicate error here, no such command
-//		if (! MasterWorkerAPI.validatesCommand(apiInstance, commandArguments)){
-//			//TODO: indicate error here, args do not validate
-//		}
-//	}
-	
-//	if (MasterWorkerAPI.API.CODE.commandName().equals(commandCode)) {
-//		// FIXME: eliminate hardcoded names, variables, etc, get from config, working-directory is useful here
-//		// We handle this locally as it requires access to the connection
-//		LOG.info("Code command");
-//		out.print("ack");
-//		LOG.info("-> Waiting for receiving the CODE...");
-//		Socket subConnection = serverSocket.accept();
-//		DataInputStream dis = new DataInputStream(subConnection.getInputStream());
-//		int codeSize = dis.readInt();
-//		byte[] serializedFile = new byte[codeSize];
-//		dis.readFully(serializedFile);
-//		int bytesRead = serializedFile.length;
-//		if(bytesRead != codeSize){
-//			LOG.warn("Mismatch between read and file size");
-//		}
-//		else{
-//			LOG.info("-> CODE received completely");
-//		}
-//		//Here I have the serialized bytes of the file, we materialize the real file
-//		//For now the name of the file is always query.jar
-//		FileOutputStream fos = new FileOutputStream(new File("query.jar"));
-//		fos.write(serializedFile);
-//		fos.close();
-//		dis.close();
-//		subConnection.close();
-//		out.println("ack");
-//		//At this point we should have the file on disk
-//		File pathToCode = new File("query.jar");
-//		if(pathToCode.exists()){
-//			LOG.info("-> Loading CODE from: {}", pathToCode.getAbsolutePath());
-//			loadCodeToRuntime(pathToCode);
-//			/**
-//			 * if we get all the names of the classes to load, we can iterate and load them now, right?
-//			 */
-//		}
-//		else{
-//			LOG.error("-> No access to the CODE");
-//		}
-//	}
-	
-//	// Lazy load of the required class in case is an operator
-//	if(!(osc.getName().equals("java.lang.String")) && !(osc.getName().equals("java.lang.Integer"))){
-//		LOG.debug("-> Received Unknown Class -> {} <- Using custom class loader to resolve it", osc.getName());
-//		rcl.loadClass(osc.getName());
-//		o = ois.readObject();
-//		if(o instanceof Operator){
-//			LOG.debug("-> OPERATOR resolved, OP-ID: {}", ((Operator)o).getOperatorId());
-//        }
-//		else if (o instanceof StateWrapper){
-//			LOG.info("-> STATE resolved, Class: {}", o.getClass().getName());
-//		}
-//        
-//        out.println("ack");
-//        out.flush();
-//	}
-//	else{
-//		o = ois.readObject();
-//	}
-	
+	}	
 	
 	private void loadCodeToRuntime(File pathToCode){
 		URL urlToCode = null;

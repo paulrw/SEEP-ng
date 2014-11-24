@@ -5,14 +5,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
+import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class CoreOutputFactory {
 
-	public static CoreOutput buildCoreOutputForOperator(WorkerConfig wc, PhysicalOperator o){
+	final private static Logger LOG = LoggerFactory.getLogger(CoreOutputFactory.class);
+	
+	public static CoreOutput buildCoreOutputForOperator(WorkerConfig wc, PhysicalOperator o, PhysicalSeepQuery query){
+		LOG.info("Building coreOutput...");
 		List<OutputAdapter> outputAdapters = new ArrayList<>();
 		// Create an InputAdapter per upstream connection -> know with the streamId
 		Map<Integer, List<DownstreamConnection>> streamToOpConn = new HashMap<>();
@@ -38,11 +45,13 @@ public class CoreOutputFactory {
 			OutputAdapter oa = null;
 			if(dOrigin == DataOrigin.NETWORK){
 				// Create outputAdapter
-				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(wc, streamId, doCon);
+				LOG.info("Building outputAdapter for downstream streamId: {} of type: {}", streamId, "NETWORK");
+				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(wc, streamId, doCon, query);
 			}
 			outputAdapters.add(oa);
 		}
 		CoreOutput cOutput = new CoreOutput(outputAdapters);
+		LOG.info("Building coreOutput...OK");
 		return cOutput;
 	}
 }

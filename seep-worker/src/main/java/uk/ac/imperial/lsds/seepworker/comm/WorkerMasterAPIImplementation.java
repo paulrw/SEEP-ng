@@ -4,6 +4,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.comm.Comm;
@@ -13,7 +16,6 @@ import uk.ac.imperial.lsds.seep.comm.protocol.Command;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolCommandFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
-import uk.ac.imperial.lsds.seep.comm.protocol.StartRuntimeCommand;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
@@ -23,6 +25,8 @@ import com.esotericsoftware.kryo.Kryo;
 
 public class WorkerMasterAPIImplementation {
 
+	final private Logger LOG = LoggerFactory.getLogger(WorkerMasterAPIImplementation.class.getName());
+	
 	private Conductor c;
 	private Comm comm;
 	private Kryo k;
@@ -34,6 +38,7 @@ public class WorkerMasterAPIImplementation {
 	
 	public WorkerMasterAPIImplementation(Comm comm, Conductor c, WorkerConfig wc){
 		this.comm = comm;
+		this.c = c;
 		this.k = KryoFactory.buildKryoForMasterWorkerProtocol();
 		this.myPort = wc.getInt(WorkerConfig.LISTENING_PORT);
 		this.retriesToMaster = wc.getInt(WorkerConfig.MASTER_CONNECTION_RETRIES);
@@ -87,7 +92,8 @@ public class WorkerMasterAPIImplementation {
 		Set<EndPoint> meshTopology = query.getMeshTopology(myOwnId);
 		
 		PhysicalOperator po = query.getOperatorLivingInExecutionUnitId(myOwnId);
-		c.deployPhysicalOperator(po);
+		LOG.info("Found PhysicalOperator: {} to execute in this executionUnit: {}", po.getOperatorName(), myOwnId);
+		c.deployPhysicalOperator(po, query);
 	}
 
 	public void handleStartQuery(StartQueryCommand sqc) {

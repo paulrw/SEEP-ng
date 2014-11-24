@@ -3,15 +3,21 @@ package uk.ac.imperial.lsds.seepworker.core.input;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.ConnectionType;
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seep.comm.IOComm;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class InputAdapterFactory {
 
+	final static private Logger LOG = LoggerFactory.getLogger(IOComm.class.getName());
+	
 	public static InputAdapter buildInputAdapterOfTypeForOps(WorkerConfig wc, int streamId, List<UpstreamConnection> upc){
 		InputAdapter ia = null;
 		short cType = upc.get(0).getConnectionType().ofType();
@@ -28,7 +34,8 @@ public class InputAdapterFactory {
 			// TODO: here we'll need a factory to create different internal implementation,
 			// Create network reader
 			//Reader r = new NetworkReader();
-			// one-queue-per-conn, one-single-queue, etc
+			// one-queue-per-conn, one-single-queue, etc.
+			LOG.info("Creating inputAdapter for upstream streamId: {} of type {}", streamId, "ONE_AT_A_TIME");
 			ia = new NetworkDataStream(wc, streamId, expectedSchema, ops);
 		}
 		else if(cType == ConnectionType.ORDERED.ofType()){

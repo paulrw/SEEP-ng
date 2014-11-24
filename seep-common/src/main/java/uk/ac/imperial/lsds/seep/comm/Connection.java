@@ -48,6 +48,10 @@ public class Connection {
 		return new InetSocketAddress(this.ep.getIp(), this.ep.getPort());
 	}
 	
+	public InetSocketAddress getInetSocketAddressForData(){
+		return new InetSocketAddress(this.ep.getIp(), this.ep.getDataPort());
+	}
+	
 	public void destroy(){
 		try {
 			this.s.close();

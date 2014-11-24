@@ -170,16 +170,24 @@ public class NetworkSelector implements EventAPI {
 	}
 	
 	public void start(){
+		LOG.info("Starting network selector thread...");
 		this.acceptorWorking = true;
 		// Start writers
 		for(Thread w : writerWorkers){
+			LOG.info("Starting writer: {}", w.getName());
 			w.start();
 		}
 		// Start readers
 		for(Thread r : readerWorkers){
+			LOG.info("Starting reader: {}", r.getName());
 			r.start();
 		}
-		this.acceptorWorker.start();
+		// Check whether there is a network acceptor worker. There won't be one if there are no input network connections.
+		if(acceptorWorker != null){
+			LOG.info("Starting acceptor thread: {}", acceptorWorker.getName());
+			this.acceptorWorker.start();
+		}
+		LOG.info("Starting network selector thread...OK");
 	}
 	
 	public void stop(){
@@ -326,6 +334,7 @@ public class NetworkSelector implements EventAPI {
 			dst.flip();
 			int id = dst.getInt();
 			Map<Integer, InputAdapter> iapMap = (Map<Integer, InputAdapter>)key.attachment();
+			LOG.info("Configuring InputAdapter for received conn identifier: {}", id);
 			InputAdapter responsibleForThisChannel = iapMap.get(id);
 			if(responsibleForThisChannel == null){
 				// TODO: throw exception
@@ -521,7 +530,7 @@ public class NetworkSelector implements EventAPI {
 				while((ob = this.pendingConnections.poll()) != null){
 					Connection c = ob.getConnection();
 					SocketChannel channel = SocketChannel.open();
-					InetSocketAddress address = c.getInetSocketAddress();
+					InetSocketAddress address = c.getInetSocketAddressForData();
 					
 			        Socket socket = channel.socket();
 			        socket.setKeepAlive(true); // Unlikely in non-production scenarios we'll be up for more than 2 hours but...

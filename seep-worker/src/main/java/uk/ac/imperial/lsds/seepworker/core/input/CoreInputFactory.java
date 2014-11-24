@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.ConnectionType;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
@@ -13,7 +16,10 @@ import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class CoreInputFactory {
 
+	final private static Logger LOG = LoggerFactory.getLogger(CoreInputFactory.class);
+	
 	public static CoreInput buildCoreInputForOperator(WorkerConfig wc, PhysicalOperator o){
+		LOG.info("Building Core Input...");
 		List<InputAdapter> inputAdapters = new LinkedList<>();
 		// Create an InputAdapter per upstream connection -> know with the streamId
 		Map<Integer, List<UpstreamConnection>> streamToOpConn = new HashMap<>();
@@ -49,6 +55,7 @@ public class CoreInputFactory {
 			inputAdapters.add(ia);
 		}
 		CoreInput cInput = new CoreInput(inputAdapters);
+		LOG.info("Building Core Input...OK");
 		return cInput;
 	}
 	

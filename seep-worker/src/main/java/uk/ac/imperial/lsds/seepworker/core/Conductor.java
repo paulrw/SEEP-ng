@@ -3,11 +3,16 @@ package uk.ac.imperial.lsds.seepworker.core;
 import java.net.InetAddress;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
+import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.comm.NetworkSelector;
+import uk.ac.imperial.lsds.seepworker.comm.WorkerMasterAPIImplementation;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInputFactory;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
@@ -16,6 +21,8 @@ import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class Conductor {
 
+	final private Logger LOG = LoggerFactory.getLogger(Conductor.class.getName());
+	
 	private WorkerConfig wc;
 	
 	private int dataPort;
@@ -46,11 +53,15 @@ public class Conductor {
 		engine.stop();
 	}
 	
-	public void deployPhysicalOperator(PhysicalOperator o){
+	public void deployPhysicalOperator(PhysicalOperator o, PhysicalSeepQuery query){
+		this.task = o.getSeepTask();
+		LOG.info("Configuring local task: {}", task.toString());
+		// TODO: set up state if any
+		
 		// This creates one inputAdapter per upstream stream Id
 		coreInput = CoreInputFactory.buildCoreInputForOperator(wc, o);
 		// This creates one outputAdapter per downstream stream Id
-		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(wc, o);
+		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(wc, o, query);
 		
 		this.ns = maybeConfigureNetworkSelector();
 		coreOutput.setEventAPI(ns);
@@ -61,18 +72,24 @@ public class Conductor {
 		engine.setCoreOutput(coreOutput);
 		
 		// Initialize system
+		LOG.info("Setting up task...");
 		task.setUp(); // setup method of task
+		LOG.info("Setting up task...OK");
+		LOG.info("Starting processing engine...");
 		engine.start(); // start engine processing loop
+		LOG.info("Starting processing engine...OK");
 		if(ns != null) ns.start(); // start network selector, if any
 	}
 	
 	private NetworkSelector maybeConfigureNetworkSelector(){
 		NetworkSelector ns = null;
 		if(coreInput.requiresConfiguringNetworkWorker()){
+			LOG.info("Configuring networkSelector for input");
 			ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
 			ns.configureAccept(myIp, dataPort);
 		}
 		if(coreOutput.requiresConfiguringNetworkWorker()){
+			LOG.info("Configuring networkSelector for output");
 			if(ns == null) ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
 			Set<OutputBuffer> obufs = coreOutput.getOutputBuffers();
 			ns.configureConnect(obufs);
