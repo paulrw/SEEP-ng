@@ -28,6 +28,7 @@ public class WorkerWorkerDataCommunicationTest {
 	public void test() {
 		// Create inputAdapter map that is used to configure networkselector
 		int clientId = 100;
+		int streamId = 101;
 		Schema s = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
 		Map<Integer, InputAdapter> iapMap = null;
 		iapMap = new HashMap<>();
@@ -54,7 +55,7 @@ public class WorkerWorkerDataCommunicationTest {
 		
 		// create outputbuffer for the client
 		Connection c = new Connection(new EndPoint(clientId, myIp, listeningPort));
-		OutputBuffer ob = new OutputBuffer(fake, clientId, c);
+		OutputBuffer ob = new OutputBuffer(fake, clientId, c, streamId);
 		Set<OutputBuffer> obs = new HashSet<>();
 		obs.add(ob);
 		ds.configureConnect(obs);
@@ -83,7 +84,7 @@ public class WorkerWorkerDataCommunicationTest {
 		while(true){
 			try {
 				Thread.sleep(1000);
-			} 
+			}
 			catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

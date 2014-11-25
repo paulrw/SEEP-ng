@@ -14,17 +14,23 @@ public class OutputBuffer {
 	
 	private int opId;
 	private Connection c;
+	private int streamId;
 	
 	private ByteBuffer buf;
 	private int batchSize;
 	public BatchQueue bq;
 	
-	public OutputBuffer(WorkerConfig wc, int opId, Connection c){
+	public OutputBuffer(WorkerConfig wc, int opId, Connection c, int streamId){
 		this.opId = opId;
 		this.c = c;
+		this.streamId = streamId;
 		this.batchSize = wc.getInt(WorkerConfig.BATCH_SIZE);
 		buf = ByteBuffer.allocate(wc.getInt(WorkerConfig.SEND_APP_BUFFER_SIZE));
 		bq = new BatchQueue();
+	}
+	
+	public int getStreamId(){
+		return streamId;
 	}
 	
 	public int id(){

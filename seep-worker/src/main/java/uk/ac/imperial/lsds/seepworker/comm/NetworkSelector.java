@@ -54,12 +54,15 @@ public class NetworkSelector implements EventAPI {
 	
 	// incoming id - local input adapter
 	private Map<Integer, InputAdapter> iapMap;
+	private int numUpstreamConnections;
 	
-	public NetworkSelector(Map<Integer, InputAdapter> iapMap){
+	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
 		this.iapMap = iapMap;
-		this.numReaderWorkers = 1;
-		this.numWriterWorkers = 1;
-		this.totalNumberPendingConnectionsPerThread = 1;
+		this.numUpstreamConnections  = iapMap.size();
+		LOG.info("Expecting {} upstream connections", numUpstreamConnections);
+		this.numReaderWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_READER_THREADS);
+		this.numWriterWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_WRITER_THREADS);
+		this.totalNumberPendingConnectionsPerThread = wc.getInt(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD);
 		LOG.info("Configuring NetworkSelector with: {} readers, {} workers and {} maxPendingNetworkConn",
 				numReaderWorkers, numWriterWorkers, totalNumberPendingConnectionsPerThread);
 		// Create pool of reader threads
@@ -86,11 +89,14 @@ public class NetworkSelector implements EventAPI {
 		}
 	}
 	
-	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
+	// TODO: to avoid confusion make this a method called from tests, rather than a different constructor
+	public NetworkSelector(Map<Integer, InputAdapter> iapMap){
 		this.iapMap = iapMap;
-		this.numReaderWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_READER_THREADS); 
-		this.numWriterWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_WRITER_THREADS);
-		this.totalNumberPendingConnectionsPerThread = wc.getInt(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD);
+		this.numUpstreamConnections  = iapMap.size();
+		LOG.info("Expecting {} upstream connections", numUpstreamConnections);
+		this.numReaderWorkers = 1;
+		this.numWriterWorkers = 1;
+		this.totalNumberPendingConnectionsPerThread = 1;
 		LOG.info("Configuring NetworkSelector with: {} readers, {} workers and {} maxPendingNetworkConn",
 				numReaderWorkers, numWriterWorkers, totalNumberPendingConnectionsPerThread);
 		// Create pool of reader threads
@@ -301,8 +307,11 @@ public class NetworkSelector implements EventAPI {
 						// read
 						if(key.isReadable()){
 							if(waitingForConnectionIdentifier){
-								handleConnectionIdentifier(key);
-								waitingForConnectionIdentifier = false;
+								boolean moreConnections = handleConnectionIdentifier(key);
+								if(!moreConnections){
+									waitingForConnectionIdentifier = false;
+									LOG.info("Connections ready!");
+								}
 							}
 							else{
 								InputAdapter ia = (InputAdapter)key.attachment();
@@ -319,7 +328,8 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
-		private void handleConnectionIdentifier(SelectionKey key){
+		private boolean handleConnectionIdentifier(SelectionKey key){
+			boolean moreConnectionsPending = true;
 			ByteBuffer dst = ByteBuffer.allocate(100);
 			try {
 				int readBytes = ((SocketChannel)key.channel()).read(dst);
@@ -333,18 +343,23 @@ public class NetworkSelector implements EventAPI {
 			}
 			dst.flip();
 			int id = dst.getInt();
+			LOG.info("Received conn identifier: {}", id);
 			Map<Integer, InputAdapter> iapMap = (Map<Integer, InputAdapter>)key.attachment();
 			LOG.info("Configuring InputAdapter for received conn identifier: {}", id);
 			InputAdapter responsibleForThisChannel = iapMap.get(id);
 			if(responsibleForThisChannel == null){
 				// TODO: throw exception
-				System.out.println("Problem hre, no existent inputadapter");
+				LOG.error("Problem hre, no existent inputadapter");
 				System.exit(0);
+			}
+			numUpstreamConnections--;
+			if(numUpstreamConnections == 0){
+				moreConnectionsPending =  false;
 			}
 			// Once we've identified the inputAdapter responsible for this channel we attach the new object
 			key.attach(null);
 			key.attach(responsibleForThisChannel);
-			LOG.info("Received conn identifier: {}", id);
+			return moreConnectionsPending;
 		}
 		
 		private void handleNewConnections(){
@@ -434,7 +449,7 @@ public class NetworkSelector implements EventAPI {
 							SocketChannel channel = (SocketChannel)key.channel();
 							
 							if(needsToSendIdentifier){
-								handleSendIdentifier(ob, channel);
+								handleSendIdentifier(ob.getStreamId(), channel);
 								unsetWritable(key);
 								needsToSendIdentifier = false;
 							}
@@ -502,10 +517,9 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
-		private void handleSendIdentifier(OutputBuffer ob, SocketChannel channel){
-			int id = ob.id();
+		private void handleSendIdentifier(int streamId, SocketChannel channel){
 			ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE);
-			Type.INT.write(bb, id);
+			Type.INT.write(bb, streamId);
 			bb.flip();
 			try {
 				int writtenBytes = channel.write(bb);
@@ -516,7 +530,7 @@ public class NetworkSelector implements EventAPI {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-			LOG.info("Sent connection identifier: {}", id);
+			LOG.info("Sent connection identifier: {}", streamId);
 		}
 		
 		private void unsetWritable(SelectionKey key){

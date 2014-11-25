@@ -15,12 +15,16 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	private int streamId;
 	private Router router;
 	private Map<Integer, OutputBuffer> outputBuffers;
+	private OutputBuffer ob;
 	private EventAPI eAPI;
 	
 	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
+		if(outputBuffers.size() == 1){
+			ob = outputBuffers.values().iterator().next();
+		}
 	}
 	
 	@Override
@@ -45,8 +49,8 @@ public class SimpleNetworkOutput implements OutputAdapter {
 
 	@Override
 	public void send(byte[] o) {
-		OutputBuffer ob = outputBuffers.get(0);
-		boolean canSend = ob.write(o);
+		//OutputBuffer ob = outputBuffers.get(0);
+		boolean canSend = ob.write(o); // unique outputBuffer
 		if(canSend){
 			eAPI.readyForWrite(ob.id());
 		}

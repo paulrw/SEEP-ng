@@ -12,7 +12,6 @@ import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.comm.NetworkSelector;
-import uk.ac.imperial.lsds.seepworker.comm.WorkerMasterAPIImplementation;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInputFactory;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
@@ -45,11 +44,12 @@ public class Conductor {
 		// TODO:
 	}
 	
-	public void start(){
+	public void startProcessing(){
+		LOG.info("Starting processing engine...");
 		engine.start();
 	}
 	
-	public void stop(){
+	public void stopProcessing(){
 		engine.stop();
 	}
 	
@@ -75,9 +75,6 @@ public class Conductor {
 		LOG.info("Setting up task...");
 		task.setUp(); // setup method of task
 		LOG.info("Setting up task...OK");
-		LOG.info("Starting processing engine...");
-		engine.start(); // start engine processing loop
-		LOG.info("Starting processing engine...OK");
 		if(ns != null) ns.start(); // start network selector, if any
 	}
 	
@@ -95,10 +92,6 @@ public class Conductor {
 			ns.configureConnect(obufs);
 		}
 		return ns;
-	}
-	
-	public void startProcessing(){
-		// TODO: figure out whether it's necessary to differentiate sources from the rest or not...
 	}
 	
 	public void plugSeepTask(SeepTask task){

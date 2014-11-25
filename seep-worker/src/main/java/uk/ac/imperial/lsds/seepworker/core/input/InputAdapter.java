@@ -5,6 +5,7 @@ import uk.ac.imperial.lsds.seep.api.data.ITuple;
 
 public interface InputAdapter {
 
+	public int getStreamId();
 	public short rType();
 	
 	public boolean requiresNetwork();

@@ -93,6 +93,8 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 						it = inputAdapters.iterator();
 					}
 				}
+				// If there are no input adapters, assume processData contain all necessary and give null input data
+				task.processData(null, api);
 			}
 		}
 	}

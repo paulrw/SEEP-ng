@@ -19,7 +19,7 @@ public class CoreInput {
 		this.inputAdapters = inputAdapters;
 		iapMap = new HashMap<>();
 		for(InputAdapter ia : inputAdapters){
-			//iapMap.put(ia., value)
+			iapMap.put(ia.getStreamId(), ia);
 		}
 		LOG.info("Configured CoreInput with {} inputAdapters", inputAdapters.size());
 	}

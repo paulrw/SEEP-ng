@@ -24,7 +24,7 @@ public class OutputAdapterFactory {
 			int id = dc.getDownstreamOperator().getOperatorId();
 			PhysicalOperator downstreamPhysOperator = query.getOperatorWithId(dc.getDownstreamOperator().getOperatorId());
 			Connection c = new Connection(downstreamPhysOperator.getWrappingEndPoint());
-			OutputBuffer ob = new OutputBuffer(wc, id, c);
+			OutputBuffer ob = new OutputBuffer(wc, id, c, streamId);
 			outputBuffers.put(id, ob);
 		}
 		// TODO: left for configuration whether this should be a simpleoutput or something else...
