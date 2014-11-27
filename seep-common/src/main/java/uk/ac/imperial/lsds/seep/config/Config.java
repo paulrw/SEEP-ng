@@ -104,43 +104,5 @@ public class Config {
         for (String key : unused())
             log.warn("The configuration {} = {} was supplied but isn't a known config.", key, this.values.get(key));
     }
-
-    /**
-     * Get a configured instance of the give class specified by the given configuration key. If the object implements
-     * Configurable configure it using the configuration.
-     * 
-     * @param key The configuration key for the class
-     * @param t The interface the class should implement
-     * @return A configured instance of the class
-     */
-//    public <T> T getConfiguredInstance(String key, Class<T> t) {
-//        Class<?> c = getClass(key);
-//        if (c == null)
-//            return null;
-//        Object o = Utils.newInstance(c);
-//        if (!t.isInstance(o))
-//            throw new SeepException(c.getName() + " is not an instance of " + t.getName());
-//        if (o instanceof Configurable)
-//            ((Configurable) o).configure(this.originals);
-//        return t.cast(o);
-//    }
-//
-//    public <T> List<T> getConfiguredInstances(String key, Class<T> t) {
-//        List<String> klasses = getList(key);
-//        List<T> objects = new ArrayList<T>();
-//        for (String klass : klasses) {
-//            Class<?> c = getClass(klass);
-//            if (c == null)
-//                return null;
-//            Object o = Utils.newInstance(c);
-//            if (!t.isInstance(o))
-//                throw new SeepException(c.getName() + " is not an instance of " + t.getName());
-//            if (o instanceof Configurable)
-//                ((Configurable) o).configure(this.originals);
-//            objects.add(t.cast(o));
-//        }
-//        return objects;
-//    }
-
 }
 

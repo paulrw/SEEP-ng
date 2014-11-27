@@ -25,11 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.comm.serialization.DataTuple;
+//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
+import uk.ac.imperial.lsds.seep.infrastructure.Node;
 import uk.ac.imperial.lsds.seep.infrastructure.WorkerNodeDescription;
 import uk.ac.imperial.lsds.seepworker.GLOBALS;
-import uk.ac.imperial.lsds.seepworker.comm.OldControlHandler;
-import uk.ac.imperial.lsds.seepworker.comm.OldIncomingDataHandler;
-import uk.ac.imperial.lsds.seepworker.comm.OldOutgoingDataHandlerWorker;
+//import uk.ac.imperial.lsds.seepworker.comm.OldOutgoingDataHandlerWorker;
 import uk.ac.imperial.lsds.seepworker.comm.routing.Router;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.Ack;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.BackupOperatorState;
@@ -37,12 +37,10 @@ import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.ControlT
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.ReconfigureConnection;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.Resume;
 import uk.ac.imperial.lsds.seepworker.comm.serialization.controlhelpers.StateChunk;
-//import uk.ac.imperial.lsds.seepworker.infrastructure.dynamiccodedeployer.RuntimeClassLoader;
-import uk.ac.imperial.lsds.seep.infrastructure.Node;
-import uk.ac.imperial.lsds.seepworker.operator.OldEndPoint;
 import uk.ac.imperial.lsds.seepworker.operator.InputDataIngestionMode;
-import uk.ac.imperial.lsds.seepworker.operator.OperatorStaticInformation;
+import uk.ac.imperial.lsds.seepworker.operator.OldEndPoint;
 import uk.ac.imperial.lsds.seepworker.operator.OperatorContext.PlacedOperator;
+import uk.ac.imperial.lsds.seepworker.operator.OperatorStaticInformation;
 import uk.ac.imperial.lsds.seepworker.processingunit.IProcessingUnit;
 import uk.ac.imperial.lsds.seepworker.processingunit.Operator;
 import uk.ac.imperial.lsds.seepworker.processingunit.PUContext;
@@ -77,12 +75,12 @@ public class CoreRE {
 	private Thread dConsumerH = null;
 	private ControlDispatcher controlDispatcher;
 	private OutputQueue outputQueue;
-	private OldOutgoingDataHandlerWorker odhw = null;
+//	private OldOutgoingDataHandlerWorker odhw = null;
 	
 	private Thread controlH = null;
-	private OldControlHandler ch = null;
+//	private OldControlHandler ch = null;
 	private Thread iDataH = null;
-	private OldIncomingDataHandler idh = null;
+//	private OldIncomingDataHandler idh = null;
 	private BackupHandler bh = null;
 	private Thread backupH = null;
 	
@@ -172,11 +170,11 @@ public class CoreRE {
 		int inD = processingUnit.getOperator().getOpContext().getOperatorStaticInformation().getInD();
 		int inBT = new Integer(GLOBALS.valueFor("blindSocket"));
 		//Control worker
-		ch = new OldControlHandler(this, inC);
-		controlH = new Thread(ch, "controlHandlerT");
+//		ch = new OldControlHandler(this, inC);
+//		controlH = new Thread(ch, "controlHandlerT");
 		//Data worker
-		idh = new OldIncomingDataHandler(this, inD, tupleIdxMapper, dsa);
-		iDataH = new Thread(idh, "dataHandlerT");
+//		idh = new OldIncomingDataHandler(this, inD, tupleIdxMapper, dsa);
+//		iDataH = new Thread(idh, "dataHandlerT");
 		//Consumer worker
 		dataConsumer = new DataConsumer(this, dsa);
 		dConsumerH = new Thread(dataConsumer, "dataConsumerT");
@@ -203,9 +201,9 @@ public class CoreRE {
 		}
 		else{
 			Selector s = puCtx.getConfiguredSelector();
-			odhw = new OldOutgoingDataHandlerWorker(s);
-			Thread odhw_t = new Thread(odhw);
-			odhw_t.start();
+//			odhw = new OldOutgoingDataHandlerWorker(s);
+//			Thread odhw_t = new Thread(odhw);
+//			odhw_t.start();
 			LOG.debug("-> CONFIGURING SYSTEM WITH AN ASYNCHRONOUS OUTPUT");
 		}
 		

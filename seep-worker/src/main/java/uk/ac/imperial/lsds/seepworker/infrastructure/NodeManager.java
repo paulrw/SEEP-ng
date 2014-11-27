@@ -37,7 +37,7 @@ import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.infrastructure.WorkerNodeDescription;
 import uk.ac.imperial.lsds.seep.util.Utils;
 import uk.ac.imperial.lsds.seepworker.GLOBALS;
-import uk.ac.imperial.lsds.seepworker.comm.OldNodeManagerCommunication;
+//import uk.ac.imperial.lsds.seepworker.comm.OldNodeManagerCommunication;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPIHandler;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPINodeDescription;
 //import uk.ac.imperial.lsds.seep.infrastructure.api.RestAPIRegistryEntry;
@@ -65,7 +65,7 @@ public class NodeManager{
 	private InetAddress bindAddr;
 	//Bind port of this NodeManager
 	private int ownPort;
-	private OldNodeManagerCommunication bcu = new OldNodeManagerCommunication();
+//	private OldNodeManagerCommunication bcu = new OldNodeManagerCommunication();
 	
 	static public boolean monitorOfSink = false;
 	static public long clock = 0;
@@ -132,7 +132,7 @@ public class NodeManager{
 			LOG.info("Waiting for incoming requests on port: {}", ownPort);
 			Socket clientSocket = null;
 			//Send bootstrap information
-			bcu.sendBootstrapInformation(bindPort, bindAddr, ownPort);
+//			bcu.sendBootstrapInformation(bindPort, bindAddr, ownPort);
 			while(listen){
 				//Accept incoming connections
 				clientSocket = serverSocket.accept();
