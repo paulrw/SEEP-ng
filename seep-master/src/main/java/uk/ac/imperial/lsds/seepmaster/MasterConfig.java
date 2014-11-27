@@ -37,7 +37,7 @@ public class MasterConfig extends Config {
 				.define(DEPLOYMENT_TARGET_TYPE, Type.INT, 0, Importance.HIGH, DEPLOYMENT_TARGET_TYPE_DOC)
 				.define(LISTENING_PORT, Type.INT, 3500, Importance.HIGH, LISTENING_PORT_DOC)
 				.define(UI_TYPE, Type.INT, 0, Importance.HIGH, UI_TYPE_DOC)
-				.define(PROPERTIES_FILE, Type.STRING, Importance.LOW, PROPERTIES_FILE_DOC);
+				.define(PROPERTIES_FILE, Type.STRING, "config.properties", Importance.LOW, PROPERTIES_FILE_DOC);
 	}
 	
 	public MasterConfig(Map<? extends Object, ? extends Object> originals) {

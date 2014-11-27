@@ -1,7 +1,6 @@
 package uk.ac.imperial.lsds.seep.config;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -53,7 +52,6 @@ public class CommandLineArgs {
             OptionSpec<?> spec = entry.getKey();
             String key = asPropertyKey(spec);
             String value = asPropertyValue(entry.getValue(), options.has(spec));
-            System.out.println("key: "+key+" value: "+value);
             properties.setProperty(key, value);
         }
         return properties;

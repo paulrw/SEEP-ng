@@ -238,6 +238,10 @@ public class NetworkSelector implements EventAPI {
 							readers[chosenReader].newConnection(incomingCon);
 							readers[chosenReader].wakeUp();
 						}
+						if(! key.isValid()){
+							LOG.warn("Acceptor key is disconnected !");
+							System.exit(0);
+						}
 					}
 					keyIt.remove();
 					
@@ -319,6 +323,10 @@ public class NetworkSelector implements EventAPI {
 								InputBuffer buffer = ia.getInputBuffer();
 								buffer.readFrom(channel, ia);
 							}
+						}
+						if(! key.isValid()){
+							String conn = ((SocketChannel)key.channel()).socket().getRemoteSocketAddress().toString();
+							LOG.warn("Invalid incoming data connection to: {}", conn);
 						}
 					}
 				}
@@ -466,6 +474,10 @@ public class NetworkSelector implements EventAPI {
 									}
 								}
 							}
+						}
+						if(! key.isValid()){
+							String conn = ((SocketChannel)key.channel()).socket().getRemoteSocketAddress().toString();
+							LOG.warn("Invalid outgoing data connection to: {}", conn);
 						}
 					}
 				}

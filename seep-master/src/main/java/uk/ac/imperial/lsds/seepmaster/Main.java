@@ -67,7 +67,7 @@ public class Main {
 		// Get Properties with file configuration
 		Properties fileProperties = null;
 		if(commandLineProperties.containsKey(MasterConfig.PROPERTIES_FILE)){
-			String propertiesFile = commandLineProperties.getProperty("properties.file");
+			String propertiesFile = commandLineProperties.getProperty(MasterConfig.PROPERTIES_FILE);
 			fileProperties = Utils.readPropertiesFromFile(propertiesFile, false);
 		}
 		else{
