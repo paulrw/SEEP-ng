@@ -1,5 +1,6 @@
 package uk.ac.imperial.lsds.seepmaster;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -49,7 +50,7 @@ public class Main {
 		LOG.info("Created UI of type: {}", UIFactory.nameUIOfType(uiType));
 		String queryPathFile = mc.getString(MasterConfig.QUERY_FILE);
 		String baseClass = mc.getString(MasterConfig.BASECLASS_NAME);
-		LOG.info("Loading query {} with baseClass: {} from local file...", queryPathFile, baseClass);
+		LOG.info("Loading query {} with baseClass: {} from file...", queryPathFile, baseClass);
 		qm.loadQueryFromFile(queryPathFile, baseClass);
 		LOG.info("Loading query...OK");
 		ui.start();		
@@ -59,26 +60,49 @@ public class Main {
 		// Get Properties with command line configuration 
 		List<ConfigKey> configKeys = MasterConfig.getAllConfigKey();
 		OptionParser parser = new OptionParser();
-		parser.accepts(MasterConfig.QUERY_FILE, "Jar file with the compiled SEEP query").withRequiredArg();
-		parser.accepts(MasterConfig.BASECLASS_NAME, "Name of the Base Class").withRequiredArg();
+		parser.accepts(MasterConfig.QUERY_FILE, "Jar file with the compiled SEEP query").withRequiredArg().required();
+		parser.accepts(MasterConfig.BASECLASS_NAME, "Name of the Base Class").withRequiredArg().required();
 		CommandLineArgs cla = new CommandLineArgs(args, parser, configKeys);
 		Properties commandLineProperties = cla.getProperties();
 		
 		// Get Properties with file configuration
-		Properties fileProperties = null;
-		if(commandLineProperties.containsKey(MasterConfig.PROPERTIES_FILE)){
-			String propertiesFile = commandLineProperties.getProperty(MasterConfig.PROPERTIES_FILE);
-			fileProperties = Utils.readPropertiesFromFile(propertiesFile, false);
-		}
-		else{
-			fileProperties = Utils.readPropertiesFromFile("config.properties", true);
-		}
+		Properties fileProperties = Utils.readPropertiesFromFile(MasterConfig.PROPERTIES_FILE, MasterConfig.PROPERTIES_RESOURCE_FILE);
 		
 		// Merge both properties, command line has preference
 		Properties validatedProperties = Utils.overwriteSecondPropertiesWithFirst(commandLineProperties, fileProperties);
-		// TODO: validate properties, making sure all required are there
+		boolean validates = validateProperties(validatedProperties);		
+		if(!validates){
+			printHelp(parser);
+			System.exit(0);
+		}
 		MasterConfig mc = new MasterConfig(validatedProperties);
 		Main instance = new Main();
 		instance.executeMaster(args, mc);
+	}
+	
+	private static boolean validateProperties(Properties validatedProperties){
+		if((!validatedProperties.containsKey(MasterConfig.QUERY_FILE)) ||
+				validatedProperties.getProperty(MasterConfig.QUERY_FILE) == null ||
+				validatedProperties.getProperty(MasterConfig.QUERY_FILE).equals("")){
+			LOG.error("Missing required parameter: {}", MasterConfig.QUERY_FILE);
+			return false;
+		}
+		if((!validatedProperties.containsKey(MasterConfig.BASECLASS_NAME)) ||
+				validatedProperties.getProperty(MasterConfig.BASECLASS_NAME) == null ||
+				validatedProperties.getProperty(MasterConfig.BASECLASS_NAME).equals("")){
+			LOG.error("Missing required parameter: {}", MasterConfig.BASECLASS_NAME);
+			return false;
+		}
+			
+		return true;
+	}
+	
+	private static void printHelp(OptionParser parser){
+		try {
+			parser.printHelpOn(System.out);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

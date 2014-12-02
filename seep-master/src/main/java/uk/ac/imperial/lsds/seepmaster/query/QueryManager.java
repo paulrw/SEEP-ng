@@ -204,12 +204,6 @@ public class QueryManager {
 		// Send physical query to all nodes
 		Command queryDeploy = ProtocolCommandFactory.buildQueryDeployCommand(originalQuery);
 		comm.send_object_sync(queryDeploy, connections, k);
-		
-		/** Is this necessary? NO!!!**/
-		
-//		// Send start runtime command to all nodes to finish deployment
-//		Command runtime = ProtocolCommandFactory.buildStartRuntimeCommand();
-//		comm.send_object_sync(runtime, connections, k);
 	}
 	
 	public void startQuery(){
@@ -252,7 +246,6 @@ public class QueryManager {
 		Object baseInstance = null;
 		Method compose = null;
 		LogicalSeepQuery lsq = null;
-		//inf.setPathToQueryDefinition(pathToJar);
 		File urlPathToQueryDefinition = new File(pathToJar);
 		LOG.debug("-> Set path to query definition: {}", urlPathToQueryDefinition.getAbsolutePath());
 		URL[] urls = new URL[1];
@@ -265,7 +258,6 @@ public class QueryManager {
 		}
 		// First time it is created we pass the urls
 		URLClassLoader ucl = new URLClassLoader(urls);
-		//eiu.setClassLoader(ucl);
 		try {
 			baseI = ucl.loadClass(definitionClass);
 			baseInstance = baseI.newInstance();

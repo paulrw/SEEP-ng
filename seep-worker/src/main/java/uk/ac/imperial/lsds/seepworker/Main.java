@@ -10,6 +10,7 @@
  ******************************************************************************/
 package uk.ac.imperial.lsds.seepworker;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -41,32 +42,6 @@ import uk.ac.imperial.lsds.seepworker.core.Conductor;
 public class Main {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(Main.class);
-	
-	public static void main(String args[]){
-		
-		// Get properties from command line
-		List<ConfigKey> configKeys = WorkerConfig.getAllConfigKey();
-		OptionParser parser = new OptionParser();
-		CommandLineArgs cla = new CommandLineArgs(args, parser, configKeys);
-		Properties commandLineProperties = cla.getProperties();
-		
-		// Get properties from file, if any
-		Properties fileProperties = null;
-		if(commandLineProperties.containsKey("properties.file")){
-			String propertiesFile = commandLineProperties.getProperty("properties.file");
-			fileProperties = Utils.readPropertiesFromFile(propertiesFile, false);
-		}
-		else{
-			fileProperties = Utils.readPropertiesFromFile("config.properties", true);
-		}
-		
-		Properties validatedProperties = Utils.overwriteSecondPropertiesWithFirst(commandLineProperties, fileProperties);
-		//TODO: validate properties
-		
-		WorkerConfig wc = new WorkerConfig(validatedProperties);
-		Main instance = new Main();
-		instance.executeWorker(wc);
-	}
 	
 	private void executeWorker(WorkerConfig wc){
 		int masterPort = wc.getInt(WorkerConfig.MASTER_PORT);
@@ -106,11 +81,48 @@ public class Main {
 		// bootstrap
 		String myIp = Utils.getStringRepresentationOfLocalIp();
 		api.bootstrap(masterConnection, myIp, myPort, dataPort);
+	}
+	
+	public static void main(String args[]){
 		
-		// NodeManager instantiation
-		//NodeManager nm = new NodeManager(masterPort, masterIp, ownPort);
-		//LOG.info("Initializing Node Manager...");
-		//nm.init();
-		//LOG.warn("NodeManager was remotely stopped");
+		// Get properties from command line
+		List<ConfigKey> configKeys = WorkerConfig.getAllConfigKey();
+		OptionParser parser = new OptionParser();
+		CommandLineArgs cla = new CommandLineArgs(args, parser, configKeys);
+		Properties commandLineProperties = cla.getProperties();
+		
+		// Get properties from file, if any
+		Properties fileProperties = Utils.readPropertiesFromFile(WorkerConfig.PROPERTIES_FILE, WorkerConfig.PROPERTIES_RESOURCE_FILE);
+		
+		Properties validatedProperties = Utils.overwriteSecondPropertiesWithFirst(commandLineProperties, fileProperties);
+		boolean validates = validateProperties(validatedProperties);
+		if(!validates){
+			printHelp(parser);
+			System.exit(0);
+		}
+		
+		WorkerConfig wc = new WorkerConfig(validatedProperties);
+		Main instance = new Main();
+		instance.executeWorker(wc);
+	}
+	
+	private static boolean validateProperties(Properties validatedProperties){
+		if((!validatedProperties.containsKey(WorkerConfig.MASTER_IP)) ||
+				validatedProperties.getProperty(WorkerConfig.MASTER_IP) == null ||
+				validatedProperties.getProperty(WorkerConfig.MASTER_IP).equals("")){
+			LOG.error("Missing required parameter: {}", WorkerConfig.MASTER_IP);
+			return false;
+		}
+			
+		return true;
+	}
+	
+	private static void printHelp(OptionParser parser){
+		try {
+			parser.printHelpOn(System.out);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

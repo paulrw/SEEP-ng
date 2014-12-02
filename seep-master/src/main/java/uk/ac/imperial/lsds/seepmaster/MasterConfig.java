@@ -29,6 +29,7 @@ public class MasterConfig extends Config {
     private static final String UI_TYPE_DOC = "The type of UI chosen, simpleconsole(0), console(1), web(2), etc";
     
     public static final String PROPERTIES_FILE = "properties.file";
+    public static final String PROPERTIES_RESOURCE_FILE = "config.properties";
     private static final String PROPERTIES_FILE_DOC = "Optional argument to indicate a properties file";
 	
 	static{
@@ -37,7 +38,7 @@ public class MasterConfig extends Config {
 				.define(DEPLOYMENT_TARGET_TYPE, Type.INT, 0, Importance.HIGH, DEPLOYMENT_TARGET_TYPE_DOC)
 				.define(LISTENING_PORT, Type.INT, 3500, Importance.HIGH, LISTENING_PORT_DOC)
 				.define(UI_TYPE, Type.INT, 0, Importance.HIGH, UI_TYPE_DOC)
-				.define(PROPERTIES_FILE, Type.STRING, "config.properties", Importance.LOW, PROPERTIES_FILE_DOC);
+				.define(PROPERTIES_FILE, Type.STRING, Importance.LOW, PROPERTIES_FILE_DOC);
 	}
 	
 	public MasterConfig(Map<? extends Object, ? extends Object> originals) {

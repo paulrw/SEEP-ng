@@ -1,5 +1,7 @@
 package uk.ac.imperial.lsds.seepworker.comm;
 
+import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
@@ -49,21 +51,9 @@ public class WorkerMasterAPIImplementation {
 		this.myIp = myIp;
 		Command command = ProtocolCommandFactory.buildBootstrapCommand(myIp, myPort, dataPort);
 		
-		for (int i = 0; i < retriesToMaster; i++) {
-			System.out.println("sending bootstrap, attemps: "+i);
-			boolean success = comm.send_object_async(command, masterConn, k);
-			if(success){
-				System.out.println("conn success");
-				return;
-			}
-			try {
-				Thread.sleep(retryBackOffMs);
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		// TODO: throw exception here to indicate failure
+		LOG.info("Bootstrapping...");
+		comm.send_object_async(command, masterConn, k, retriesToMaster, retryBackOffMs);
+		LOG.info("Bootstrapping OK conn to master: {}", masterConn.toString());
 	}
 	
 	public void handleQueryDeploy(QueryDeployCommand qdc){

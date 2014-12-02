@@ -295,32 +295,6 @@ public class ConfigDef {
     }
   }
 
-//    private static class ConfigKey {
-//        public final String name;
-//        public final Type type;
-//        public final String documentation;
-//        public final Object defaultValue;
-//        public final Validator validator;
-//        public final Importance importance;
-//
-//        public ConfigKey(String name, Type type, Object defaultValue, Validator validator, Importance importance, String documentation) {
-//            super();
-//            this.name = name;
-//            this.type = type;
-//            this.defaultValue = defaultValue;
-//            this.validator = validator;
-//            this.importance = importance;
-//            if (this.validator != null)
-//                this.validator.ensureValid(name, defaultValue);
-//            this.documentation = documentation;
-//        }
-//
-//        public boolean hasDefault() {
-//            return this.defaultValue != NO_DEFAULT_VALUE;
-//        }
-//
-//    }
-
     public String toHtmlTable() {
         // sort first required fields, then by importance, then name
         List<ConfigKey> configs = new ArrayList<ConfigKey>(this.configKeys.values());

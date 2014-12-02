@@ -13,6 +13,10 @@ public class WorkerConfig extends Config {
 
 	private static final ConfigDef config;
 	
+	public static final String PROPERTIES_FILE = "properties.file";
+    public static final String PROPERTIES_RESOURCE_FILE = "config.properties";
+    private static final String PROPERTIES_FILE_DOC = "Optional argument to indicate a properties file";
+	
 	public static final String DEPLOYMENT_TARGET_TYPE = "deployment_target.type";
     private static final String DEPLOYMENT_TARGET_TYPE_DOC = "The target cluster to which the master will submit queries."
     													+ "Physical cluster(0), yarn container(1), lxc, docker, etc";
@@ -76,7 +80,8 @@ public class WorkerConfig extends Config {
 				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC)
 				.define(BATCH_SIZE, Type.INT, 4, Importance.HIGH, BATCH_SIZE_DOC) // small so one tuple at-at-time
 				.define(SEND_APP_BUFFER_SIZE, Type.INT, 10000, Importance.HIGH, SEND_APP_BUFFER_SIZE_DOC)
-				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 10000, Importance.HIGH, RECEIVE_APP_BUFFER_SIZE_DOC);
+				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 10000, Importance.HIGH, RECEIVE_APP_BUFFER_SIZE_DOC)
+				.define(PROPERTIES_FILE, Type.STRING, Importance.LOW, PROPERTIES_FILE_DOC);
 	}
 	
 	public WorkerConfig(Map<? extends Object, ? extends Object> originals) {

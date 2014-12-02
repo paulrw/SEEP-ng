@@ -24,15 +24,10 @@ public class Connection {
 		return s;
 	}
 	
-	public Socket getOpenSocket(){
+	public Socket getOpenSocket() throws IOException{
 		if(s == null || s.isClosed()){
-			try {
-				s = new Socket(ep.getIp(), ep.getPort());
-				return s;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			s = new Socket(ep.getIp(), ep.getPort());
+			return s;
 		}
 		else if(s != null){
 			if(s.isConnected()) {

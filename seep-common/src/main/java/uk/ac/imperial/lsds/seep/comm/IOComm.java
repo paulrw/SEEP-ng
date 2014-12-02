@@ -42,8 +42,8 @@ public class IOComm implements Comm {
 	
 	@Override
 	public boolean send_sync(byte[] data, Connection c) {
-		Socket connection = c.getOpenSocket();
 		try {
+			Socket connection = c.getOpenSocket();
 			DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			dos.writeInt(data.length);
@@ -68,8 +68,8 @@ public class IOComm implements Comm {
 
 	@Override
 	public void send_async(byte[] data, Connection c) {
-		Socket connection = c.getOpenSocket();
 		try {
+			Socket connection = c.getOpenSocket();
 			DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
 			dos.writeInt(data.length);
 			dos.write(data);
@@ -267,11 +267,11 @@ public class IOComm implements Comm {
 
 	@Override
 	public boolean send_object_sync(Object data, Connection c) {
-		Socket connection = c.getOpenSocket();
 		ExtendedObjectOutputStream oos = null;
 		BufferedReader in = null;
 		
 		try {
+			Socket connection = c.getOpenSocket();
 			oos = new ExtendedObjectOutputStream(connection.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			oos.writeClassDescriptor(ObjectStreamClass.lookup(data.getClass()));
@@ -297,10 +297,10 @@ public class IOComm implements Comm {
 
 	@Override
 	public void send_object_async(Object data, Connection c) {
-		Socket connection = c.getOpenSocket();
 		ExtendedObjectOutputStream oos = null;
 		
 		try {
+			Socket connection = c.getOpenSocket();
 			oos = new ExtendedObjectOutputStream(connection.getOutputStream());
 			oos.writeClassDescriptor(ObjectStreamClass.lookup(data.getClass()));
 			oos.writeObject(data);
@@ -349,9 +349,9 @@ public class IOComm implements Comm {
 
 	@Override
 	public boolean send_object_sync(Command co, Connection c, Kryo k) {
-		Socket s = c.getOpenSocket();
+		
 		try {
-			//BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
+			Socket s = c.getOpenSocket();
 			OutputStream bos = s.getOutputStream();
 			BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			Output o = new Output(bos);
@@ -373,18 +373,26 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_async(Command co, Connection c, Kryo k) {
-		Socket s = c.getOpenSocket();
-		try {
-			//BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
-			OutputStream bos = s.getOutputStream();
-			Output o = new Output(bos);
-			k.writeObject(o, co);
-			o.close();
-			return true;
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
+	public boolean send_object_async(Command co, Connection c, Kryo k, int numRetries, int reconnectBackoff) {
+		for (int i = 0; i < numRetries; i++) {
+			try {
+				Socket s = c.getOpenSocket();
+				OutputStream bos = s.getOutputStream();
+				Output o = new Output(bos);
+				k.writeObject(o, co);
+				o.close();
+				return true;
+			} 
+			catch (IOException e) {
+				LOG.error("Failed connection attempt {}", i);
+			}
+			try {
+				LOG.info("Reconnecting in {}", reconnectBackoff+"...");
+				Thread.sleep(reconnectBackoff);
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -431,53 +439,4 @@ public class IOComm implements Comm {
 		}
 		
 	}
-	
-//	public boolean sendObject(Node n, int operatorId, Object o){
-//		//Get destiny address, port is preconfigured to 3500 for deployer tasks
-//		InetAddress ip = n.getIp();
-//		int port = n.getPort();
-///// \bug {creating socket again and again.}
-//		Socket connection = null;
-//		ExtendedObjectOutputStream oos = null;
-//		BufferedReader in = null;
-//		boolean success = false;
-//		try{
-//			if(connection == null){
-//				connection = new Socket(ip, port);
-//				LOG.debug("-> BCU. New socket created, IP: "+ip.toString()+" Port: "+port);
-//			}
-//			oos = new ExtendedObjectOutputStream(connection.getOutputStream());
-//			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//			
-//            LOG.debug("Class about to send: "+o.getClass());
-//			oos.writeClassDescriptor(ObjectStreamClass.lookup(o.getClass()));
-//			oos.writeObject(o);
-//            
-//            LOG.debug("Waiting for ack/nack reply from operatorId [{}]", operatorId);
-//			String reply = null;
-//			reply = in.readLine();
-//            LOG.debug("Received response [{}] from operatorId [{}]", reply, operatorId);
-//            
-//			///\fixme{handle error properly}
-//			if(reply.equals("ack")){
-//				success = true;
-//			}
-//			else if(reply.equals("nack")){
-//				//TODO
-//			}
-//			else{
-//				LOG.error("ERROR: MSG Received: {}",reply);
-//			}
-//			oos.close();
-//			in.close();
-//			connection.close();
-//		}
-//		catch(IOException e){
-//			LOG.error("-> While sending Object "+e.getMessage());
-//			e.printStackTrace();
-//		}
-//		return success;
-//	}
-	
-
 }

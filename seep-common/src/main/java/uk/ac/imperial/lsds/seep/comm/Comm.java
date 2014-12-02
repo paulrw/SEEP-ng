@@ -1,5 +1,7 @@
 package uk.ac.imperial.lsds.seep.comm;
 
+import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Set;
 
 import uk.ac.imperial.lsds.seep.comm.protocol.Command;
@@ -42,7 +44,7 @@ public interface Comm {
 	
 	// Primitives for master-worker communication
 	public boolean send_object_sync(Command co, Connection c, Kryo k);
-	public boolean send_object_async(Command co, Connection c, Kryo k);
+	public boolean send_object_async(Command co, Connection c, Kryo k, int numRetries, int reconnectBackOff);
 	public boolean send_object_sync(Command co, Set<Connection> cs, Kryo k);
 	public boolean send_object_async(Command co, Set<Connection> cs, Kryo k);
 	public boolean send_object_sync_parallel(Command data, Set<Connection> cs, Kryo k);

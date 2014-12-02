@@ -13,6 +13,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.imperial.lsds.seep.config.Config;
+
 public class Utils {
 
 	final static private Logger LOG = LoggerFactory.getLogger(Utils.class);
@@ -83,24 +85,29 @@ public class Utils {
 		return data;
 	}
 	
-	public static Properties readPropertiesFromFile(String fileName, boolean isResource){
+	public static Properties readPropertiesFromFile(String fileName, String resFileName){
 		Properties prop = new Properties();
-		try {
+		File f = new File(fileName);
+		try{
 			InputStream fis = null;
-			if(isResource)
-				fis = (InputStream) Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
-			else
+			if(f.exists()){
+				// Read from file
 				fis = new FileInputStream(new File(fileName));
+			}
+			else{
+				// Read from resource
+				fis = (InputStream) Thread.currentThread().getContextClassLoader().getResourceAsStream(resFileName);
+			}
 			if(fis != null)
 				prop.load(fis);
 		}
-		catch (FileNotFoundException e1) {
-			System.out.println("Properties file not found "+e1.getMessage());
-			e1.printStackTrace();
-		}
-		catch (IOException e1) {
-			System.out.println("While loading properties file "+e1.getMessage());
-			e1.printStackTrace();
+		catch(FileNotFoundException fnfe){
+			LOG.error("File {} not found while trying to read properties", fileName);
+			fnfe.printStackTrace();
+		} 
+		catch(IOException io){
+			LOG.error("IOException while reading properties", fileName);
+			io.printStackTrace();
 		}
 		return prop;
 	}
