@@ -28,8 +28,12 @@ seep-java2sdg/showGraph.sh
 .DS_Store
 /bin/
 /build
-examples/dummy-stateless-query/.gitignore
-examples/dummy-stateless-query/.settings/*
-examples/dummy-stateless-query/build/*
-examples/dummy-stateless-query/libs/seep-common-0.1.jar
+examples/simple-pipeline-stateless-query/.gitignore
+examples/simple-pipeline-stateless-query/.settings/*
+examples/simple-pipeline-stateless-query/build/*
+examples/simple-pipeline-stateless-query/libs/seep-common-0.1.jar
+examples/simple-dag-stateless-query/.gitignore
+examples/simple-dag-stateless-query/.settings/*
+examples/simple-dag-stateless-query/build/*
+examples/simple-dag-stateless-query/libs/seep-common-0.1.jar
 
