@@ -14,8 +14,9 @@ public class Sink implements SeepTask {
 	public void processData(ITuple data, API api) {
 		int userId = data.getInt("userId");
 		long ts = data.getLong("ts");
+		String text = data.getString("text");
 		
-		System.out.println("UID: "+userId+" ts: "+ts);
+		System.out.println("UID: "+userId+" ts: "+ts+" text: "+text);
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 
 public abstract class Type {
 	
+	public final static int SIZE_OVERHEAD = Integer.BYTES;
+	
 	public abstract String toString();
 	public abstract void write(ByteBuffer buffer, Object o);
 	public abstract Object read(ByteBuffer buffer);
@@ -137,7 +139,7 @@ public abstract class Type {
 
 		@Override
 		public Object read(ByteBuffer buffer) {
-			int length = buffer.getShort();
+			int length = buffer.getInt();
             byte[] bytes = new byte[length];
             buffer.get(bytes);
             String str = null;
@@ -161,15 +163,15 @@ public abstract class Type {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-            if (bytes.length > Short.MAX_VALUE)
-                throw new SchemaException("A string or charsequence cannot be longer than Short.MAX_VALUE");
-            buffer.putShort((short) bytes.length);
+            if (bytes.length > Integer.MAX_VALUE)
+                throw new SchemaException("A string or charsequence cannot be longer than Integer.MAX_VALUE");
+            buffer.putInt((int) bytes.length);
             buffer.put(bytes);
 		}
 
 		@Override
 		public int sizeOf(Object o) {
-			return Short.BYTES + uk.ac.imperial.lsds.seep.util.Utils.utf8Length((String)o);
+			return Integer.BYTES + uk.ac.imperial.lsds.seep.util.Utils.utf8Length((String)o);
 		}
 
 		@Override

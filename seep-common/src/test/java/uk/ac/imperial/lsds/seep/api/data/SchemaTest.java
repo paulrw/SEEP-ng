@@ -11,6 +11,15 @@ import uk.ac.imperial.lsds.seep.api.data.Schema.SchemaBuilder;
 public class SchemaTest {
 
 	@Test
+	public void sizeOfTest(){
+		
+		String a = "hola";
+		int size = Type.STRING.sizeOf(a);
+		assert(size == 8);
+		
+	}
+	
+	@Test
 	public void testCreateSchema() {
 		SchemaBuilder sb = SchemaBuilder.getInstance();
 		Schema s = sb.newField(Type.INT, "userId").newField(Type.LONG, "timestamp").newField(Type.STRING, "text").build();
@@ -78,7 +87,7 @@ public class SchemaTest {
 		String stringRead = (String) Type.STRING.read(buffer);
 		
 		assert(stringWrite.equals(stringRead));
-		assertEquals(Type.STRING.sizeOf(stringWrite), stringWrite.length()+2);
+		assertEquals(Type.STRING.sizeOf(stringWrite), stringWrite.length()+4);
 		
 		buffer.clear();
 		
@@ -89,7 +98,7 @@ public class SchemaTest {
 		String stringRead2 = (String) Type.STRING.read(buffer);
 		
 		assert(stringWrite2.equals(stringRead2));
-		assertEquals(Type.STRING.sizeOf(stringWrite2), stringWrite2.length()+2);
+		assertEquals(Type.STRING.sizeOf(stringWrite2), stringWrite2.length()+4);
 		
 		buffer.clear();
 		
@@ -110,6 +119,19 @@ public class SchemaTest {
 	}
 	
 	@Test
+	public void simpleWriteAndReadAndPrintTest() {
+		Schema s = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
+		byte[] sData = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{666, 333333L});
+		
+		ITuple i = new ITuple(s);
+		i.setData(sData);
+		String tuple = i.toString();
+//		System.out.println(tuple);
+		
+		assertTrue(true);
+	}
+	
+	@Test
 	public void writeAndReadFixedSizeSchemaTest(){
 		
 		// Fixed size schema
@@ -119,10 +141,7 @@ public class SchemaTest {
 		Schema outputSchema = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
 		OTuple output = new OTuple(outputSchema);
 		
-		output.setInt("userId", u);
-		output.setLong("ts", t);
-		
-		byte[] serializedData = output.getBytes();
+		byte[] serializedData = OTuple.create(outputSchema, new String[]{"userId", "ts"}, new Object[]{u, t});
 		
 		ITuple input = new ITuple(outputSchema); // share output and input schema in the simplest case
 		input.setData(serializedData);
@@ -132,17 +151,26 @@ public class SchemaTest {
 		
 		assertEquals(u, userId);
 		assertEquals(t, ts);
-		
 	}
 	
 	@Test
 	public void writeAndReadVariableSizeSchemaTest(){
-		
+		Schema vs = SchemaBuilder.getInstance().newField(Type.STRING, "item").newField(Type.INT, "price").build();
 		// Variable size schema
-		// TODO;
-				
-		assertTrue(true);
+		String item = "pc";
+		int price = 250;
 		
+		byte[] serializedData = OTuple.create(vs, new String[]{"item", "price"}, new Object[]{item, price});
+		
+		ITuple i = new ITuple(vs);
+		i.setData(serializedData);
+		
+		String _item = i.getString("item");
+		int _price = i.getInt("price");
+		System.out.println("Item: "+_item+" costs: "+_price);
+		
+		assert(_item.equals(item));
+		assert(_price == price);
 	}
 
 }

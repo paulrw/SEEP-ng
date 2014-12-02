@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seep.api.data;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import uk.ac.imperial.lsds.seep.util.Utils;
 
@@ -42,27 +43,6 @@ public class ITuple {
 		return data;
 	}
 	
-	private void populateOffsets(){
-		Type[] fields = schema.fields();
-		String[] names = schema.names();
-		int offset = 0;
-		for(int i = 0; i < fields.length; i++){
-			Type t = fields[i];
-			mapFieldToOffset.put(names[i], offset);
-			if(! t.isVariableSize()){
-				// if not variable we just get the size of the Type
-				offset = offset + t.sizeOf(null);
-			}
-			else {
-				// if variable we need to read the size from the current offset
-				ByteBuffer temp = ByteBuffer.wrap(data);
-				temp.position(offset);
-				int size = temp.getInt();
-				offset = offset + size;
-			}
-		}
-	}
-	
 	/** Consider moving these fields to a different interface to not expose the rest to users? **/
 	
 	public byte getByte(String fieldName){
@@ -77,16 +57,6 @@ public class ITuple {
 		wrapper.position(offset);
 		return wrapper.get();
 	}
-	
-//	public boolean getBoolean(String fieldName){
-//			
-//		return false;
-//	}
-	
-//	public char getChar(String fieldName){
-//
-//		return 0;
-//	}
 	
 	public short getShort(String fieldName){
 		if(! schema.hasField(fieldName)){
@@ -128,17 +98,17 @@ public class ITuple {
 	}
 	
 	public String getString(String fieldName){
-//		if(! schema.hasField(fieldName)){
-//			// TODO: error no field
-//		}
-//		else if(! schema.typeCheck(fieldName, Type.BYTE)) {
-//			// TODO: does not type check
-//		}
-//		
-//		int offset = mapFieldToOffset.get(fieldName);
-//		wrapper.position(offset);
-//		return wrapper.get();
-		return null;
+		if(! schema.hasField(fieldName)){
+			// TODO: error no field
+		}
+		else if(! schema.typeCheck(fieldName, Type.BYTE)) {
+			// TODO: does not type check
+		}
+
+		int offset = mapFieldToOffset.get(fieldName);
+		wrapper.position(offset);
+		String str = (String) Type.STRING.read(wrapper);
+		return str;
 	}
 	
 	public Object get(String fieldName){
@@ -158,7 +128,7 @@ public class ITuple {
 		} else if(t == Type.LONG){
 			o = wrapper.getLong();
 		} else if(t == Type.STRING){
-			// TODO: read a string
+			o = Type.STRING.read(wrapper);
 		}
 		return o;
 	}
@@ -174,4 +144,33 @@ public class ITuple {
 		return sb.toString();
 	}
 	
+	private void populateOffsets(){
+		Type[] fields = schema.fields();
+		String[] names = schema.names();
+		int offset = 0;
+		for(int i = 0; i < fields.length; i++){
+			Type t = fields[i];
+			mapFieldToOffset.put(names[i], offset);
+			if(! t.isVariableSize()){
+				// if not variable we just get the size of the Type
+				offset = offset + t.sizeOf(null);
+			}
+			else {
+				// if variable we need to read the size from the current offset
+				ByteBuffer temp = ByteBuffer.wrap(data);
+				temp.position(offset);
+				int size = temp.getInt();
+				offset = offset + size + Type.SIZE_OVERHEAD;
+			}
+		}
+	}
+	
+	public String printOffsets(){
+		StringBuffer sb = new StringBuffer();
+		for(Entry<String, Integer> entry : mapFieldToOffset.entrySet()){
+			sb.append("Field: "+entry.getKey()+" Offset: "+entry.getValue());
+			sb.append(Utils.NL);
+		}
+		return sb.toString();
+	}
 }

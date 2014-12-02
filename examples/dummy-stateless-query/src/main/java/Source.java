@@ -9,7 +9,7 @@ import uk.ac.imperial.lsds.seep.api.data.Schema.SchemaBuilder;
 
 public class Source implements SeepTask {
 
-	private Schema schema = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
+	private Schema schema = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").newField(Type.STRING, "text").build();
 	
 	@Override
 	public void setUp() {
@@ -21,7 +21,7 @@ public class Source implements SeepTask {
 		int userId = 0;
 		long ts = 0;
 		while(true){
-			byte[] d = OTuple.create(schema, new String[]{"userId", "ts"}, new Object[]{userId, ts});
+			byte[] d = OTuple.create(schema, new String[]{"userId", "ts", "text"}, new Object[]{userId, ts, "some text"});
 			api.send(d);
 			
 			userId++;
