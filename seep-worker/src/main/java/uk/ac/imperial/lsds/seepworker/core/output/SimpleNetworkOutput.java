@@ -88,12 +88,12 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	}
 
 	@Override
-	public void sendStreamid(int streamId, byte[] o) {
+	public void sendToStreamId(int streamId, byte[] o) {
 		// NON DEFINED
 	}
 
 	@Override
-	public void sendStreamidAll(int streamId, byte[] o) {
+	public void sendToAllInStreamId(int streamId, byte[] o) {
 		// NON DEFINED
 	}
 

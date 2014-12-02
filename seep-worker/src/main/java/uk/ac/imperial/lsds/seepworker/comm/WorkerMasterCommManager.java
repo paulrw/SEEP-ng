@@ -49,7 +49,7 @@ public class WorkerMasterCommManager {
 			e.printStackTrace();
 		}
 		listener = new Thread(new CommMasterWorker());
-		listener.setName(CommMasterWorker.class.getName());
+		listener.setName(CommMasterWorker.class.getSimpleName());
 	}
 	
 	public void start(){

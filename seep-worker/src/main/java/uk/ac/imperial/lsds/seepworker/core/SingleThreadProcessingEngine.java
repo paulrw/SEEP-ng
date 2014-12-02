@@ -31,7 +31,7 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 	
 	public SingleThreadProcessingEngine(){
 		this.worker = new Thread(new Worker());
-		this.worker.setName(this.getClass().getName());
+		this.worker.setName(this.getClass().getSimpleName());
 	}
 	
 	@Override

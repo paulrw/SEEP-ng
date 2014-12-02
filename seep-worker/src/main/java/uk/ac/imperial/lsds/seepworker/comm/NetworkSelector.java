@@ -70,14 +70,18 @@ public class NetworkSelector implements EventAPI {
 		readerWorkers = new Thread[numReaderWorkers];
 		for(int i = 0; i < numReaderWorkers; i++){
 			readers[i] = new Reader(i, totalNumberPendingConnectionsPerThread);
-			readerWorkers[i] = new Thread(readers[i]);
+			Thread reader = new Thread(readers[i]);
+			reader.setName("Network-Reader-"+i);
+			readerWorkers[i] = reader;
 		}
 		// Create pool of writer threads
 		writers = new Writer[numWriterWorkers];
 		writerWorkers = new Thread[numWriterWorkers];
 		for(int i = 0; i < numWriterWorkers; i++){
 			writers[i] = new Writer(i);
-			writerWorkers[i] = new Thread(writers[i]);
+			Thread writer = new Thread(writers[i]);
+			writer.setName("Network-Writer-"+i);
+			writerWorkers[i] = writer;
 		}
 		this.writerKeys = new HashMap<>();
 		// Create the acceptorSelector
@@ -165,6 +169,7 @@ public class NetworkSelector implements EventAPI {
 		}
 		this.listenerSocket = channel;
 		this.acceptorWorker = new Thread(new AcceptorWorker());
+		this.acceptorWorker.setName("Network-Acceptor");
 	}
 	
 	public void configureConnect(Set<OutputBuffer> obufs){
@@ -178,20 +183,20 @@ public class NetworkSelector implements EventAPI {
 	public void start(){
 		LOG.info("Starting network selector thread...");
 		this.acceptorWorking = true;
-		// Start writers
-		for(Thread w : writerWorkers){
-			LOG.info("Starting writer: {}", w.getName());
-			w.start();
+		// Check whether there is a network acceptor worker. There won't be one if there are no input network connections.
+		if(acceptorWorker != null){
+			LOG.info("Starting acceptor thread: {}", acceptorWorker.getName());
+			this.acceptorWorker.start();
 		}
 		// Start readers
 		for(Thread r : readerWorkers){
 			LOG.info("Starting reader: {}", r.getName());
 			r.start();
 		}
-		// Check whether there is a network acceptor worker. There won't be one if there are no input network connections.
-		if(acceptorWorker != null){
-			LOG.info("Starting acceptor thread: {}", acceptorWorker.getName());
-			this.acceptorWorker.start();
+		// Start writers
+		for(Thread w : writerWorkers){
+			LOG.info("Starting writer: {}", w.getName());
+			w.start();
 		}
 		LOG.info("Starting network selector thread...OK");
 	}
@@ -294,7 +299,6 @@ public class NetworkSelector implements EventAPI {
 		@Override
 		public void run() {
 			LOG.info("Started Reader worker: {}", Thread.currentThread().getName());
-			boolean waitingForConnectionIdentifier = true;
 			while(working){
 				// First handle potential new connections that have been queued up
 				this.handleNewConnections();
@@ -310,12 +314,8 @@ public class NetworkSelector implements EventAPI {
 						keyIt.remove();
 						// read
 						if(key.isReadable()){
-							if(waitingForConnectionIdentifier){
-								boolean moreConnections = handleConnectionIdentifier(key);
-								if(!moreConnections){
-									waitingForConnectionIdentifier = false;
-									LOG.info("Connections ready!");
-								}
+							if(needsToConfigureConnection(key)){
+								handleConnectionIdentifier(key);
 							}
 							else{
 								InputAdapter ia = (InputAdapter)key.attachment();
@@ -334,6 +334,10 @@ public class NetworkSelector implements EventAPI {
 					ioe.printStackTrace();
 				}
 			}
+		}
+		
+		private boolean needsToConfigureConnection(SelectionKey key){
+			return !(key.attachment() instanceof InputAdapter);
 		}
 		
 		private boolean handleConnectionIdentifier(SelectionKey key){
@@ -567,11 +571,12 @@ public class NetworkSelector implements EventAPI {
 			        } 
 			        catch (UnresolvedAddressException uae) {
 			            channel.close();
-			            throw new IOException("The provided address cannot be resolved: " + address, uae);
+			            //throw new IOException("The provided address cannot be resolved: " + address, uae);
+			            uae.printStackTrace();
 			        }
 			        catch (IOException io) {
 			            channel.close();
-			            throw io;
+			            io.printStackTrace();
 			        }
 					channel.configureBlocking(false);
 					int interestSet = SelectionKey.OP_CONNECT;

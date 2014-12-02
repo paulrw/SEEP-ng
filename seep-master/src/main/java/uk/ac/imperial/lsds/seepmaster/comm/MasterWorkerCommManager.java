@@ -39,7 +39,7 @@ public class MasterWorkerCommManager {
 			e.printStackTrace();
 		}
 		listener = new Thread(new CommMasterWorker());
-		listener.setName(CommMasterWorker.class.getName());
+		listener.setName(CommMasterWorker.class.getSimpleName());
 		// TODO: set uncaughtexceptionhandler
 	}
 	

@@ -84,13 +84,13 @@ public class Collector implements API {
 	}
 
 	@Override
-	public void sendStreamid(int streamId, byte[] o) {
+	public void sendToStreamId(int streamId, byte[] o) {
 		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).send(o);
 	}
 
 	@Override
-	public void sendStreamidAll(int streamId, byte[] o) {
+	public void sendToAllInStreamId(int streamId, byte[] o) {
 		if(NOT_SEND_API) throw new UnsupportedOperationException("Send API not defined, maybe this is a sink?");
 		streamIdToOutputAdapter.get(streamId).sendAll(o);
 	}
