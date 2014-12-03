@@ -36,6 +36,7 @@ public class Conductor {
 	private SeepState state;
 	
 	public Conductor(InetAddress myIp, WorkerConfig wc){
+		this.myIp = myIp;
 		this.wc = wc;
 		this.dataPort = wc.getInt(WorkerConfig.DATA_PORT);
 		int engineType = wc.getInt(WorkerConfig.ENGINE_TYPE);
@@ -46,6 +47,7 @@ public class Conductor {
 	
 	public void startProcessing(){
 		LOG.info("Starting processing engine...");
+		ns.startNetworkSelector();
 		engine.start();
 	}
 	
@@ -75,7 +77,7 @@ public class Conductor {
 		LOG.info("Setting up task...");
 		task.setUp(); // setup method of task
 		LOG.info("Setting up task...OK");
-		if(ns != null) ns.start(); // start network selector, if any
+		if(ns != null) ns.initNetworkSelector(); // start network selector, if any
 	}
 	
 	private NetworkSelector maybeConfigureNetworkSelector(){

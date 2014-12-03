@@ -1,18 +1,29 @@
 package uk.ac.imperial.lsds.seep.comm;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
 public class Connection {
 
+	final private static Logger LOG = LoggerFactory.getLogger(Connection.class);
+	
 	private final EndPoint ep;
 	private Socket s;
 	
 	public Connection(EndPoint ep) {
+		boolean valid = ep.isValid();
+		if(!valid){
+			throw new InvalidEndPointException("No IP defined for the endPoint");
+		}
 		this.ep = ep;
 	}
 	
@@ -44,6 +55,7 @@ public class Connection {
 	}
 	
 	public InetSocketAddress getInetSocketAddressForData(){
+		LOG.trace("Building InetSocketAdderss with IP: {}, dataPort: {}", this.ep.getIp(), this.ep.getDataPort());
 		return new InetSocketAddress(this.ep.getIp(), this.ep.getDataPort());
 	}
 	

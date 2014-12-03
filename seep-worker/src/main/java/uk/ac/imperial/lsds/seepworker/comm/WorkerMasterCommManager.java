@@ -95,14 +95,6 @@ public class WorkerMasterCommManager {
 					else if(cType == ProtocolAPI.QUERYDEPLOY.type()){
 						LOG.info("RX QueryDeploy command");
 						QueryDeployCommand qdc = c.getQueryDeployCommand();
-						
-//						//test
-//						PhysicalSeepQuery psq = qdc.getQuery();
-//						for(PhysicalOperator po : psq.getOperators()){
-//							DataTuple a = null;
-//							po.getSeepTask().processData(a);
-//						}
-//						System.out.println("QUERY: "+psq.toString());
 						out.println("ack");
 						api.handleQueryDeploy(qdc);
 					}

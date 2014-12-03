@@ -18,8 +18,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ public class NetworkSelector implements EventAPI {
 	
 	private Reader[] readers;
 	private Writer[] writers;
+	private CountDownLatch writersConfiguredLatch;
 	private int numReaderWorkers;
 	private int totalNumberPendingConnectionsPerThread;
 	
@@ -57,6 +60,7 @@ public class NetworkSelector implements EventAPI {
 	private int numUpstreamConnections;
 	
 	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
+		this.writersConfiguredLatch = new CountDownLatch(0); // Initially non-defined, nobody waits here
 		this.iapMap = iapMap;
 		this.numUpstreamConnections  = iapMap.size();
 		LOG.info("Expecting {} upstream connections", numUpstreamConnections);
@@ -93,38 +97,13 @@ public class NetworkSelector implements EventAPI {
 		}
 	}
 	
-	// TODO: to avoid confusion make this a method called from tests, rather than a different constructor
-	public NetworkSelector(Map<Integer, InputAdapter> iapMap){
-		this.iapMap = iapMap;
-		this.numUpstreamConnections  = iapMap.size();
-		LOG.info("Expecting {} upstream connections", numUpstreamConnections);
-		this.numReaderWorkers = 1;
-		this.numWriterWorkers = 1;
-		this.totalNumberPendingConnectionsPerThread = 1;
-		LOG.info("Configuring NetworkSelector with: {} readers, {} workers and {} maxPendingNetworkConn",
-				numReaderWorkers, numWriterWorkers, totalNumberPendingConnectionsPerThread);
-		// Create pool of reader threads
-		readers = new Reader[numReaderWorkers];
-		readerWorkers = new Thread[numReaderWorkers];
-		for(int i = 0; i < numReaderWorkers; i++){
-			readers[i] = new Reader(i, totalNumberPendingConnectionsPerThread);
-			readerWorkers[i] = new Thread(readers[i]);
-		}
-		// Create pool of writer threads
-		writers = new Writer[numWriterWorkers];
-		writerWorkers = new Thread[numWriterWorkers];
-		for(int i = 0; i < numWriterWorkers; i++){
-			writers[i] = new Writer(i);
-			writerWorkers[i] = new Thread(writers[i]);
-		}
-		this.writerKeys = new HashMap<>();
-		// Create the acceptorSelector
-		try {
-			this.acceptorSelector = Selector.open();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+	public static NetworkSelector makeNetworkSelectorWithMap(Map<Integer, InputAdapter> iapMap){
+		Properties p = new Properties();
+		p.setProperty(WorkerConfig.NUM_NETWORK_READER_THREADS, "1");
+		p.setProperty(WorkerConfig.NUM_NETWORK_WRITER_THREADS, "1");
+		p.setProperty(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, "1");
+		WorkerConfig wc = new WorkerConfig(p);
+		return new NetworkSelector(wc, iapMap);
 	}
 	
 	@Override
@@ -178,16 +157,10 @@ public class NetworkSelector implements EventAPI {
 		for(OutputBuffer obuf : obufs){
 			writers[(writerIdx++)%totalWriters].newConnection(obuf);
 		}
+		this.writersConfiguredLatch = new CountDownLatch(obufs.size()); // Initialize countDown with num of outputConns
 	}
 	
-	public void start(){
-		LOG.info("Starting network selector thread...");
-		this.acceptorWorking = true;
-		// Check whether there is a network acceptor worker. There won't be one if there are no input network connections.
-		if(acceptorWorker != null){
-			LOG.info("Starting acceptor thread: {}", acceptorWorker.getName());
-			this.acceptorWorker.start();
-		}
+	public void startNetworkSelector(){
 		// Start readers
 		for(Thread r : readerWorkers){
 			LOG.info("Starting reader: {}", r.getName());
@@ -198,7 +171,21 @@ public class NetworkSelector implements EventAPI {
 			LOG.info("Starting writer: {}", w.getName());
 			w.start();
 		}
-		LOG.info("Starting network selector thread...OK");
+		try {
+			this.writersConfiguredLatch.await();
+		} 
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void initNetworkSelector(){
+		this.acceptorWorking = true;
+		// Check whether there is a network acceptor worker. There won't be one if there are no input network connections.
+		if(acceptorWorker != null){
+			LOG.info("Starting acceptor thread: {}", acceptorWorker.getName());
+			this.acceptorWorker.start();
+		}
 	}
 	
 	public void stop(){
@@ -244,7 +231,7 @@ public class NetworkSelector implements EventAPI {
 							readers[chosenReader].wakeUp();
 						}
 						if(! key.isValid()){
-							LOG.warn("Acceptor key is disconnected !");
+							LOG.error("Acceptor key is disconnected !");
 							System.exit(0);
 						}
 					}
@@ -450,10 +437,13 @@ public class NetworkSelector implements EventAPI {
 						// connectable
 						if(key.isConnectable()){
 							SocketChannel sc = (SocketChannel) key.channel();
-							sc.finishConnect();
+							if(sc.isConnectionPending()){
+								LOG.info("Attempting to finish conn to: "+sc.toString());
+								sc.finishConnect();
+							}
 							int interest = SelectionKey.OP_WRITE;
 							key.interestOps(interest); // as soon as it connects it can write the init protocol
-							LOG.info("Established output connection to: {}", sc.toString());
+							LOG.info("Finished establishing output connection to: {}", sc.toString());
 						}
 						// writable
 						if(key.isWritable()){
@@ -561,17 +551,15 @@ public class NetworkSelector implements EventAPI {
 					Connection c = ob.getConnection();
 					SocketChannel channel = SocketChannel.open();
 					InetSocketAddress address = c.getInetSocketAddressForData();
-					
 			        Socket socket = channel.socket();
 			        socket.setKeepAlive(true); // Unlikely in non-production scenarios we'll be up for more than 2 hours but...
 			        socket.setTcpNoDelay(true); // Disabling Nagle's algorithm
 			        try {
 			        	channel.configureBlocking(false);
 			            channel.connect(address);
-			        } 
+			        }
 			        catch (UnresolvedAddressException uae) {
 			            channel.close();
-			            //throw new IOException("The provided address cannot be resolved: " + address, uae);
 			            uae.printStackTrace();
 			        }
 			        catch (IOException io) {
@@ -582,9 +570,12 @@ public class NetworkSelector implements EventAPI {
 					int interestSet = SelectionKey.OP_CONNECT;
 					SelectionKey key = channel.register(writeSelector, interestSet);
 					key.attach(ob);
-					LOG.info("Configured new output connection for {} to {}", ob.id(), address.toString());
+					LOG.info("Configured new output connection with OP: {} at {}", ob.id(), address.toString());
 					// Associate id - key in the networkSelectorMap
 					writerKeys.put(ob.id(), key);
+					// Notify of a new configured connection
+					writersConfiguredLatch.countDown();
+					LOG.trace("CountDown to configure all output conns: {}", writersConfiguredLatch.getCount());
 				}
 			}
 			catch(IOException io){

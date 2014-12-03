@@ -38,4 +38,13 @@ public final class EndPoint {
 	public int getDataPort(){
 		return dataPort;
 	}
+	
+	/**
+	 * An EndPoint is valid is its IP is not null
+	 * @return
+	 */
+	public boolean isValid(){
+		if(ip == null) return false;
+		return true;
+	}
 }

@@ -1,7 +1,5 @@
 package uk.ac.imperial.lsds.seepworker.comm;
 
-import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;

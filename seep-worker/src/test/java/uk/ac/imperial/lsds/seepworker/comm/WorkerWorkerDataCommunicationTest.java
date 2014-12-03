@@ -41,7 +41,7 @@ public class WorkerWorkerDataCommunicationTest {
 		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
 		iapMap.put(clientId, nds);
 		// TODO: build this
-		NetworkSelector ds = new NetworkSelector(iapMap);
+		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(iapMap);
 		// Create client and server that will be interchanging data
 		InetAddress myIp = null;
 		try {
@@ -60,7 +60,7 @@ public class WorkerWorkerDataCommunicationTest {
 		obs.add(ob);
 		ds.configureConnect(obs);
 		
-		ds.start();
+		ds.initNetworkSelector();
 		
 		try {
 			Thread.sleep(1000);
