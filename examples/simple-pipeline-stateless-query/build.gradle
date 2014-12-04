@@ -32,3 +32,7 @@ task seep(type: Jar){
 		attributes 'Main-Class': 'Base'
 	}
 }
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.1' 
+} 
