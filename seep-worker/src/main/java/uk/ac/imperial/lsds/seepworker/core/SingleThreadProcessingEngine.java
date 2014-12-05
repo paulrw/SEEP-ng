@@ -94,6 +94,7 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 					}
 				}
 				// If there are no input adapters, assume processData contain all necessary and give null input data
+				LOG.info("About to call processData without data. Am I a source?");
 				task.processData(null, api);
 			}
 		}

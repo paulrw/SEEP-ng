@@ -172,7 +172,9 @@ public class NetworkSelector implements EventAPI {
 			w.start();
 		}
 		try {
+			LOG.trace("Waiting for all output connections to configure. Remaining: {}", writersConfiguredLatch.getCount());
 			this.writersConfiguredLatch.await();
+			LOG.trace("All output connections are now configured");
 		} 
 		catch (InterruptedException e) {
 			e.printStackTrace();
@@ -454,6 +456,9 @@ public class NetworkSelector implements EventAPI {
 								handleSendIdentifier(ob.getStreamId(), channel);
 								unsetWritable(key);
 								needsToSendIdentifier = false;
+								// Notify of a new configured connection
+								writersConfiguredLatch.countDown();
+								LOG.trace("CountDown to configure all output conns: {}", writersConfiguredLatch.getCount());
 							}
 							else{
 								synchronized(key){
@@ -573,9 +578,6 @@ public class NetworkSelector implements EventAPI {
 					LOG.info("Configured new output connection with OP: {} at {}", ob.id(), address.toString());
 					// Associate id - key in the networkSelectorMap
 					writerKeys.put(ob.id(), key);
-					// Notify of a new configured connection
-					writersConfiguredLatch.countDown();
-					LOG.trace("CountDown to configure all output conns: {}", writersConfiguredLatch.getCount());
 				}
 			}
 			catch(IOException io){
