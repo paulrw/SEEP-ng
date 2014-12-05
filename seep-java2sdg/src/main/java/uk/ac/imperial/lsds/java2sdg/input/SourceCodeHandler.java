@@ -27,7 +27,13 @@ import java.util.logging.Logger;
 import uk.ac.imperial.lsds.java2sdg.Main;
 import uk.ac.imperial.lsds.java2sdg.bricks.SDGAnnotation;
 
-
+/**
+ * SourceCodeHandler simply reads an input source code file and stores its lines in memory. It also represents
+ * those annotations that it detects attached to the line where it found them.
+ * TODO: move annotation extraction to soot level
+ * @author ra
+ *
+ */
 public class SourceCodeHandler {
 	
 	private final static Logger log = Logger.getLogger(Main.class.getCanonicalName());

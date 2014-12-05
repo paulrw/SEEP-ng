@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -22,27 +23,31 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.InvokeExpr;
 import soot.toolkits.graph.UnitGraph;
+import uk.ac.imperial.lsds.java2sdg.bricks.WorkflowRepr;
 
-public class MainExtractor {
+public class DriverProgramAnalyzer {
 
-	private final static Logger log = Logger.getLogger(Main.class
-			.getCanonicalName());
+	private final static Logger LOG = Logger.getLogger(Main.class.getCanonicalName());
 
 	// private static String inputSourceType;
-	private static List<String> workflowNames;
+	
+	//TODO: new class that wraps all informatin we need from workflows. take a look at the class
+	private static List<WorkflowRepr> workflows;
+	
+	//TODO: this variable will dissappear, instead we'll have workflowNames as shown above
+	private static List<String> _workflowNames;
 
 	// private static Map<String, JavaType> inputSchema;
 	// private static String outputSinkType;
 
-	public MainExtractor() {
+	public DriverProgramAnalyzer() {
 		// inputSchema = null;
 		// outputSinkType = null;
 		// inputSchema = new HashMap<String, JavaType>();
-		workflowNames = new ArrayList<String>();
+		_workflowNames = new ArrayList<String>();
 	}
 
-	private static List<String> extractWorkflowsFromMainMethod(SootMethod sm,
-			SootClass c) {
+	private static List<String> extractWorkflowsFromMainMethod(SootMethod sm, SootClass c) {
 		List<String> workflowsNames = new ArrayList<String>();
 		UnitGraph cfg = Util.getCFGForMethod(sm.getName(), c);
 		Iterator<Unit> units = cfg.iterator();
@@ -56,6 +61,9 @@ public class MainExtractor {
 					InvokeExpr m = (InvokeExpr) v;
 					SootMethod method = m.getMethod();
 					String methodName = method.getName();
+					//TODO: instead, we need to populate workflows with WorkflowRepr objects (see the class)
+					// TODO: note that here we are in the line where the workflow method is called. we should be able
+					// to directly ask for the annotations given that line, which would allow us to construct the right object
 					workflowsNames.add(methodName);
 				}
 			}
@@ -63,8 +71,7 @@ public class MainExtractor {
 		return workflowsNames;
 	}
 
-	private static String extractInputSourceFromMainMethod(
-			Iterator<SootField> fieldsIterator) {
+	private static String extractInputSourceFromMainMethod(Iterator<SootField> fieldsIterator) {
 
 		// int sourceID=0;
 		// String source;
@@ -113,13 +120,13 @@ public class MainExtractor {
 			SootMethod sm = methods.next();
 
 			if (sm.getName().equals("main")) {
-				log.info("Detected Main method..");
+				LOG.info("Detected Main method..");
 
-				MainExtractor.workflowNames = extractWorkflowsFromMainMethod(sm,
+				DriverProgramAnalyzer._workflowNames = extractWorkflowsFromMainMethod(sm,
 						c);
 				// MainExporter.extractInputSourceFromMainMethod(c.getMethodByName("main").getTags().iterator());
 
-				log.info("Main Parsing done!");
+				LOG.info("Main Parsing done!");
 				break;
 			}
 
@@ -138,7 +145,7 @@ public class MainExtractor {
 	 * @return the workflowNames
 	 */
 	public static List<String> getWorkflowNames() {
-		return workflowNames;
+		return _workflowNames;
 	}
 
 	/**
