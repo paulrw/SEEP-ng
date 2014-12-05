@@ -140,7 +140,7 @@ public class WorkerWorkerDataCommunicationTest {
 			int counter = 0;
 			long ts = System.currentTimeMillis();
 			while(true){
-				ITuple incomingTuple = nds.pullDataItem(); // blocking until there's something to receive
+				ITuple incomingTuple = nds.pullDataItem(500); // blocking until there's something to receive
 				//System.out.println(incomingTuple.toString());
 				counter++;
 				if((System.currentTimeMillis()) - ts > 1000){

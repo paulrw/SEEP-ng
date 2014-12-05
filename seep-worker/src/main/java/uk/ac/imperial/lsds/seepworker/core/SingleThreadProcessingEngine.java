@@ -19,6 +19,7 @@ import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
 public class SingleThreadProcessingEngine implements ProcessingEngine {
 
 	final private Logger LOG = LoggerFactory.getLogger(SingleThreadProcessingEngine.class.getName());
+	final private int MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS = 500;
 	
 	private boolean working = false;
 	private Thread worker;
@@ -82,12 +83,16 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 				while(it.hasNext()){
 					InputAdapter ia = it.next();
 					if(ia.rType() == one){
-						ITuple d = ia.pullDataItem();
-						task.processData(d, api);
+						ITuple d = ia.pullDataItem(MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS);
+						if(d != null){
+							task.processData(d, api);
+						}
 					}
 					else if(ia.rType() == many){
-						ITuple ld = ia.pullDataItems();
-						task.processDataGroup(ld, api);
+						ITuple ld = ia.pullDataItems(MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS);
+						if(ld != null){
+							task.processDataGroup(ld, api);
+						}
 					}
 					if(!it.hasNext()){
 						it = inputAdapters.iterator();

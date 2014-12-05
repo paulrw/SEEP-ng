@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seepworker.core.input;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
@@ -69,20 +70,30 @@ public class NetworkDataStream implements InputAdapter{
 	}
 
 	@Override
-	public ITuple pullDataItem() {
+	public ITuple pullDataItem(int timeout) {
 		byte[] data = null;
 		try {
-			data = queue.take();
-		} 
+			if(timeout > 0){
+				// Need to poll rather than take due to the implementation of some ProcessingEngines
+				data = queue.poll(timeout, TimeUnit.MILLISECONDS);
+			} else{
+				data = queue.take();
+			}
+		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		// In case poll was used, and it timeouts
+		if(data == null){
+			return null;
+		}
 		iTuple.setData(data);
+		iTuple.setStreamId(streamId);
 		return iTuple;
 	}
 
 	@Override
-	public ITuple pullDataItems() {
+	public ITuple pullDataItems(int timeout) {
 		// TODO batching oriented, or window, or barrier, etc...
 		return null;
 	}

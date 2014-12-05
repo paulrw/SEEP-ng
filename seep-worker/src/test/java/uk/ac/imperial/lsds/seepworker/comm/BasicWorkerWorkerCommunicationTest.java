@@ -142,7 +142,7 @@ public class BasicWorkerWorkerCommunicationTest {
 			System.out.println("CANNOT send yet");
 		}
 		
-		ITuple incomingTuple = nds.pullDataItem(); // blocking until there's something to receive
+		ITuple incomingTuple = nds.pullDataItem(500); // blocking until there's something to receive
 		System.out.println(incomingTuple.toString());
 		
 //		ITuple incomingTuple2 = nds.pullDataItem(); // blocking until there's something to receive
@@ -160,10 +160,10 @@ public class BasicWorkerWorkerCommunicationTest {
 			System.out.println("CANNOT send yet");
 		}
 		
-		ITuple incomingTuple2 = nds.pullDataItem(); // blocking until there's something to receive
+		ITuple incomingTuple2 = nds.pullDataItem(500); // blocking until there's something to receive
 		System.out.println(incomingTuple2.toString());
 		
-		ITuple incomingTuple3 = nds.pullDataItem(); // blocking until there's something to receive
+		ITuple incomingTuple3 = nds.pullDataItem(500); // blocking until there's something to receive
 		System.out.println(incomingTuple3.toString());
 		
 		while(true){

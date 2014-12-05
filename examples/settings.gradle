@@ -1,3 +1,4 @@
 include \
 	"simple-dag-stateless-query",
-	"simple-pipeline-stateless-query"
+	"simple-pipeline-stateless-query",
+	"simple-cycle-stateless-query"

@@ -15,7 +15,7 @@ public interface InputAdapter {
 	
 	public void pushData(byte[] data);
 	
-	public ITuple pullDataItem();
-	public ITuple pullDataItems();
+	public ITuple pullDataItem(int timeout);
+	public ITuple pullDataItems(int timeout);
 	
 }

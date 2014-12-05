@@ -17,6 +17,7 @@ import uk.ac.imperial.lsds.seep.util.Utils;
 public class ITuple {
 
 	private final Schema schema;
+	private int streamId;
 	private Map<String, Integer> mapFieldToOffset;
 	private ByteBuffer wrapper;
 	private byte[] data;
@@ -28,6 +29,14 @@ public class ITuple {
 			// This only happens once
 			this.populateOffsets();
 		}
+	}
+	
+	public void setStreamId(int streamId){
+		this.streamId = streamId;
+	}
+	
+	public int getStreamId(){
+		return streamId;
 	}
 	
 	public void setData(byte[] data){
