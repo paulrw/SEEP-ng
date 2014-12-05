@@ -4,7 +4,7 @@ apply plugin:'eclipse'
 
 repositories {
 	flatDir {
-		dirs 'libs'
+		dirs '../../seep-common/build/libs'
 	}	
 	mavenCentral()
 }

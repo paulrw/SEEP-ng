@@ -1,0 +1,3 @@
+include \
+	"simple-dag-stateless-query",
+	"simple-pipeline-stateless-query"
