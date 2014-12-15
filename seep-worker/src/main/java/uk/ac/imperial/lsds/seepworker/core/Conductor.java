@@ -27,6 +27,7 @@ public class Conductor {
 	private int dataPort;
 	private InetAddress myIp;
 	private NetworkSelector ns;
+	private FileSelector fs;
 	
 	private CoreInput coreInput;
 	private CoreOutput coreOutput;
@@ -66,6 +67,8 @@ public class Conductor {
 		coreOutput = CoreOutputFactory.buildCoreOutputForOperator(wc, o, query);
 		
 		this.ns = maybeConfigureNetworkSelector();
+		this.fs = maybeConfigureFileSelector();
+		
 		coreOutput.setEventAPI(ns);
 		
 		engine.setTask(task);
@@ -94,6 +97,17 @@ public class Conductor {
 			ns.configureConnect(obufs);
 		}
 		return ns;
+	}
+	
+	private FileSelector maybeConfigureFileSelector(){
+		FileSelector fs = null;
+		if(coreInput.requiresConfiguringFileWorker()){
+			//TODO: check inputs
+		}
+		if(coreOutput.requiresConfiguringFileWorker()){
+			//TODO: check outputs
+		}
+		return fs;
 	}
 	
 	public void plugSeepTask(SeepTask task){

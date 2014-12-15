@@ -11,6 +11,7 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 public class SimpleNetworkOutput implements OutputAdapter {
 
 	final private boolean requiresNetworkWorker = true;
+	final private boolean requiresFileWorker = false;
 	
 	private int streamId;
 	private Router router;
@@ -35,6 +36,11 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	@Override
 	public boolean requiresNetwork() {
 		return requiresNetworkWorker;
+	}
+	
+	@Override
+	public boolean requiresFile() {
+		return requiresFileWorker;
 	}
 	
 	@Override

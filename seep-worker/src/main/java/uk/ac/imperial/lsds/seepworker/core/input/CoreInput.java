@@ -36,6 +36,14 @@ public class CoreInput {
 		return false;
 	}
 	
+	public boolean requiresConfiguringFileWorker(){
+		for(InputAdapter ia : inputAdapters){
+			if(ia.requiresFile())
+				return true;
+		}
+		return false;
+	}
+	
 	public Map<Integer, InputAdapter> getInputAdapterProvider(){
 		return iapMap;
 	}

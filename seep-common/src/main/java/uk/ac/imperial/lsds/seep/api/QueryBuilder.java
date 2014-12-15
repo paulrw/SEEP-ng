@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     Raul Castro Fernandez - initial design and implementation
- *     Martin Rouaux - support for generic scaling rules
  ******************************************************************************/
 package uk.ac.imperial.lsds.seep.api;
 
@@ -51,8 +50,7 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulSource(SeepTask seepTask,
-			LogicalState state, int opId) {
+	public LogicalOperator newStatefulSource(SeepTask seepTask,	LogicalState state, int opId) {
 		return qp.newStatefulSource(seepTask, state, opId);
 	}
 
@@ -62,8 +60,7 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulOperator(SeepTask seepTask,
-			LogicalState state, int opId) {
+	public LogicalOperator newStatefulOperator(SeepTask seepTask, LogicalState state, int opId) {
 		return qp.newStatefulOperator(seepTask, state, opId);
 	}
 
@@ -73,8 +70,7 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulSink(SeepTask seepTask,
-			LogicalState state, int opId) {
+	public LogicalOperator newStatefulSink(SeepTask seepTask, LogicalState state, int opId) {
 		return qp.newStatefulSink(seepTask, state, opId);
 	}
 
@@ -84,8 +80,7 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public void setInitialPhysicalInstancesForLogicalOperator(int opId,
-			int numInstances) {
+	public void setInitialPhysicalInstancesForLogicalOperator(int opId,	int numInstances) {
 		qp.setInitialPhysicalInstancesPerLogicalOperator(opId, numInstances);
 	}
 

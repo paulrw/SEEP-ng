@@ -40,6 +40,14 @@ public class CoreOutput {
 		return false;
 	}
 	
+	public boolean requiresConfiguringFileWorker(){
+		for(OutputAdapter oa : outputAdapters){
+			if(oa.requiresFile())
+				return true;
+		}
+		return false;
+	}
+	
 	public void setEventAPI(EventAPI eAPI){
 		for(OutputAdapter oa : outputAdapters){
 			oa.setEventAPI(eAPI);

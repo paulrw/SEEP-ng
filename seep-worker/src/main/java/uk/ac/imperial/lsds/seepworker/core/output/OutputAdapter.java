@@ -11,6 +11,7 @@ public interface OutputAdapter extends API{
 	public Map<Integer, OutputBuffer> getOutputBuffers();
 	
 	public boolean requiresNetwork();
+	public boolean requiresFile();
 	public void setEventAPI(EventAPI eAPI);
 	
 }
