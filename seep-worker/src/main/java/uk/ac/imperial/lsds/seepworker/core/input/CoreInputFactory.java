@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.api.ConnectionType;
+import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
@@ -50,8 +51,15 @@ public class CoreInputFactory {
 		}
 		// Build an input adapter per streamId
 		for(Integer streamId : streamToOpConn.keySet()){
+			InputAdapter ia = null;
 			List<UpstreamConnection> upCon = streamToOpConn.get(streamId);
-			InputAdapter ia = InputAdapterFactory.buildInputAdapterOfTypeForOps(wc, streamId, upCon);
+			DataOrigin dOrigin = upCon.get(0).getDataOrigin();
+			if(dOrigin.equals(DataOrigin.NETWORK)){
+				ia = InputAdapterFactory.buildInputAdapterOfTypeNetworkForOps(wc, streamId, upCon);
+			} 
+			else if(dOrigin.equals(DataOrigin.FILE)){
+				// TODO: implement...
+			}
 			inputAdapters.add(ia);
 		}
 		CoreInput cInput = new CoreInput(inputAdapters);

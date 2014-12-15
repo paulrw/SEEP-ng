@@ -1,7 +1,10 @@
 package uk.ac.imperial.lsds.seep.api.data;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -21,6 +24,9 @@ public class ITuple {
 	private Map<String, Integer> mapFieldToOffset;
 	private ByteBuffer wrapper;
 	private byte[] data;
+	
+	private List<ITuple> dataCol;
+	private Iterator<ITuple> it;
 	
 	public ITuple(Schema schema){
 		this.schema = schema;
@@ -46,6 +52,28 @@ public class ITuple {
 			this.populateOffsets();
 		}
 		wrapper = ByteBuffer.wrap(data);
+	}
+	
+	public void setData(List<byte[]> dataCol){
+		this.dataCol = new ArrayList<>();
+		for(byte[] el : dataCol){
+			ITuple i = new ITuple(schema);
+			i.setData(el);
+			this.dataCol.add(i);
+		}
+		it = this.dataCol.iterator();
+	}
+	
+	public boolean hasNext(){
+		return it.hasNext();
+	}
+	
+	public ITuple next(){
+		return it.next();
+	}
+	
+	public void remove(){
+		it.remove();
 	}
 	
 	public byte[] getData(){

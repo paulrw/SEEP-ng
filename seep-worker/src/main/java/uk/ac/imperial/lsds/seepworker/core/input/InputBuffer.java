@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seepworker.core.input;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -12,12 +13,19 @@ import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 public class InputBuffer {
 	
 	private ByteBuffer buffer;
-	
-	public Deque<byte[]> completedReads;
+	private Deque<byte[]> completedReads;
 	
 	public InputBuffer(int size){
 		buffer = ByteBuffer.allocate(size);
 		completedReads = new ArrayDeque<>();
+	}
+	
+	public boolean hasCompletedReads(){
+		return completedReads.size() > 0;
+	}
+	
+	public byte[] read(){
+		return completedReads.poll();
 	}
 	
 	public boolean canReadFullBatch(int fromPosition, int limit){
@@ -45,6 +53,48 @@ public class InputBuffer {
 			}
 			return true;
 		}
+	}
+	
+	public boolean readToInternalBuffer(ReadableByteChannel channel, InputAdapter ia){
+		boolean dataRemainingInBuffer = true;
+		int readBytes = 0;
+		try {
+			readBytes = ((SocketChannel)channel).read(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int initialLimit = buffer.position();
+		int fromPosition = 0;
+		while(dataRemainingInBuffer){
+			if(canReadFullBatch(fromPosition, initialLimit)){
+				buffer.limit(initialLimit);
+				buffer.position(fromPosition);
+				
+				byte control = buffer.get();
+				int numTuples = buffer.getInt();
+				int batchSize = buffer.getInt();
+				for(int i = 0; i < numTuples; i++){
+					int tupleSize = buffer.getInt();
+					byte[] completedRead = new byte[tupleSize];
+					buffer.get(completedRead, 0, tupleSize);
+					completedReads.add(completedRead);
+				}
+				fromPosition = buffer.position(); // Update position for next iteration
+			}
+			else{
+				if(buffer.hasRemaining()){
+					buffer.compact(); // make space to complete chunked read
+					return false;
+				}
+				else{
+					dataRemainingInBuffer = false;
+					buffer.clear();
+					return true; // Fully read buffer
+				}
+			}
+		}
+		return false;
 	}
 	
 	public boolean readFrom(Channel channel, InputAdapter ia){

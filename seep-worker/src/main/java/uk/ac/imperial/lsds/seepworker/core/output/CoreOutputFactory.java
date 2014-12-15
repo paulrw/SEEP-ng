@@ -36,7 +36,8 @@ public class CoreOutputFactory {
 		}
 		// Perform sanity check. All ops for a given streamId should have same schema
 		// TODO:
-		// Build an input adapter per streamId
+		
+		// Build an output adapter per streamId
 		for(Integer streamId : streamToOpConn.keySet()){
 			
 			List<DownstreamConnection> doCon = streamToOpConn.get(streamId);

@@ -31,7 +31,6 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
-import uk.ac.imperial.lsds.seepworker.core.input.InputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 public class NetworkSelector implements EventAPI {
@@ -54,6 +53,7 @@ public class NetworkSelector implements EventAPI {
 	private int numWriterWorkers;
 	
 	private Map<Integer, SelectionKey> writerKeys;
+	private Map<SelectionKey, Integer> readerKeys;
 	
 	// incoming id - local input adapter
 	private Map<Integer, InputAdapter> iapMap;
@@ -309,8 +309,8 @@ public class NetworkSelector implements EventAPI {
 							else{
 								InputAdapter ia = (InputAdapter)key.attachment();
 								SocketChannel channel = (SocketChannel) key.channel();
-								InputBuffer buffer = ia.getInputBuffer();
-								buffer.readFrom(channel, ia);
+								int id = readerKeys.get(key);
+								ia.readFrom(channel, id);
 							}
 						}
 						if(! key.isValid()){
@@ -353,6 +353,7 @@ public class NetworkSelector implements EventAPI {
 				LOG.error("Problem hre, no existent inputadapter");
 				System.exit(0);
 			}
+			// TODO: could we keep numUpstreamConnections internal to inputAdapter? probably not...
 			numUpstreamConnections--;
 			if(numUpstreamConnections == 0){
 				moreConnectionsPending =  false;
@@ -360,6 +361,7 @@ public class NetworkSelector implements EventAPI {
 			// Once we've identified the inputAdapter responsible for this channel we attach the new object
 			key.attach(null);
 			key.attach(responsibleForThisChannel);
+			readerKeys.put(key, id);
 			return moreConnectionsPending;
 		}
 		

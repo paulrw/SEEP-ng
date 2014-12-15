@@ -1,5 +1,6 @@
 package uk.ac.imperial.lsds.seepworker.core.input;
 
+import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -34,16 +35,6 @@ public class NetworkDataStream implements InputAdapter{
 	}
 	
 	@Override
-	public int getStreamId(){
-		return streamId;
-	}
-	
-	@Override
-	public InputBuffer getInputBuffer(){
-		return buffer;
-	}
-	
-	@Override
 	public boolean requiresNetwork() {
 		return REQUIRES_NETWORK;
 	}
@@ -54,8 +45,19 @@ public class NetworkDataStream implements InputAdapter{
 	}
 
 	@Override
-	public short rType() {
+	public short returnType() {
 		return RETURN_TYPE;
+	}
+	
+	@Override
+	public int getStreamId(){
+		return streamId;
+	}
+		
+	@Override
+	public void readFrom(ReadableByteChannel channel, int id) {
+		// TODO: note id is still useful here for metrics
+		buffer.readFrom(channel, this);
 	}
 	
 	@Override
@@ -96,5 +98,11 @@ public class NetworkDataStream implements InputAdapter{
 	public ITuple pullDataItems(int timeout) {
 		// TODO batching oriented, or window, or barrier, etc...
 		return null;
+	}
+	
+	@Override
+	public void pushData(List<byte[]> data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

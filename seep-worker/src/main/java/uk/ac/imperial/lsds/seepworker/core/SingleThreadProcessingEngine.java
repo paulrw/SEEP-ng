@@ -82,13 +82,13 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 			while(working){
 				while(it.hasNext()){
 					InputAdapter ia = it.next();
-					if(ia.rType() == one){
+					if(ia.returnType() == one){
 						ITuple d = ia.pullDataItem(MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS);
 						if(d != null){
 							task.processData(d, api);
 						}
 					}
-					else if(ia.rType() == many){
+					else if(ia.returnType() == many){
 						ITuple ld = ia.pullDataItems(MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS);
 						if(ld != null){
 							task.processDataGroup(ld, api);
