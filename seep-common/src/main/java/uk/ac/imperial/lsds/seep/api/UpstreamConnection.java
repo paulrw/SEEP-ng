@@ -42,8 +42,8 @@ public class UpstreamConnection {
 		this.schema = schema;
 	}
 	
-	public DataOrigin getDataOrigin(){
-		return dSrc;
+	public DataOriginType getDataOrigin(){
+		return dSrc.type();
 	}
 	
 	public void setDataOrigin(DataOrigin dSrc){

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.esotericsoftware.minlog.Log;
-
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
@@ -33,15 +31,15 @@ public class PhysicalSeepQuery {
 			// update all downstream connections -> this will update the downstream's upstreams
 			for(DownstreamConnection dc : o.downstreamConnections()) {
 				// this will replace a still logical connection with a physical one
-				// note that we don't need to update connectionType, this info is already there
+				// note that we don't need to update connectionType or dataOrigin, this info is already there
 				o.connectTo(dc.getDownstreamOperator(), dc.getStreamId(), dc.getSchema());
 			}
 		}
 		List<PhysicalOperator> pOps = new ArrayList<>(physicalOperators);
 		List<PhysicalOperator> pSources = new ArrayList<>();
 		PhysicalOperator pSink = null;
+		// TODO: is this necessary?
 		for(Operator o : lsq.getSources()) {
-			// if this necessary?
 			for(Operator po : pOps){
 				if(po.getOperatorId() == o.getOperatorId()){
 					pSources.add((PhysicalOperator)po);

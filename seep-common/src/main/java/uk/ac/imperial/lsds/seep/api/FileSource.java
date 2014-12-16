@@ -2,26 +2,64 @@ package uk.ac.imperial.lsds.seep.api;
 
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
 import uk.ac.imperial.lsds.seep.api.data.Schema;
-import uk.ac.imperial.lsds.seep.comm.serialization.Serializer;
 import uk.ac.imperial.lsds.seep.comm.serialization.SerializerType;
+import uk.ac.imperial.lsds.seep.errors.NotSupportedException;
 
 
-public class FileSource {
+public class FileSource implements Connectable, DataOriginDescriptor, Source {
 
-	// Used only internally to create a logical operator that can connect
-	private static QueryBuilder qb = new QueryBuilder();
-	// Used only internally to connect to other LogicalOperators
 	private static LogicalOperator lo;
+	private String path;
+	private SerializerType serde;
 	
-	private static String relativePath = null;
-	private static Serializer serializer = null;
+	private FileSource(int opId, String path, SerializerType serde){
+		this.path = path;
+		this.serde = serde;
+		if(path == null || serde == null){
+			throw new InvalidInitializationException("Invalid FileSource initialization. Set up relativePath and serializer");
+		}
+		QueryBuilder qb = new QueryBuilder();
+		lo = qb.newStatelessSource(new FileSourceImpl(), opId);
+	}
 	
-	private String filePath;
-	private SerializerType serdeType;
+	public static FileSource newSource(int opId, String path, SerializerType serde){
+		return new FileSource(opId, path, serde);
+	}
 	
-	public FileSource(String relativePath, SerializerType s){
-		this.filePath = filePath;
-		this.serdeType = serdeType;
+	/** Implement DataOriginDescriptor **/
+	
+	@Override
+	public DataOriginType type() {
+		return DataOriginType.FILE;
+	}
+
+	@Override
+	public String getResourceDescriptor() {
+		return path;
+	}
+
+	@Override
+	public SerializerType getSerdeType() {
+		return serde;
+	}
+	
+	/** Implement Connetable **/
+	
+	@Override
+	public void connectTo(Operator downstreamOperator, int streamId, Schema schema){
+		DataOrigin dO = new DataOrigin(DataOriginType.FILE, path, serde);
+		lo.connectTo(downstreamOperator, streamId, schema, ConnectionType.ONE_AT_A_TIME, dO);
+	}
+
+	@Override
+	public void connectTo(Operator downstreamOperator, int streamId, Schema schema, ConnectionType conType){
+		DataOrigin dO = new DataOrigin(DataOriginType.FILE, path, serde);
+		lo.connectTo(downstreamOperator, streamId, schema, conType, dO);
+	}
+
+	@Override
+	public void connectTo(Operator downstreamOperator, int streamId, Schema schema, ConnectionType connectionType, DataOrigin dSrc) {
+		throw new NotSupportedException("Cannot override DataOrigin");
 	}
 	
 	private static class FileSourceImpl implements SeepTask{
@@ -33,33 +71,6 @@ public class FileSource {
 		public void processDataGroup(ITuple dataBatch, API api) {		}
 		@Override
 		public void close() {		}
-	}
-	
-	static{
-		// Initialize the logical operator
-		lo = qb.newStatelessSource(new FileSourceImpl(), -1);
-	}
-	
-	public static void connectTo(LogicalOperator downstreamOperator, int streamId, Schema schema){
-		if(relativePath == null || serializer == null){
-			throw new InvalidInitializationException("Invalid FileSource initialization. Set up relativePath and serializer");
-		}
-		lo.connectTo(downstreamOperator, streamId, schema, ConnectionType.ONE_AT_A_TIME, DataOrigin.FILE);
-	}
-	
-	public static void connectTo(LogicalOperator downstreamOperator, int streamId, Schema schema, ConnectionType conType){
-		if(relativePath == null || serializer == null){
-			throw new InvalidInitializationException("Invalid FileSource initialization. Set up relativePath and serializer");
-		}
-		lo.connectTo(downstreamOperator, streamId, schema, conType, DataOrigin.FILE);
-	}
-	
-	public static void setRelativePath(String relativePath){
-		FileSource.relativePath = relativePath;
-	}
-	
-	public static void setSerializer(Serializer serializer){
-		FileSource.serializer = serializer;
 	}
 
 }

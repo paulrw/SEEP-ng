@@ -21,6 +21,17 @@ public class QueryBuilder implements QueryAPI {
 	public SchemaBuilder schemaBuilder = SchemaBuilder.getInstance();
 	
 	public static LogicalSeepQuery build(){
+		// Check nonOperator sources and adjust sources accordingly
+		for(Operator o : qp.getAllOperators()){
+			for(UpstreamConnection uc : o.upstreamConnections()){
+				if(uc.getUpstreamOperator() instanceof Source){
+					qp.addSource((LogicalOperator)o);
+				}
+			}
+		}
+		
+		// TODO: Perform sanity checks
+		
 		return qp;
 	}
 

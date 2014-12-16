@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
+import uk.ac.imperial.lsds.seep.api.DataOriginType;
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
@@ -41,10 +42,10 @@ public class CoreOutputFactory {
 		for(Integer streamId : streamToOpConn.keySet()){
 			
 			List<DownstreamConnection> doCon = streamToOpConn.get(streamId);
-			DataOrigin dOrigin = doCon.get(0).getExpectedDataOriginOfDownstream();
+			DataOriginType dOriginType = doCon.get(0).getExpectedDataOriginOfDownstream();
 			
 			OutputAdapter oa = null;
-			if(dOrigin == DataOrigin.NETWORK){
+			if(dOriginType == DataOriginType.NETWORK){
 				// Create outputAdapter
 				LOG.info("Building outputAdapter for downstream streamId: {} of type: {}", streamId, "NETWORK");
 				oa = OutputAdapterFactory.buildOutputAdapterOfTypeNetworkForOps(wc, streamId, doCon, query);

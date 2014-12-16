@@ -1,21 +1,32 @@
 package uk.ac.imperial.lsds.seep.api;
 
-public enum DataOrigin {
-	
-	NETWORK((short)0), 
-	FILE((short)1),
-	IPC((short)2), // ??
-	RDD((short)3),
-	KAFKA((short)4),
-	HDFS((short)5);
-	
-	private short type;
-	
-	DataOrigin(short type){
+import uk.ac.imperial.lsds.seep.comm.serialization.SerializerType;
+
+public class DataOrigin implements DataOriginDescriptor{
+
+	private DataOriginType type;
+	private String resource;
+	private SerializerType serde;
+		
+	public DataOrigin(DataOriginType type, String resource, SerializerType serde){
 		this.type = type;
+		this.resource = resource;
+		this.serde = serde;
 	}
-	
-	public short ofType(){
+		
+	@Override
+	public DataOriginType type(){
 		return type;
 	}
+	
+	@Override
+	public String getResourceDescriptor() {
+		return resource;
+	}
+
+	@Override
+	public SerializerType getSerdeType() {
+		return serde;
+	}
+
 }

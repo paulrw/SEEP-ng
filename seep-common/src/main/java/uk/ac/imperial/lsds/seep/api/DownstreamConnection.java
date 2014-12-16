@@ -33,8 +33,8 @@ public class DownstreamConnection {
 		this.schema = schema;
 	}
 	
-	public DataOrigin getExpectedDataOriginOfDownstream(){
-		return dSrc;
+	public DataOriginType getExpectedDataOriginOfDownstream(){
+		return dSrc.type();
 	}
 	
 	public void setExpectedDataOriginOfDownstream(DataOrigin dSrc){

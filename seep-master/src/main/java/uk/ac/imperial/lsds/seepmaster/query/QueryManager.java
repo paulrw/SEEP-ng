@@ -122,14 +122,11 @@ public class QueryManager {
 	private PhysicalSeepQuery createOriginalPhysicalQuery(){
 		Set<SeepQueryPhysicalOperator> physicalOperators = new HashSet<>();
 		Map<PhysicalOperator, List<PhysicalOperator>> instancesPerOriginalOp = new HashMap<>();
+		
 		// use pre-defined description if exists
 		if(this.opToEndpointMapping != null){
 			for(Entry<Integer, EndPoint> e : opToEndpointMapping.entrySet()){
-//				LogicalOperator lo = lsq.getOperatorWithId(e.getKey());
-//				if(lo != null) {
-//					SeepQueryPhysicalOperator po = SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(lo, e.getValue());
-//					physicalOperators.add(po);
-//				}
+				// TODO: implement manual mapping from the description
 			}
 		}
 		// otherwise map to random workers

@@ -50,6 +50,10 @@ public class LogicalSeepQuery {
 		return sources;
 	}
 	
+	public void addSource(LogicalOperator lo){
+		this.sources.add(lo);
+	}
+	
 	public Operator getSink(){
 		return sink;
 	}
