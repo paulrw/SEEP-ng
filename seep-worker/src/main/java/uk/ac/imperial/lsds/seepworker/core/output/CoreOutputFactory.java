@@ -42,7 +42,7 @@ public class CoreOutputFactory {
 		for(Integer streamId : streamToOpConn.keySet()){
 			
 			List<DownstreamConnection> doCon = streamToOpConn.get(streamId);
-			DataOriginType dOriginType = doCon.get(0).getExpectedDataOriginOfDownstream();
+			DataOriginType dOriginType = doCon.get(0).getExpectedDataOriginTypeOfDownstream();
 			
 			OutputAdapter oa = null;
 			if(dOriginType == DataOriginType.NETWORK){

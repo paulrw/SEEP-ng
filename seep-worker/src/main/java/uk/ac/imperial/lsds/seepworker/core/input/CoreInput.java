@@ -1,11 +1,15 @@
 package uk.ac.imperial.lsds.seepworker.core.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.imperial.lsds.seep.api.DataOrigin;
+import uk.ac.imperial.lsds.seep.api.DataOriginType;
 
 
 public class CoreInput {
@@ -46,6 +50,12 @@ public class CoreInput {
 	
 	public Map<Integer, InputAdapter> getInputAdapterProvider(){
 		return iapMap;
+	}
+	
+	public List<DataOrigin> getDataOriginOfType(DataOriginType type){
+		List<DataOrigin> orgs = new ArrayList<>();
+		
+		return orgs;
 	}
 	
 }

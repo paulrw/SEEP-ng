@@ -1,15 +1,21 @@
 package uk.ac.imperial.lsds.seepworker.core;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.imperial.lsds.seep.api.DataOrigin;
+import uk.ac.imperial.lsds.seep.api.DataOriginType;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
+import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
+import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.comm.NetworkSelector;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
@@ -29,6 +35,7 @@ public class Conductor {
 	private NetworkSelector ns;
 	private FileSelector fs;
 	
+	private PhysicalOperator o;
 	private CoreInput coreInput;
 	private CoreOutput coreOutput;
 	private ProcessingEngine engine;
@@ -57,6 +64,7 @@ public class Conductor {
 	}
 	
 	public void deployPhysicalOperator(PhysicalOperator o, PhysicalSeepQuery query){
+		this.o = o;
 		this.task = o.getSeepTask();
 		LOG.info("Configuring local task: {}", task.toString());
 		// TODO: set up state if any
@@ -102,10 +110,18 @@ public class Conductor {
 	private FileSelector maybeConfigureFileSelector(){
 		FileSelector fs = null;
 		if(coreInput.requiresConfiguringFileWorker()){
-			//TODO: check inputs
+			fs = new FileSelector(wc);
+			//List<DataOrigin> fileOrigins = new ArrayList<>();
+			Map<Integer, DataOrigin> fileOrigins = new HashMap<>();
+			for(UpstreamConnection uc : o.upstreamConnections()){
+				if(uc.getDataOriginType() == DataOriginType.FILE){
+					fileOrigins.put(uc.getStreamId(), uc.getDataOrigin());
+				}
+			}
+			fs.configureAccept(fileOrigins);
 		}
 		if(coreOutput.requiresConfiguringFileWorker()){
-			//TODO: check outputs
+			throw new NotImplementedException("not implemented yet...");
 		}
 		return fs;
 	}

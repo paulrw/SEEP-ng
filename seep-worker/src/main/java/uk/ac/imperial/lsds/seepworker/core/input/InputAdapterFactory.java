@@ -33,7 +33,7 @@ public class InputAdapterFactory {
 		}
 		else if(cType == ConnectionType.UPSTREAM_SYNC_BARRIER.ofType()){
 			// one barrier for all connections within the same barrier
-			LOG.info("Creating inputAdapter for upstream streamId: {} of type {}", streamId, "UPSTREAM_SYNC_BARRIER");
+			LOG.info("Creating NETWORK inputAdapter for upstream streamId: {} of type {}", streamId, ConnectionType.UPSTREAM_SYNC_BARRIER.withName());
 			ia = new NetworkBarrier(wc, streamId, expectedSchema, upc);
 		}
 		else if(cType == ConnectionType.BATCH.ofType()){
@@ -45,6 +45,22 @@ public class InputAdapterFactory {
 		else if(cType == ConnectionType.WINDOW.ofType()){
 			
 		}
+		return ia;
+	}
+	
+	public static InputAdapter buildInputAdapterOfTypeFileForOps(WorkerConfig wc, int streamId, List<UpstreamConnection> upc){
+		InputAdapter ia = null;
+		short cType = upc.get(0).getConnectionType().ofType();
+		Schema expectedSchema = upc.get(0).getExpectedSchema();
+		
+		if(cType == ConnectionType.ONE_AT_A_TIME.ofType()){
+			LOG.info("Creating FILE inputAdapter for upstream streamId: {} of type {}", streamId, ConnectionType.UPSTREAM_SYNC_BARRIER.withName());
+			ia = new FileDataStream(wc, streamId, expectedSchema, upc);
+		}
+		else if(cType == ConnectionType.BATCH.ofType()){
+			
+		}
+		
 		return ia;
 	}
 	

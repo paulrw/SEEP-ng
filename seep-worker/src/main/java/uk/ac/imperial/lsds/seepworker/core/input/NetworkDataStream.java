@@ -27,10 +27,10 @@ public class NetworkDataStream implements InputAdapter{
 	
 	public NetworkDataStream(WorkerConfig wc, int streamId, Schema expectedSchema, List<Operator> ops) {
 		this.streamId = streamId;
+		this.iTuple = new ITuple(expectedSchema);
 		this.ops = ops;
 		this.queueSize = wc.getInt(WorkerConfig.SIMPLE_INPUT_QUEUE_LENGTH);
 		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
-		this.iTuple = new ITuple(expectedSchema);
 		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE));
 	}
 	

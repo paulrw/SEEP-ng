@@ -42,7 +42,11 @@ public class UpstreamConnection {
 		this.schema = schema;
 	}
 	
-	public DataOriginType getDataOrigin(){
+	public DataOrigin getDataOrigin(){
+		return dSrc;
+	}
+	
+	public DataOriginType getDataOriginType(){
 		return dSrc.type();
 	}
 	
