@@ -111,14 +111,13 @@ public class Conductor {
 		FileSelector fs = null;
 		if(coreInput.requiresConfiguringFileWorker()){
 			fs = new FileSelector(wc);
-			//List<DataOrigin> fileOrigins = new ArrayList<>();
 			Map<Integer, DataOrigin> fileOrigins = new HashMap<>();
 			for(UpstreamConnection uc : o.upstreamConnections()){
 				if(uc.getDataOriginType() == DataOriginType.FILE){
 					fileOrigins.put(uc.getStreamId(), uc.getDataOrigin());
 				}
 			}
-			fs.configureAccept(fileOrigins);
+			fs.configureAccept(fileOrigins, coreInput.getInputAdapterProvider());
 		}
 		if(coreOutput.requiresConfiguringFileWorker()){
 			throw new NotImplementedException("not implemented yet...");

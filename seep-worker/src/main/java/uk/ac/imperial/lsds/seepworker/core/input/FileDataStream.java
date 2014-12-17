@@ -4,10 +4,12 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
 public class FileDataStream implements InputAdapter {
@@ -54,25 +56,47 @@ public class FileDataStream implements InputAdapter {
 	@Override
 	public void readFrom(ReadableByteChannel channel, int id) {
 		// TODO Auto-generated method stub
-		
+		buffer.readFrom(channel, this);
 	}
 
 	@Override
 	public void pushData(byte[] data) {
-		// TODO Auto-generated method stub
+		try {
+			queue.put(data);
+		} 
+		catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
 	@Override
 	public void pushData(List<byte[]> data) {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("why needed list of arrays");
 	}
 
 	@Override
 	public ITuple pullDataItem(int timeout) {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] data = null;
+		try {
+			if(timeout > 0){
+				// Need to poll rather than take due to the implementation of some ProcessingEngines
+				data = queue.poll(timeout, TimeUnit.MILLISECONDS);
+			} else{
+				data = queue.take();
+			}
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// In case poll was used, and it timeouts
+		if(data == null){
+			return null;
+		}
+		iTuple.setData(data);
+		iTuple.setStreamId(streamId);
+		return iTuple;
 	}
 
 	@Override

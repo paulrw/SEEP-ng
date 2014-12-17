@@ -103,7 +103,6 @@ public class InputBuffer {
 		try {
 			readBytes = ((SocketChannel)channel).read(buffer);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		int initialLimit = buffer.position();
