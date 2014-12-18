@@ -1,6 +1,7 @@
 package uk.ac.imperial.lsds.seep.api.data;
 
 public class TupleInfo {
+	
 	public static final int CONTROL_OVERHEAD = 1;
 	public static final int CONTROL_OFFSET = 0;
 	public static final int NUM_TUPLES_BATCH_OVERHEAD = 4;

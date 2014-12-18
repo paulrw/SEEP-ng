@@ -86,6 +86,24 @@ public class FileSelector {
 		this.reader.availableChannels(channels);
 	}
 	
+	public void addNewAccept(Path resource, int id, Map<Integer, InputAdapter> dataAdapters){
+		this.dataAdapters = dataAdapters;
+		Map<SeekableByteChannel, Integer> channels = new HashMap<>();
+		SeekableByteChannel sbc = null;
+		try {
+			sbc = Files.newByteChannel(resource, StandardOpenOption.READ);
+		} 
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		channels.put(sbc, id);
+		this.reader = new Reader();
+		this.readerWorker = new Thread(this.reader);
+		this.readerWorker.setName("File-Reader");
+		this.reader.availableChannels(channels);
+	}
+	
 	public void configureDownstreamFiles(Map<Integer, DataOrigin> fileDest){
 		// TODO: implement this, configure writer, etc...
 		throw new NotImplementedException("TODO: ");

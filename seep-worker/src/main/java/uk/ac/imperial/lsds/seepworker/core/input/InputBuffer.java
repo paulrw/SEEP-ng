@@ -2,7 +2,6 @@ package uk.ac.imperial.lsds.seepworker.core.input;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
@@ -64,6 +63,7 @@ public class InputBuffer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		int initialLimit = buffer.position();
 		int fromPosition = 0;
 		while(dataRemainingInBuffer){
@@ -102,11 +102,16 @@ public class InputBuffer {
 		int readBytes = 0;
 		try {
 			readBytes = channel.read(buffer);
+			if(readBytes <= 0){
+				return false;
+			}
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 		int initialLimit = buffer.position();
+				
 		int fromPosition = 0;
 		while(dataRemainingInBuffer){
 			if(canReadFullBatch(fromPosition, initialLimit)){
@@ -116,6 +121,7 @@ public class InputBuffer {
 				byte control = buffer.get();
 				int numTuples = buffer.getInt();
 				int batchSize = buffer.getInt();
+				System.out.println("control: "+control+" #tuples: "+numTuples+" batchSize: "+batchSize);
 				for(int i = 0; i < numTuples; i++){
 					int tupleSize = buffer.getInt();
 					byte[] completedRead = new byte[tupleSize];

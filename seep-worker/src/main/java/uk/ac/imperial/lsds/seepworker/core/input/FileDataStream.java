@@ -33,6 +33,18 @@ public class FileDataStream implements InputAdapter {
 		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE));
 	}
 	
+	private FileDataStream(int streamId, Schema expectedSchema, int inputQueueLength, int rxBufSize){
+		this.streamId = streamId;
+		this.iTuple = new ITuple(expectedSchema);
+		this.queueSize = inputQueueLength;
+		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
+		this.buffer = new InputBuffer(rxBufSize);
+	}
+	
+	public static FileDataStream getFileDataStream_test(int streamId, Schema s, int qLength, int rxSize){
+		return new FileDataStream(streamId, s, qLength, rxSize);
+	}
+	
 	@Override
 	public int getStreamId() {
 		return streamId;
@@ -55,7 +67,6 @@ public class FileDataStream implements InputAdapter {
 
 	@Override
 	public void readFrom(ReadableByteChannel channel, int id) {
-		// TODO Auto-generated method stub
 		buffer.readFrom(channel, this);
 	}
 

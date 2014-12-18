@@ -7,6 +7,9 @@ public class Sink implements SeepTask {
 
 	@Override
 	public void processData(ITuple data, API api) {
+		
+		System.out.println("data size: "+data.getData().length);
+		
 		int param1 = data.getInt("param1");
 		int param2 = data.getInt("param2");
 		

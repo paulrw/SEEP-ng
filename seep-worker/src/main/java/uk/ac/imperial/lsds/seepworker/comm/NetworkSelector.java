@@ -100,6 +100,8 @@ public class NetworkSelector implements EventAPI {
 	
 	public static NetworkSelector makeNetworkSelectorWithMap(Map<Integer, InputAdapter> iapMap){
 		Properties p = new Properties();
+		p.setProperty(WorkerConfig.MASTER_IP, "127.0.0.1");
+		p.setProperty(WorkerConfig.PROPERTIES_FILE, "");
 		p.setProperty(WorkerConfig.NUM_NETWORK_READER_THREADS, "1");
 		p.setProperty(WorkerConfig.NUM_NETWORK_WRITER_THREADS, "1");
 		p.setProperty(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, "1");
@@ -497,7 +499,7 @@ public class NetworkSelector implements EventAPI {
 				List<byte[]> dataForBatch = ob.bq.poll();
 				int numTuples = 0;
 				int batchSize = 0;
-				for(int i = 0; i<dataForBatch.size(); i++){
+				for(int i = 0; i < dataForBatch.size(); i++){
 					byte[] data = dataForBatch.get(i);
 					int tupleSize = data.length;
 					buf.putInt(data.length);
