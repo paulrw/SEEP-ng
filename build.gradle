@@ -1,3 +1,5 @@
+version = "0.1"
+
 subprojects {
 
 	apply plugin: 'java'
@@ -22,7 +24,12 @@ subprojects {
 		testCompile 'org.mockito:mockito-all:1.9.5'
 	}
 
-	version = "0.1"
+}
+
+task deploySeep(type: Copy){
+	from 'seep-master/build/libs/seep-master-' + version + '.jar'
+	from 'seep-worker/build/libs/seep-worker-' + version + '.jar'
+	into 'deploy'
 }
 
 task wrapper(type: Wrapper) {
