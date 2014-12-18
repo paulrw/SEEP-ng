@@ -13,13 +13,17 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.imperial.lsds.seep.config.Config;
-
 public class Utils {
 
 	final static private Logger LOG = LoggerFactory.getLogger(Utils.class);
 	
 	public static String NL = System.getProperty("line.separator");
+	public static String FILE_URI_SCHEME = "file://";
+	
+	public static String absolutePath(String resource){
+		File f = new File(resource);
+		return f.getAbsolutePath();
+	}
 	
 	public static int computeIdFromIpAndPort(InetAddress ip, int port){
 		return ip.hashCode() + port;

@@ -88,6 +88,7 @@ public class NetworkSelector implements EventAPI {
 			writerWorkers[i] = writer;
 		}
 		this.writerKeys = new HashMap<>();
+		this.readerKeys = new HashMap<>();
 		// Create the acceptorSelector
 		try {
 			this.acceptorSelector = Selector.open();

@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
+import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
+import uk.ac.imperial.lsds.seep.util.Utils;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 
@@ -39,6 +41,20 @@ public class FileSelector {
 		
 	}
 	
+	public void startFileSelector(){
+		// Start readers
+		if(readerWorker != null){
+			LOG.info("Starting reader: {}", readerWorker.getName());
+			readerWorker.start();
+		}
+	
+		// Start writers
+		if(writerWorker != null){
+			LOG.info("Starting writer: {}", writerWorker.getName());
+			writerWorker.start();
+		}
+	}
+	
 	public void configureAccept(Map<Integer, DataOrigin> fileOrigins, Map<Integer, InputAdapter> dataAdapters){
 		this.dataAdapters = dataAdapters;
 		this.numUpstreamResources = fileOrigins.size();
@@ -49,15 +65,21 @@ public class FileSelector {
 		Map<SeekableByteChannel, Integer> channels = new HashMap<>();
 		for(Entry<Integer, DataOrigin> e : fileOrigins.entrySet()){
 			try {
-				Path resource = Paths.get(new URI(e.getValue().getResourceDescriptor()));
+				String absPath = Utils.absolutePath(e.getValue().getResourceDescriptor());
+				URI uri = new URI(Utils.FILE_URI_SCHEME + absPath);
+				LOG.info("Created URI to local resource: {}", uri.toString());
+				Path resource = Paths.get(uri);
+				LOG.info("Configuring file channel: {}", resource.toString());
 				SeekableByteChannel sbc = Files.newByteChannel(resource, StandardOpenOption.READ);
 				channels.put(sbc, e.getKey());
 			} 
 			catch (FileNotFoundException fnfe) {
 				fnfe.printStackTrace();
-			} catch (URISyntaxException use) {
+			} 
+			catch (URISyntaxException use) {
 				use.printStackTrace();
-			} catch (IOException ioe) {
+			} 
+			catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
 		}
@@ -66,11 +88,12 @@ public class FileSelector {
 	
 	public void configureDownstreamFiles(Map<Integer, DataOrigin> fileDest){
 		// TODO: implement this, configure writer, etc...
+		throw new NotImplementedException("TODO: ");
 	}
 	
 	class Reader implements Runnable {
 
-		private boolean working;
+		private boolean working = true;
 		private Selector readSelector;
 		private Map<SeekableByteChannel, Integer> channels;
 		
@@ -95,16 +118,17 @@ public class FileSelector {
 		@Override
 		public void run() {
 			LOG.info("Started File Reader worker: {}", Thread.currentThread().getName());
-			
-			for(Entry<SeekableByteChannel, Integer> e: channels.entrySet()){
-				int id = e.getValue();
-				ReadableByteChannel rbc = e.getKey();
-				InputAdapter ia = dataAdapters.get(id);
-				if(rbc.isOpen()){
-					ia.readFrom(rbc, id);
+			while(working){
+				for(Entry<SeekableByteChannel, Integer> e: channels.entrySet()){
+					int id = e.getValue();
+					ReadableByteChannel rbc = e.getKey();
+					InputAdapter ia = dataAdapters.get(id);
+					if(rbc.isOpen()){
+						ia.readFrom(rbc, id);
+					}
 				}
 			}
-			
+			LOG.info("Finished File Reader worker: {}", Thread.currentThread().getName());
 		}
 		
 	}

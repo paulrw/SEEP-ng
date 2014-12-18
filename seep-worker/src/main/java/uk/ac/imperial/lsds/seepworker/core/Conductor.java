@@ -55,7 +55,8 @@ public class Conductor {
 	
 	public void startProcessing(){
 		LOG.info("Starting processing engine...");
-		ns.startNetworkSelector();
+		if(ns != null) ns.startNetworkSelector();
+		if(fs != null) fs.startFileSelector();
 		engine.start();
 	}
 	

@@ -97,12 +97,13 @@ public class InputBuffer {
 		return false;
 	}
 	
-	public boolean readFrom(Channel channel, InputAdapter ia){
+	public boolean readFrom(ReadableByteChannel channel, InputAdapter ia){
 		boolean dataRemainingInBuffer = true;
 		int readBytes = 0;
 		try {
-			readBytes = ((SocketChannel)channel).read(buffer);
-		} catch (IOException e) {
+			readBytes = channel.read(buffer);
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		int initialLimit = buffer.position();
