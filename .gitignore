@@ -37,4 +37,7 @@ examples/simple-dag-stateless-query/build/*
 examples/simple-cycle-stateless-query/.gitignore
 examples/simple-cycle-stateless-query/.settings/*
 examples/simple-cycle-stateless-query/build/*
+examples/simple-sourcefile-stateless-query/.gitignore
+examples/simple-sourcefile-stateless-query/.settings/*
+examples/simple-sourcefile-stateless-query/build/*
 deploy/
