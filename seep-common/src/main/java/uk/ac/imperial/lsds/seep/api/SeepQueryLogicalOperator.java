@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seep.util.Utils;
 
 public class SeepQueryLogicalOperator implements LogicalOperator {
 
@@ -118,34 +119,33 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 	
 	/* Methods to print info about the operator */
 	public String toString(){
-		String ls = System.getProperty("line.separator");
 		StringBuilder sb = new StringBuilder();
 		sb.append("LogicalOperator");
-		sb.append(ls);
+		sb.append(Utils.NL);
 		sb.append("###############");
-		sb.append(ls);
+		sb.append(Utils.NL);
 		sb.append("Name: "+this.name);
-		sb.append(ls);
+		sb.append(Utils.NL);
 		sb.append("OpId: "+this.opId);
-		sb.append(ls);
+		sb.append(Utils.NL);
 		sb.append("Stateful?: "+this.stateful);
-		sb.append(ls);
+		sb.append(Utils.NL);
 		sb.append("#Downstream: "+this.downstream.size());
-		sb.append(ls);
+		sb.append(Utils.NL);
 		for(int i = 0; i<this.downstream.size(); i++){
 			DownstreamConnection down = downstream.get(i);
 			sb.append("  Down-conn-"+i+"-> StreamId: "+down.getStreamId()+" to opId: "
 					+ ""+down.getDownstreamOperator().getOperatorId());
-			sb.append(ls);
+			sb.append(Utils.NL);
 		}
 		sb.append("#Upstream: "+this.upstream.size());
-		sb.append(ls);
+		sb.append(Utils.NL);
 		for(int i = 0; i<this.upstream.size(); i++){
 			UpstreamConnection up = upstream.get(i);
 			sb.append("  Up-conn-"+i+"-> StreamId: "+up.getStreamId()+" to opId: "
 					+ ""+up.getUpstreamOperator().getOperatorId()+""
-							+ " with connType: "+up.getConnectionType());
-			sb.append(ls);
+							+ " with connType: "+up.getConnectionType()+" and dataOrigin: "+up.getDataOriginType());
+			sb.append(Utils.NL);
 		}
 		return sb.toString();
 	}

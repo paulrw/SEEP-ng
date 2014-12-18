@@ -24,13 +24,23 @@ public class QueryBuilder implements QueryAPI {
 		// Check nonOperator sources and adjust sources accordingly
 		for(Operator o : qp.getAllOperators()){
 			for(UpstreamConnection uc : o.upstreamConnections()){
-				if(uc.getUpstreamOperator() instanceof Source){
+				LogicalOperator lo = (LogicalOperator) uc.getUpstreamOperator();
+				if(lo.getSeepTask() instanceof Source){
+					// This operator becomes a source
 					qp.addSource((LogicalOperator)o);
 				}
 			}
 		}
+		// Remove the template source
+		qp.cleanMarkerOperators();
 		
-		// TODO: Perform sanity checks
+		// Perform sanity checks
+		if(qp.getSources().size() == 0){
+			throw new InvalidQueryDefinitionException("The query must define at least one source");
+		}
+		if(qp.getSink() == null){
+			throw new InvalidQueryDefinitionException("The query must define a sink");
+		}
 		
 		return qp;
 	}

@@ -6,7 +6,7 @@ import uk.ac.imperial.lsds.seep.comm.serialization.SerializerType;
 import uk.ac.imperial.lsds.seep.errors.NotSupportedException;
 
 
-public class FileSource implements Connectable, DataOriginDescriptor, Source {
+public class FileSource implements Connectable, DataOriginDescriptor {
 
 	private static LogicalOperator lo;
 	private String path;
@@ -62,7 +62,7 @@ public class FileSource implements Connectable, DataOriginDescriptor, Source {
 		throw new NotSupportedException("Cannot override DataOrigin");
 	}
 	
-	private static class FileSourceImpl implements SeepTask{
+	private static class FileSourceImpl implements SeepTask, Source{
 		@Override
 		public void setUp() {		}
 		@Override

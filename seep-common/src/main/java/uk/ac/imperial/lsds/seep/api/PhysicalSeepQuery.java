@@ -122,11 +122,15 @@ public class PhysicalSeepQuery {
 		sb.append(Utils.NL);
 		sb.append("Sources:");
 		sb.append(Utils.NL);
+		System.out.println("#Sources: "+sources.size());
+		sb.append(Utils.NL);
 		for(PhysicalOperator src : sources){
 			sb.append(src.toString());
 			sb.append(Utils.NL);
 		}
 		sb.append("All Operators:");
+		sb.append(Utils.NL);
+		System.out.println("#PhyOps: "+physicalOperators.size()+ " (includes sources and sink)");
 		sb.append(Utils.NL);
 		for(PhysicalOperator op : physicalOperators){
 			sb.append(op.toString());

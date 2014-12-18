@@ -6,7 +6,7 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.api.data.Schema.SchemaBuilder;
 import uk.ac.imperial.lsds.seep.comm.serialization.SerializerType;
 
-public class FileBaseTest implements QueryComposer {
+public class FileBase implements QueryComposer {
 
 	@Override
 	public LogicalSeepQuery compose() {
@@ -16,10 +16,12 @@ public class FileBaseTest implements QueryComposer {
 		FileSource source = FileSource.newSource(10, "/data/test.txt", SerializerType.NONE);
 		LogicalOperator trainer = queryAPI.newStatelessOperator(new Trainer(), 0);
 		LogicalOperator parameterServer = queryAPI.newStatelessOperator(new ParameterServer(), 1);
+		LogicalOperator sink = queryAPI.newStatelessSink(new Sink(), 2);
 		
 		source.connectTo(trainer, 0, s);
 		trainer.connectTo(parameterServer, 0, s, ConnectionType.UPSTREAM_SYNC_BARRIER);
 		parameterServer.connectTo(trainer, 1, s);
+		parameterServer.connectTo(sink, 10, s);
 		
 		return queryAPI.build();
 	}
@@ -36,6 +38,17 @@ public class FileBaseTest implements QueryComposer {
 	}
 	
 	class ParameterServer implements SeepTask {
+		@Override
+		public void setUp() {		}
+		@Override
+		public void processData(ITuple data, API api) {		}
+		@Override
+		public void processDataGroup(ITuple dataBatch, API api) {		}
+		@Override
+		public void close() {		}
+	}
+	
+	class Sink implements SeepTask {
 		@Override
 		public void setUp() {		}
 		@Override

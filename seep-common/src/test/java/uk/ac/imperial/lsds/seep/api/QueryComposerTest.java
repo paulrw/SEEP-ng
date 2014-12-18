@@ -6,10 +6,26 @@ import org.junit.Test;
 
 public class QueryComposerTest {
 
+//	@Test
+//	public void testBase() {
+//		//Create Base class
+//		BaseTest bt = new BaseTest();
+//		//Get logical seep query by composing the base class
+//		LogicalSeepQuery lsq = bt.compose();
+//		System.out.println(lsq.toString());
+//		for(Operator lo : lsq.getAllOperators()){
+//			System.out.println(lo.toString());
+//			System.out.println("     ");
+//			System.out.println("     ");
+//			System.out.println("     ");
+//		}
+//		assertTrue(true);
+//	}
+	
 	@Test
-	public void test() {
+	public void testFileBase() {
 		//Create Base class
-		BaseTest bt = new BaseTest();
+		FileBase bt = new FileBase();
 		//Get logical seep query by composing the base class
 		LogicalSeepQuery lsq = bt.compose();
 		System.out.println(lsq.toString());

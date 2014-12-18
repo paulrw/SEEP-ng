@@ -119,6 +119,11 @@ public class QueryManager {
 		// send SET-RUNTIME command
 	}
 	
+	public PhysicalSeepQuery createOriginalPhysicalQueryFrom(LogicalSeepQuery lsq){
+		this.lsq = lsq;
+		return this.createOriginalPhysicalQuery();
+	}
+	
 	private PhysicalSeepQuery createOriginalPhysicalQuery(){
 		Set<SeepQueryPhysicalOperator> physicalOperators = new HashSet<>();
 		Map<PhysicalOperator, List<PhysicalOperator>> instancesPerOriginalOp = new HashMap<>();
@@ -135,9 +140,9 @@ public class QueryManager {
 			
 			for(Operator lso : lsq.getAllOperators()){
 				ExecutionUnit eu = inf.getExecutionUnit();
-				SeepQueryPhysicalOperator po = SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(lso, eu.getEndPoint());
-				int pOpId = po.getOperatorId();
 				EndPoint ep = eu.getEndPoint();
+				SeepQueryPhysicalOperator po = SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(lso, ep);
+				int pOpId = po.getOperatorId();
 				LOG.debug("LogicalOperator: {} will run on: {}", pOpId, ep.getId());
 				opToEndpointMapping.put(pOpId, ep);
 				physicalOperators.add(po);

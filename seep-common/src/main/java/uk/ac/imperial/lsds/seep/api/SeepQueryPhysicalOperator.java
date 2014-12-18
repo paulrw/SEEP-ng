@@ -4,6 +4,7 @@ import java.util.List;
 
 import uk.ac.imperial.lsds.seep.api.data.Schema;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
+import uk.ac.imperial.lsds.seep.util.Utils;
 
 public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	
@@ -103,14 +104,12 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 
 	@Override
 	public void connectTo(Operator downstreamOperator, int streamId, Schema schema, ConnectionType connectionType) {
-		// TODO REPLACEMENT IN THIS CASE
-		
+		throw new UnsupportedOperationException("Should not use this connectTo in Physical Ops");
 	}
 	
 	@Override
 	public void connectTo(Operator downstreamOperator, int streamId, Schema schema, ConnectionType connectionType, DataOrigin dSrc) {
-		// TODO REPLACEMENT IN THIS CASE
-		
+		throw new UnsupportedOperationException("Should not use this connectTo in Physical Ops");
 	}
 	
 	@Override
@@ -121,5 +120,44 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	@Override
 	public EndPoint getWrappingEndPoint(){
 		return ep;
+	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("Physical Operator");
+		sb.append(Utils.NL);
+		sb.append("###############");
+		sb.append(Utils.NL);
+		sb.append("Name: "+this.name);
+		sb.append(Utils.NL);
+		sb.append("OpId: "+this.opId);
+		sb.append(Utils.NL);
+		sb.append("Stateful?: "+this.stateful);
+		sb.append(Utils.NL);
+		sb.append("SeepTask: "+this.seepTask.toString());
+		sb.append(Utils.NL);
+		if(this.state != null){
+			sb.append("SeepState: "+this.state.toString());
+		}
+		sb.append(Utils.NL);
+		sb.append("#Downstream: "+this.downstreamConnections.size());
+		sb.append(Utils.NL);
+		for(int i = 0; i < this.downstreamConnections.size(); i++){
+			DownstreamConnection down = downstreamConnections.get(i);
+			sb.append("  Down-conn-"+i+"-> StreamId: "+down.getStreamId()+" to opId: "
+					+ ""+down.getDownstreamOperator().getOperatorId());
+			sb.append(Utils.NL);
+		}
+		sb.append("#Upstream: "+this.upstreamConnections.size());
+		sb.append(Utils.NL);
+		for(int i = 0; i < this.upstreamConnections.size(); i++){
+			UpstreamConnection up = upstreamConnections.get(i);
+			sb.append("  Up-conn-"+i+"-> StreamId: "+up.getStreamId()+" to opId: "
+					+ ""+up.getUpstreamOperator().getOperatorId()+""
+							+ " with connType: "+up.getConnectionType()+" and dataOrigin: "+up.getDataOriginType());
+			sb.append(Utils.NL);
+		}
+		return sb.toString();
 	}
 }
