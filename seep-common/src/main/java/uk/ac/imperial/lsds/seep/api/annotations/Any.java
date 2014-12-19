@@ -13,6 +13,7 @@ package uk.ac.imperial.lsds.seep.api.annotations;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+@Deprecated
 @Retention(RetentionPolicy.SOURCE)
 public @interface Any {
 
