@@ -22,7 +22,7 @@ public class Processor implements SeepTask {
 		System.out.println("data send: "+d.length);
 		api.send(d);
 		
-		waitHere(1000);
+		waitHere(10);
 	}
 	
 	private void waitHere(int time){

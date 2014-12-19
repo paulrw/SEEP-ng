@@ -18,7 +18,7 @@ public class OutputBuffer {
 	
 	private ByteBuffer buf;
 	private int batchSize;
-	public BatchQueue bq;
+	private BatchQueue bq;
 	
 	public OutputBuffer(WorkerConfig wc, int opId, Connection c, int streamId){
 		this.opId = opId;
@@ -27,6 +27,10 @@ public class OutputBuffer {
 		this.batchSize = wc.getInt(WorkerConfig.BATCH_SIZE);
 		buf = ByteBuffer.allocate(wc.getInt(WorkerConfig.SEND_APP_BUFFER_SIZE));
 		bq = new BatchQueue();
+	}
+	
+	public List<byte[]> getDataBatch(){
+		return bq.poll();
 	}
 	
 	public int getStreamId(){
@@ -43,7 +47,8 @@ public class OutputBuffer {
 	
 	public boolean write(byte[] data){
 		// Try to add data, will block if space bigger than batch
-		boolean canSend = bq.add(data);
+		boolean canSend;
+		canSend = bq.add(data);
 		// by definition will only return when data can actually be written
 		return canSend;
 	}
@@ -55,12 +60,12 @@ public class OutputBuffer {
 	public class BatchQueue{
 		
 		private List<byte[]> ongoingBatch;
-		private BlockingQueue<List<byte[]>> bq;
+		private BlockingQueue<List<byte[]>> blockingQueue;
 		private int currentPayloadSize = 0;
 
 		public BatchQueue(){
 			this.ongoingBatch = new ArrayList<>();
-			this.bq = new ArrayBlockingQueue<>(1);
+			this.blockingQueue = new ArrayBlockingQueue<>(1);
 		}
 		
 		public boolean add(byte[] data){
@@ -72,11 +77,11 @@ public class OutputBuffer {
 				}
 				try {
 					ArrayList<byte []> copyToSend = new ArrayList<>(ongoingBatch);
-					bq.put(copyToSend);
+					blockingQueue.put(copyToSend);
 					ongoingBatch.clear();
 					currentPayloadSize = 0;
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (InterruptedException e) {
 					e.printStackTrace();
 					return false; // with error say batch is not complete
 				}
@@ -90,8 +95,8 @@ public class OutputBuffer {
 		}
 		
 		public List<byte []> poll(){
-			List<byte[]> datas = bq.poll();
+			List<byte[]> datas = blockingQueue.poll();
 			return datas;
-		}	
+		}
 	}
 }

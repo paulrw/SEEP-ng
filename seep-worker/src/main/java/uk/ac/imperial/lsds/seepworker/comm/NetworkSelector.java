@@ -62,7 +62,11 @@ public class NetworkSelector implements EventAPI {
 	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
 		this.writersConfiguredLatch = new CountDownLatch(0); // Initially non-defined, nobody waits here
 		this.iapMap = iapMap;
-		this.numUpstreamConnections  = iapMap.size();
+		int expectedUpstream = 0;
+		for(InputAdapter ia : iapMap.values()){
+			if(ia.requiresNetwork()) expectedUpstream++;
+		}
+		this.numUpstreamConnections  = expectedUpstream;
 		LOG.info("Expecting {} upstream connections", numUpstreamConnections);
 		this.numReaderWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_READER_THREADS);
 		this.numWriterWorkers = wc.getInt(WorkerConfig.NUM_NETWORK_WRITER_THREADS);
@@ -496,7 +500,7 @@ public class NetworkSelector implements EventAPI {
 			if(! ongoingWrite){
 				// Write data into buffer
 				buf.position(TupleInfo.PER_BATCH_OVERHEAD_SIZE);
-				List<byte[]> dataForBatch = ob.bq.poll();
+				List<byte[]> dataForBatch = ob.getDataBatch();
 				int numTuples = 0;
 				int batchSize = 0;
 				for(int i = 0; i < dataForBatch.size(); i++){

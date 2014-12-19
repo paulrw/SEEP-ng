@@ -54,7 +54,7 @@ public class InputAdapterFactory {
 		Schema expectedSchema = upc.get(0).getExpectedSchema();
 		
 		if(cType == ConnectionType.ONE_AT_A_TIME.ofType()){
-			LOG.info("Creating FILE inputAdapter for upstream streamId: {} of type {}", streamId, ConnectionType.UPSTREAM_SYNC_BARRIER.withName());
+			LOG.info("Creating FILE inputAdapter for upstream streamId: {} of type {}", streamId, ConnectionType.ONE_AT_A_TIME.withName());
 			ia = new FileDataStream(wc, streamId, expectedSchema, upc);
 		}
 		else if(cType == ConnectionType.BATCH.ofType()){
