@@ -38,7 +38,6 @@ class Producer implements Runnable{
 	public void run(){
 		byte a = 0,b = 0,c = 0;
 		while(working){
-			Long ts = System.currentTimeMillis();
 			byte[] data = new byte[] { a, b, c, (byte) (a*2), (byte) (b*2), (byte) (c*2)};
 			a++; b++; c++;
 			this.b.add(data); // will block if there's not enough space
@@ -95,12 +94,14 @@ class Buffer{
 	public byte[] poll(){
 		byte[] data = null;
 		if(completed){
+			buf.flip();
 			data = new byte[6];
 			if(buf.remaining() > 6){
 				buf.get(data, 0, 6);
 			}
 			else{ // finished reading all batch
 				completed = false;
+				buf.clear();
 				notifyHere();
 			}
 		}

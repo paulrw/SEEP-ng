@@ -17,12 +17,12 @@ import uk.ac.imperial.lsds.seep.api.SeepTask;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
-import uk.ac.imperial.lsds.seepworker.comm.NetworkSelector;
+import uk.ac.imperial.lsds.seepworker.comm.NetworkSelector2;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInputFactory;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutputFactory;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 public class Conductor {
 
@@ -32,7 +32,7 @@ public class Conductor {
 	
 	private int dataPort;
 	private InetAddress myIp;
-	private NetworkSelector ns;
+	private NetworkSelector2 ns;
 	private FileSelector fs;
 	
 	private PhysicalOperator o;
@@ -92,17 +92,17 @@ public class Conductor {
 		if(ns != null) ns.initNetworkSelector(); // start network selector, if any
 	}
 	
-	private NetworkSelector maybeConfigureNetworkSelector(){
-		NetworkSelector ns = null;
+	private NetworkSelector2 maybeConfigureNetworkSelector(){
+		NetworkSelector2 ns = null;
 		if(coreInput.requiresConfiguringNetworkWorker()){
 			LOG.info("Configuring networkSelector for input");
-			ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
+			ns = new NetworkSelector2(wc, coreInput.getInputAdapterProvider());
 			ns.configureAccept(myIp, dataPort);
 		}
 		if(coreOutput.requiresConfiguringNetworkWorker()){
 			LOG.info("Configuring networkSelector for output");
-			if(ns == null) ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
-			Set<OutputBuffer> obufs = coreOutput.getOutputBuffers();
+			if(ns == null) ns = new NetworkSelector2(wc, coreInput.getInputAdapterProvider());
+			Set<OutputBuffer2> obufs = coreOutput.getOutputBuffers();
 			ns.configureConnect(obufs);
 		}
 		return ns;

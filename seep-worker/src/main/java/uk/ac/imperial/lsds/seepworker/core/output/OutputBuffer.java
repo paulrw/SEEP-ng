@@ -1,11 +1,10 @@
 package uk.ac.imperial.lsds.seepworker.core.output;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.nio.channels.SocketChannel;
 
+import sun.misc.Unsafe;
 import uk.ac.imperial.lsds.seep.api.data.TupleInfo;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
@@ -17,20 +16,16 @@ public class OutputBuffer {
 	private int streamId;
 	
 	private ByteBuffer buf;
-	private int batchSize;
-	private BatchQueue bq;
-	
+	private boolean completed;
+	private int tuplesInBatch = 0;
+	private int currentBatchSize = 0;
+		
 	public OutputBuffer(WorkerConfig wc, int opId, Connection c, int streamId){
 		this.opId = opId;
 		this.c = c;
 		this.streamId = streamId;
-		this.batchSize = wc.getInt(WorkerConfig.BATCH_SIZE);
-		buf = ByteBuffer.allocate(wc.getInt(WorkerConfig.SEND_APP_BUFFER_SIZE));
-		bq = new BatchQueue();
-	}
-	
-	public List<byte[]> getDataBatch(){
-		return bq.poll();
+		buf = ByteBuffer.allocate(wc.getInt(WorkerConfig.BATCH_SIZE));
+		buf.position(TupleInfo.PER_BATCH_OVERHEAD_SIZE);
 	}
 	
 	public int getStreamId(){
@@ -45,58 +40,90 @@ public class OutputBuffer {
 		return c;
 	}
 	
+	public boolean ready(){
+		return completed;
+	}
+	
 	public boolean write(byte[] data){
-		// Try to add data, will block if space bigger than batch
-		boolean canSend;
-		canSend = bq.add(data);
-		// by definition will only return when data can actually be written
-		return canSend;
-	}
-	
-	public ByteBuffer getBuffer(){
-		return buf;
-	}
-	
-	public class BatchQueue{
-		
-		private List<byte[]> ongoingBatch;
-		private BlockingQueue<List<byte[]>> blockingQueue;
-		private int currentPayloadSize = 0;
-
-		public BatchQueue(){
-			this.ongoingBatch = new ArrayList<>();
-			this.blockingQueue = new ArrayBlockingQueue<>(1);
+		if(completed){
+			waitHere(); // block
 		}
-		
-		public boolean add(byte[] data){
-			int sizeOfBatchWithCurrentElement = currentPayloadSize + data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
-			if(sizeOfBatchWithCurrentElement > batchSize){
-				if(ongoingBatch.size() == 0){
-					ongoingBatch.add(data);
-					currentPayloadSize = currentPayloadSize + data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
-				}
-				try {
-					ArrayList<byte []> copyToSend = new ArrayList<>(ongoingBatch);
-					blockingQueue.put(copyToSend);
-					ongoingBatch.clear();
-					currentPayloadSize = 0;
-				}
-				catch (InterruptedException e) {
-					e.printStackTrace();
-					return false; // with error say batch is not complete
-				}
+		int tupleSize = data.length;
+		if(enoughSpaceInBuffer(tupleSize)){
+			buf.putInt(tupleSize);
+			buf.put(data);
+			tuplesInBatch++;
+			currentBatchSize = currentBatchSize + tupleSize + TupleInfo.TUPLE_SIZE_OVERHEAD;
+			return completed;
+		}
+		else{
+			int currentPosition = buf.position();
+			int currentLimit = buf.limit();
+			buf.position(TupleInfo.NUM_TUPLES_BATCH_OFFSET);
+			buf.putInt(tuplesInBatch);
+			buf.putInt(currentBatchSize);
+			buf.position(currentPosition);
+			buf.limit(currentLimit);
+			buf.flip(); // leave the buffer ready to be read
+			completed = true;
+			return completed;
+		}
+	}
+	
+	public boolean drain(SocketChannel channel){
+		boolean fullyWritten = false;
+		if(completed){
+			int totalBytesToWrite = buf.remaining();
+			int writtenBytes = 0;
+			try {
+				writtenBytes = channel.write(buf);
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(writtenBytes == totalBytesToWrite){
+				// prepare buffer to be filled again
+				tuplesInBatch = 0;
+				currentBatchSize = TupleInfo.PER_BATCH_OVERHEAD_SIZE;
+				buf.clear();
+				buf.position(TupleInfo.PER_BATCH_OVERHEAD_SIZE);
+				completed = false;
+				notifyHere();
 				return true;
 			}
 			else{
-				ongoingBatch.add(data);
-				currentPayloadSize = currentPayloadSize + data.length + TupleInfo.TUPLE_SIZE_OVERHEAD;
 				return false;
 			}
 		}
-		
-		public List<byte []> poll(){
-			List<byte[]> datas = blockingQueue.poll();
-			return datas;
+		else{
+			// FIXME: remove this once tested
+			System.out.println("Race Condition alert");
+			System.exit(0);
+		}
+		return fullyWritten;
+	}
+	
+	private boolean enoughSpaceInBuffer(int size){
+		return buf.remaining() > size + TupleInfo.TUPLE_SIZE_OVERHEAD;
+	}
+	
+	private void notifyHere(){
+		synchronized(this){
+			notify();
 		}
 	}
+	
+	private void waitHere(){
+		try {
+			synchronized(this){
+				while(completed){
+					wait();
+				}
+			}
+		} 
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

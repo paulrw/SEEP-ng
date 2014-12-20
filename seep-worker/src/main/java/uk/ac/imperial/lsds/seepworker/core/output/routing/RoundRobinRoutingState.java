@@ -5,6 +5,7 @@ import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 public class RoundRobinRoutingState implements RoutingState {
 

@@ -31,12 +31,11 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
-public class NetworkSelector implements EventAPI {
+public class NetworkSelector2 implements EventAPI {
 
-	final private static Logger LOG = LoggerFactory.getLogger(NetworkSelector.class);
+	final private static Logger LOG = LoggerFactory.getLogger(NetworkSelector2.class);
 	
 	private ServerSocketChannel listenerSocket;
 	private Selector acceptorSelector;
@@ -60,7 +59,7 @@ public class NetworkSelector implements EventAPI {
 	private Map<Integer, InputAdapter> iapMap;
 	private int numUpstreamConnections;
 	
-	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
+	public NetworkSelector2(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
 		this.writersConfiguredLatch = new CountDownLatch(0); // Initially non-defined, nobody waits here
 		this.iapMap = iapMap;
 		int expectedUpstream = 0;
@@ -103,7 +102,7 @@ public class NetworkSelector implements EventAPI {
 		}
 	}
 	
-	public static NetworkSelector makeNetworkSelectorWithMap(Map<Integer, InputAdapter> iapMap){
+	public static NetworkSelector2 makeNetworkSelectorWithMap(Map<Integer, InputAdapter> iapMap){
 		Properties p = new Properties();
 		p.setProperty(WorkerConfig.MASTER_IP, "127.0.0.1");
 		p.setProperty(WorkerConfig.PROPERTIES_FILE, "");
@@ -111,9 +110,31 @@ public class NetworkSelector implements EventAPI {
 		p.setProperty(WorkerConfig.NUM_NETWORK_WRITER_THREADS, "1");
 		p.setProperty(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, "1");
 		WorkerConfig wc = new WorkerConfig(p);
-		return new NetworkSelector(wc, iapMap);
+		return new NetworkSelector2(wc, iapMap);
 	}
 	
+	@Override
+	public void readyForWrite(int id){
+		SelectionKey key = writerKeys.get(id);
+		synchronized(key){
+			int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+			key.interestOps(interestOps);
+			key.selector().wakeup();
+		}
+	}
+	
+	@Override
+	public void readyForWrite(List<Integer> ids){
+		for(Integer id : ids){
+			SelectionKey key = writerKeys.get(id);
+			synchronized(key){
+				int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
+				key.interestOps(interestOps);
+				key.selector().wakeup();
+			}
+		}
+	}
+
 	public void configureAccept(InetAddress myIp, int dataPort){
 		ServerSocketChannel channel = null;
 		try {
@@ -137,10 +158,10 @@ public class NetworkSelector implements EventAPI {
 		this.acceptorWorker.setName("Network-Acceptor");
 	}
 	
-	public void configureConnect(Set<OutputBuffer> obufs){
+	public void configureConnect(Set<OutputBuffer2> obufs){
 		int writerIdx = 0;
 		int totalWriters = writers.length;
-		for(OutputBuffer obuf : obufs){
+		for(OutputBuffer2 obuf : obufs){
 			writers[(writerIdx++)%totalWriters].newConnection(obuf);
 		}
 		this.writersConfiguredLatch = new CountDownLatch(obufs.size()); // Initialize countDown with num of outputConns
@@ -188,18 +209,6 @@ public class NetworkSelector implements EventAPI {
 		}
 		for(Writer w : writers){
 			w.stop();
-		}
-	}
-	
-	@Override
-	public void readyForWrite(int id) {
-		writerKeys.get(id).selector().wakeup();
-	}
-
-	@Override
-	public void readyForWrite(List<Integer> ids) {
-		for(Integer id : ids){
-			readyForWrite(id);
 		}
 	}
 	
@@ -389,18 +398,14 @@ public class NetworkSelector implements EventAPI {
 		
 		private int id;
 		private boolean working;
-		private Queue<OutputBuffer> pendingConnections;
-		
-		// buffer id - outputbuffer
-		private Map<Integer, OutputBuffer> outputBufferMap;
+		private Queue<OutputBuffer2> pendingConnections;
 		
 		private Selector writeSelector;
 		
 		Writer(int id){
 			this.id = id;
 			this.working = true;
-			this.outputBufferMap = new HashMap<>();
-			this.pendingConnections = new ArrayDeque<OutputBuffer>();
+			this.pendingConnections = new ArrayDeque<OutputBuffer2>();
 			try {
 				this.writeSelector = Selector.open();
 			} 
@@ -418,7 +423,7 @@ public class NetworkSelector implements EventAPI {
 			// TODO: more stuff here
 		}
 		
-		public void newConnection(OutputBuffer ob){
+		public void newConnection(OutputBuffer2 ob){
 			this.pendingConnections.add(ob);
 		}
 		
@@ -426,10 +431,10 @@ public class NetworkSelector implements EventAPI {
 		public void run(){
 			LOG.info("Started Writer worker: {}", Thread.currentThread().getName());
 			boolean needsToSendIdentifier = true;
+			boolean ongoingWrite = false;
 			while(working){
 				// First handle potential new connections that have been queued up
 				handleNewConnections();
-				pollBuffers();
 				try {
 					int readyChannels = writeSelector.select();
 					if(readyChannels == 0){
@@ -453,7 +458,7 @@ public class NetworkSelector implements EventAPI {
 						}
 						// writable
 						if(key.isWritable()){
-							OutputBuffer ob = (OutputBuffer)key.attachment();
+							OutputBuffer2 ob = (OutputBuffer2)key.attachment();
 							SocketChannel channel = (SocketChannel)key.channel();
 							
 							if(needsToSendIdentifier){
@@ -465,9 +470,17 @@ public class NetworkSelector implements EventAPI {
 								LOG.trace("CountDown to configure all output conns: {}", writersConfiguredLatch.getCount());
 							}
 							else{
-								// write batch
-								boolean fullyWritten = ob.drain(channel);
-								if(fullyWritten) unsetWritable(key);
+								synchronized(key){
+									boolean fullyWritten = write(ob, channel, ongoingWrite);
+									if(fullyWritten){
+										// only remove interest if fully written, otherwise keep pushing the socket buffer
+										ongoingWrite = false;
+										unsetWritable(key);
+									}
+									else{
+										ongoingWrite = true; // complete write next iteration
+									}
+								}
 							}
 						}
 						if(! key.isValid()){
@@ -482,14 +495,45 @@ public class NetworkSelector implements EventAPI {
 			}
 		}
 		
-		private void pollBuffers(){
-			for(OutputBuffer ob : outputBufferMap.values()){
-				if(ob.ready()){
-					SelectionKey key = writerKeys.get(ob.id());
-					int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
-					key.interestOps(interestOps);
-//					this.writeSelector.wakeup();
+		private boolean write(OutputBuffer2 ob, SocketChannel channel, boolean ongoingWrite){
+			ByteBuffer buf = ob.getBuffer();
+			if(! ongoingWrite){
+				// Write data into buffer
+				buf.position(TupleInfo.PER_BATCH_OVERHEAD_SIZE);
+				List<byte[]> dataForBatch = ob.getDataBatch();
+				int numTuples = 0;
+				int batchSize = 0;
+				for(int i = 0; i < dataForBatch.size(); i++){
+					byte[] data = dataForBatch.get(i);
+					int tupleSize = data.length;
+					buf.putInt(data.length);
+					buf.put(data);
+					numTuples++;
+					batchSize = batchSize + tupleSize + TupleInfo.TUPLE_SIZE_OVERHEAD;
 				}
+				int position = buf.position();
+				buf.position(TupleInfo.NUM_TUPLES_BATCH_OFFSET);
+				buf.putInt(numTuples);
+				buf.putInt(batchSize);
+				buf.position(position);
+				buf.flip(); // get buffer ready to be copied
+			}
+			
+			// Copy buffer to channel
+			int totalBytesToWrite = buf.remaining();
+			int writtenBytes = 0;
+			try {
+				writtenBytes = channel.write(buf);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			if(writtenBytes == totalBytesToWrite){
+				buf.clear();
+				return true;
+			}
+			else{
+				return false;
 			}
 		}
 		
@@ -516,7 +560,7 @@ public class NetworkSelector implements EventAPI {
 		
 		private void handleNewConnections(){
 			try {
-				OutputBuffer ob = null;
+				OutputBuffer2 ob = null;
 				while((ob = this.pendingConnections.poll()) != null){
 					Connection c = ob.getConnection();
 					SocketChannel channel = SocketChannel.open();
@@ -540,7 +584,6 @@ public class NetworkSelector implements EventAPI {
 					int interestSet = SelectionKey.OP_CONNECT;
 					SelectionKey key = channel.register(writeSelector, interestSet);
 					key.attach(ob);
-					outputBufferMap.put(ob.id(), ob);
 					LOG.info("Configured new output connection with OP: {} at {}", ob.id(), address.toString());
 					// Associate id - key in the networkSelectorMap
 					writerKeys.put(ob.id(), key);

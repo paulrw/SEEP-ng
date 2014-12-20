@@ -15,7 +15,7 @@ import uk.ac.imperial.lsds.seep.api.data.Type;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 public class BatchQueueConcurrencyTest {
 

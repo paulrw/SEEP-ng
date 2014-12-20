@@ -78,7 +78,7 @@ public class WorkerConfig extends Config {
 				.define(NUM_NETWORK_WRITER_THREADS, Type.INT, 2, Importance.MEDIUM, NUM_NETWORK_WRITER_THREADS_DOC)
 				.define(MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, Type.INT, 10, Importance.LOW, MAX_PENDING_NETWORK_CONNECTION_PER_THREAD_DOC)
 				.define(SIMPLE_INPUT_QUEUE_LENGTH, Type.INT, 100, Importance.MEDIUM, SIMPLE_INPUT_QUEUE_LENGTH_DOC)
-				.define(BATCH_SIZE, Type.INT, 4, Importance.HIGH, BATCH_SIZE_DOC) // small so one tuple at-at-time
+				.define(BATCH_SIZE, Type.INT, 100, Importance.HIGH, BATCH_SIZE_DOC) // small so one tuple at-at-time
 				.define(SEND_APP_BUFFER_SIZE, Type.INT, 1000, Importance.HIGH, SEND_APP_BUFFER_SIZE_DOC)
 				.define(RECEIVE_APP_BUFFER_SIZE, Type.INT, 1000, Importance.HIGH, RECEIVE_APP_BUFFER_SIZE_DOC)
 				.define(PROPERTIES_FILE, Type.STRING, Importance.LOW, PROPERTIES_FILE_DOC);

@@ -27,19 +27,20 @@ public class WorkerWorkerDataCommunicationTest {
 	@Test
 	public void test() {
 		// Create inputAdapter map that is used to configure networkselector
-		int clientId = 100;
-		int streamId = 101;
+		//int clientId = 100;
+		int streamId = 100;
 		Schema s = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
 		Map<Integer, InputAdapter> iapMap = null;
 		iapMap = new HashMap<>();
 		Properties p = new Properties();
 		p.setProperty("master.ip", "127.0.0.1");
-		p.setProperty("batch.size", "1000"); // 25 - 25 - 400
-		p.setProperty("rx.buffer.size", "10000"); // 66 - 116 - 817
-		p.setProperty("tx.buffer.size", "10000"); // 66 - 116 - 817
+		p.setProperty("batch.size", "10000"); // 25 - 25 - 400
+		p.setProperty("rx.buffer.size", "100000"); // 66 - 116 - 817
+		p.setProperty("tx.buffer.size", "100000"); // 66 - 116 - 817
+		p.setProperty("properties.file", "");
 		WorkerConfig fake = new WorkerConfig(p);
-		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
-		iapMap.put(clientId, nds);
+		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), streamId, s, null);
+		iapMap.put(streamId, nds);
 		// TODO: build this
 		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(iapMap);
 		// Create client and server that will be interchanging data
@@ -51,11 +52,12 @@ public class WorkerWorkerDataCommunicationTest {
 			e.printStackTrace();
 		}
 		int listeningPort = 5555;
+		int dataPort = listeningPort;
 		ds.configureAccept(myIp, listeningPort);
 		
 		// create outputbuffer for the client
-		Connection c = new Connection(new EndPoint(clientId, myIp, listeningPort));
-		OutputBuffer ob = new OutputBuffer(fake, clientId, c, streamId);
+		Connection c = new Connection(new EndPoint(streamId, myIp, listeningPort, dataPort));
+		OutputBuffer ob = new OutputBuffer(fake, streamId, c, streamId);
 		Set<OutputBuffer> obs = new HashSet<>();
 		obs.add(ob);
 		ds.configureConnect(obs);
@@ -68,9 +70,11 @@ public class WorkerWorkerDataCommunicationTest {
 			e.printStackTrace();
 		}
 		
+		ds.startNetworkSelector();
+		
 		/** Continuous sending **/
 		int interWriteTime = -1;
-		Writer w = new Writer(clientId, ob, ds, interWriteTime);
+		Writer w = new Writer(streamId, ob, ds, interWriteTime);
 		Thread writer = new Thread(w);
 		writer.setName("ImTheWriter");
 		
@@ -115,9 +119,9 @@ public class WorkerWorkerDataCommunicationTest {
 				ts = System.currentTimeMillis();
 				userId++;
 				byte[] serializedData = OTuple.create(s, new String[]{"userId", "ts"}, new Object[]{userId, ts});
-				boolean canSend = ob.write(serializedData);
-				if(canSend){
-					((EventAPI)ds).readyForWrite(clientId);
+				boolean complete = ob.write(serializedData);
+				if(complete){
+					ds.readyForWrite(ob.id());
 				}
 				if(sleep > -1){
 					try {
@@ -141,14 +145,16 @@ public class WorkerWorkerDataCommunicationTest {
 			long ts = System.currentTimeMillis();
 			while(true){
 				ITuple incomingTuple = nds.pullDataItem(500); // blocking until there's something to receive
-				//System.out.println(incomingTuple.toString());
-				counter++;
+				if(incomingTuple != null){
+//					System.out.println(incomingTuple.toString());
+					counter++;
+				}
 				if((System.currentTimeMillis()) - ts > 1000){
 					System.out.println("e/s: "+counter);
 					counter = 0;
 					ts = System.currentTimeMillis();
 				}
-			}	
+			}
 		}	
 	}
 }

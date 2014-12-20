@@ -8,18 +8,18 @@ import uk.ac.imperial.lsds.seepworker.comm.EventAPI;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 
-public class SimpleNetworkOutput implements OutputAdapter {
+public class SimpleNetworkOutput2 implements OutputAdapter2 {
 
 	final private boolean requiresNetworkWorker = true;
 	final private boolean requiresFileWorker = false;
 	
 	private int streamId;
 	private Router router;
-	private Map<Integer, OutputBuffer> outputBuffers;
-	private OutputBuffer ob;
+	private Map<Integer, OutputBuffer2> outputBuffers;
+	private OutputBuffer2 ob;
 	private EventAPI eAPI;
 	
-	public SimpleNetworkOutput(int streamId, Router router, Map<Integer, OutputBuffer> outputBuffers){
+	public SimpleNetworkOutput2(int streamId, Router router, Map<Integer, OutputBuffer2> outputBuffers){
 		this.router = router;
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
@@ -44,7 +44,7 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	}
 	
 	@Override
-	public Map<Integer, OutputBuffer> getOutputBuffers(){
+	public Map<Integer, OutputBuffer2> getOutputBuffers(){
 		return outputBuffers;
 	}
 
@@ -55,8 +55,9 @@ public class SimpleNetworkOutput implements OutputAdapter {
 
 	@Override
 	public void send(byte[] o) {
-		boolean completed = ob.write(o);
-		if(completed){
+		//OutputBuffer ob = outputBuffers.get(0);
+		boolean canSend = ob.write(o); // unique outputBuffer
+		if(canSend){
 			eAPI.readyForWrite(ob.id());
 		}
 	}
@@ -64,11 +65,10 @@ public class SimpleNetworkOutput implements OutputAdapter {
 	@Override
 	public void sendAll(byte[] o) {
 		List<Integer> ids = new ArrayList<>();
-		for(OutputBuffer ob : outputBuffers.values()){
-			boolean completed = ob.write(o);
-			if(completed){
+		for(OutputBuffer2 ob : outputBuffers.values()){
+			boolean canSend = ob.write(o);
+			if(canSend) 
 				ids.add(ob.id());
-			}
 		}
 		if(ids.size() > 0){
 			eAPI.readyForWrite(ids);
@@ -77,8 +77,11 @@ public class SimpleNetworkOutput implements OutputAdapter {
 
 	@Override
 	public void sendKey(byte[] o, int key) {
-		OutputBuffer ob = router.route(outputBuffers, key);
-		ob.write(o);
+		OutputBuffer2 ob = null; // temp hack
+		boolean canSend =  ob.write(o);
+		if(canSend){
+			eAPI.readyForWrite(ob.id());
+		}
 	}
 
 	/**
@@ -121,6 +124,5 @@ public class SimpleNetworkOutput implements OutputAdapter {
 		// TODO Auto-generated method stub
 		// careful again
 	}
-
+	
 }
-

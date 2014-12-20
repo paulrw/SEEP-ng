@@ -121,7 +121,6 @@ public class InputBuffer {
 				byte control = buffer.get();
 				int numTuples = buffer.getInt();
 				int batchSize = buffer.getInt();
-				System.out.println("control: "+control+" #tuples: "+numTuples+" batchSize: "+batchSize);
 				for(int i = 0; i < numTuples; i++){
 					int tupleSize = buffer.getInt();
 					byte[] completedRead = new byte[tupleSize];

@@ -14,7 +14,7 @@ import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapterReturnType;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
+import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter2;
 
 public class SingleThreadProcessingEngine implements ProcessingEngine {
 
@@ -76,7 +76,7 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 			Iterator<InputAdapter> it = inputAdapters.iterator();
 			short one = InputAdapterReturnType.ONE.ofType();
 			short many = InputAdapterReturnType.MANY.ofType();
-			List<OutputAdapter> outputAdapters = coreOutput.getOutputAdapters();
+			List<OutputAdapter2> outputAdapters = coreOutput.getOutputAdapters();
 			LOG.info("Configuring SINGLETHREAD processing engine with {} outputAdapters", outputAdapters.size());
 			API api = new Collector(outputAdapters);
 			while(working){
