@@ -2,6 +2,8 @@ package uk.ac.imperial.lsds.seep.api;
 
 import java.util.List;
 
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
+
 public interface QueryAPI {
 	
 	public List<Operator> getQueryOperators();

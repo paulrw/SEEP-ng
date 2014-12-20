@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.api.API;
-import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapterReturnType;

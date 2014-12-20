@@ -1,7 +1,7 @@
 package uk.ac.imperial.lsds.seepworker.core;
 
-import uk.ac.imperial.lsds.seep.api.SeepState;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
 import uk.ac.imperial.lsds.seepworker.core.input.CoreInput;
 import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
 

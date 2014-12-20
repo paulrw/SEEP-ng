@@ -1,5 +1,7 @@
 package uk.ac.imperial.lsds.seep.api;
 
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
+
 public class SeepQueryOperatorState implements LogicalState{
 
 	private int ownerId;
