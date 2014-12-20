@@ -2,8 +2,8 @@ package uk.ac.imperial.lsds.seep.comm;
 
 import java.util.Set;
 
-import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
-import uk.ac.imperial.lsds.seep.comm.protocol.WWProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerProtocolAPI;
 
 import com.esotericsoftware.kryo.Kryo;
 
@@ -36,7 +36,7 @@ public class KryoFactory {
 	
 	public static Kryo buildKryoForMasterWorkerProtocol(){
 		Kryo k = new Kryo();
-		for(ProtocolAPI command : ProtocolAPI.values()){
+		for(MasterWorkerProtocolAPI command : MasterWorkerProtocolAPI.values()){
 			k.register(command.getClass(), command.type());
 		}
 		return k;
@@ -44,7 +44,7 @@ public class KryoFactory {
 	
 	public static Kryo buildKryoForMasterWorkerProtocol(ClassLoader cl){
 		Kryo k = new Kryo();
-		for(ProtocolAPI command : ProtocolAPI.values()){
+		for(MasterWorkerProtocolAPI command : MasterWorkerProtocolAPI.values()){
 			k.register(command.getClass(), command.type());
 		}
 		k.setClassLoader(cl);
@@ -53,7 +53,7 @@ public class KryoFactory {
 	
 	public static Kryo buildKryoForWorkerWorkerProtocol(){
 		Kryo k = new Kryo();
-		for(WWProtocolAPI command : WWProtocolAPI.values()){
+		for(WorkerWorkerProtocolAPI command : WorkerWorkerProtocolAPI.values()){
 			k.register(command.getClass(), command.type());
 		}
 		return k;

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.imperial.lsds.seep.comm.protocol.Command;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
 import uk.ac.imperial.lsds.seep.comm.serialization.Serializer;
 import uk.ac.imperial.lsds.seep.infrastructure.ExtendedObjectOutputStream;
 
@@ -348,7 +348,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_sync(Command co, Connection c, Kryo k) {
+	public boolean send_object_sync(MasterWorkerCommand co, Connection c, Kryo k) {
 		
 		try {
 			Socket s = c.getOpenSocket();
@@ -373,7 +373,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_async(Command co, Connection c, Kryo k, int numRetries, int reconnectBackoff) {
+	public boolean send_object_async(MasterWorkerCommand co, Connection c, Kryo k, int numRetries, int reconnectBackoff) {
 		for (int i = 0; i < numRetries; i++) {
 			try {
 				Socket s = c.getOpenSocket();
@@ -398,7 +398,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_sync(Command co, Set<Connection> cs, Kryo k) {
+	public boolean send_object_sync(MasterWorkerCommand co, Set<Connection> cs, Kryo k) {
 		for(Connection c : cs){
 			LOG.trace("Send to: {}", c.toString());
 			boolean success = this.send_object_sync(co, c, k);
@@ -409,7 +409,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_async(Command co, Set<Connection> cs, Kryo k) {
+	public boolean send_object_async(MasterWorkerCommand co, Set<Connection> cs, Kryo k) {
 		try {
 			throw new Exception("NOT IMPLEMENTED");
 		} catch (Exception e) {
@@ -419,7 +419,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public boolean send_object_sync_parallel(Command data, Set<Connection> cs,
+	public boolean send_object_sync_parallel(MasterWorkerCommand data, Set<Connection> cs,
 			Kryo k) {
 		try {
 			throw new Exception("NOT IMPLEMENTED");
@@ -430,7 +430,7 @@ public class IOComm implements Comm {
 	}
 
 	@Override
-	public void send_object_async_parallel(Command data, Set<Connection> cs,
+	public void send_object_async_parallel(MasterWorkerCommand data, Set<Connection> cs,
 			Kryo k) {
 		try {
 			throw new Exception("NOT IMPLEMENTED");

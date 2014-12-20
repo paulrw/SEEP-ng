@@ -28,7 +28,7 @@ import uk.ac.imperial.lsds.seep.api.SeepQueryPhysicalOperator;
 import uk.ac.imperial.lsds.seep.comm.Comm;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
-import uk.ac.imperial.lsds.seep.comm.protocol.Command;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolCommandFactory;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
@@ -200,11 +200,11 @@ public class QueryManager {
 		// Send data file to nodes
 		byte[] queryFile = Utils.readDataFromFile(pathToQuery);
 		LOG.info("Ready to send query file of size: {} bytes", queryFile.length);
-		Command code = ProtocolCommandFactory.buildCodeCommand(queryFile);
+		MasterWorkerCommand code = ProtocolCommandFactory.buildCodeCommand(queryFile);
 		comm.send_object_sync(code, connections, k);
 		
 		// Send physical query to all nodes
-		Command queryDeploy = ProtocolCommandFactory.buildQueryDeployCommand(originalQuery);
+		MasterWorkerCommand queryDeploy = ProtocolCommandFactory.buildQueryDeployCommand(originalQuery);
 		comm.send_object_sync(queryDeploy, connections, k);
 	}
 	
@@ -214,7 +214,7 @@ public class QueryManager {
 		Set<Connection> connections = inf.getConnectionsTo(involvedEUId);
 		
 		// Send start query command
-		Command start = ProtocolCommandFactory.buildStartQueryCommand();
+		MasterWorkerCommand start = ProtocolCommandFactory.buildStartQueryCommand();
 		comm.send_object_sync(start, connections, k);
 	}
 	
@@ -224,7 +224,7 @@ public class QueryManager {
 		Set<Connection> connections = inf.getConnectionsTo(involvedEUId);
 		
 		// Send start query command
-		Command stop = ProtocolCommandFactory.buildStopQueryCommand();
+		MasterWorkerCommand stop = ProtocolCommandFactory.buildStopQueryCommand();
 		comm.send_object_sync(stop, connections, k);
 	}
 	

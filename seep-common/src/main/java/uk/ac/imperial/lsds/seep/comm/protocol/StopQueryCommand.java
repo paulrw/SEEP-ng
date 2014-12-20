@@ -8,7 +8,7 @@ public class StopQueryCommand implements CommandType {
 	
 	@Override
 	public short type() {
-		return ProtocolAPI.STOPQUERY.type();
+		return MasterWorkerProtocolAPI.STOPQUERY.type();
 	}
 
 }

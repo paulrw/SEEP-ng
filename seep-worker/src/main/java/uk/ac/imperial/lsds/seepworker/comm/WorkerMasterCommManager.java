@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.CodeCommand;
-import uk.ac.imperial.lsds.seep.comm.protocol.Command;
-import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerProtocolAPI;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
 import uk.ac.imperial.lsds.seep.infrastructure.RuntimeClassLoader;
@@ -75,10 +75,10 @@ public class WorkerMasterCommManager {
 					InputStream is = incomingSocket.getInputStream();
 					out = new PrintWriter(incomingSocket.getOutputStream(), true);
 					Input i = new Input(is, 1000000);
-					Command c = k.readObject(i, Command.class);
+					MasterWorkerCommand c = k.readObject(i, MasterWorkerCommand.class);
 					short cType = c.type();
 					LOG.debug("RX command with type: {}", cType);
-					if(cType == ProtocolAPI.CODE.type()){
+					if(cType == MasterWorkerProtocolAPI.CODE.type()){
 						LOG.info("RX Code command");
 						CodeCommand cc = c.getCodeCommand();
 						byte[] file = cc.getData();
@@ -92,13 +92,13 @@ public class WorkerMasterCommManager {
 						out.println("ack");
 						loadCodeToRuntime(f);
 					}
-					else if(cType == ProtocolAPI.QUERYDEPLOY.type()){
+					else if(cType == MasterWorkerProtocolAPI.QUERYDEPLOY.type()){
 						LOG.info("RX QueryDeploy command");
 						QueryDeployCommand qdc = c.getQueryDeployCommand();
 						out.println("ack");
 						api.handleQueryDeploy(qdc);
 					}
-					else if(cType == ProtocolAPI.STARTQUERY.type()){
+					else if(cType == MasterWorkerProtocolAPI.STARTQUERY.type()){
 						LOG.info("RX StartRuntime command");
 						StartQueryCommand sqc = c.getStartQueryCommand();
 						out.println("ack");

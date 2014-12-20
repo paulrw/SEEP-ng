@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
-import uk.ac.imperial.lsds.seep.comm.protocol.WWCommand;
-import uk.ac.imperial.lsds.seep.comm.protocol.WWProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerCommand;
+import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerProtocolAPI;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -64,14 +64,14 @@ public class WorkerWorkerCommManager {
 					incomingSocket = serverSocket.accept();
 					InputStream is = incomingSocket.getInputStream();
 					i = new Input(is);
-					WWCommand command = k.readObject(i, WWCommand.class);
+					WorkerWorkerCommand command = k.readObject(i, WorkerWorkerCommand.class);
 					short type = command.type();
 					
-					if(type == WWProtocolAPI.ACK.type()){
+					if(type == WorkerWorkerProtocolAPI.ACK.type()){
 						LOG.info("RX-> ACK command");
 						
 					}
-					else if(type == WWProtocolAPI.CRASH.type()){
+					else if(type == WorkerWorkerProtocolAPI.CRASH.type()){
 						LOG.info("RX-> Crash command");
 						
 					}

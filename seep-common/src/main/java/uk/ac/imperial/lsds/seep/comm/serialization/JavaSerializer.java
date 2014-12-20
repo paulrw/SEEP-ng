@@ -29,7 +29,6 @@ public class JavaSerializer implements Serializer{
 			oos.writeObject(object);
 		} 
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return baos.toByteArray();
@@ -45,8 +44,8 @@ public class JavaSerializer implements Serializer{
 		}
 		catch(IOException io){
 			io.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		return o;

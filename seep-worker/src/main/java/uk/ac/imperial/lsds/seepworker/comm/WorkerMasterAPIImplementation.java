@@ -12,7 +12,7 @@ import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.comm.Comm;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
-import uk.ac.imperial.lsds.seep.comm.protocol.Command;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolCommandFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.QueryDeployCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.StartQueryCommand;
@@ -47,7 +47,7 @@ public class WorkerMasterAPIImplementation {
 	
 	public void bootstrap(Connection masterConn, String myIp, int myPort, int dataPort){
 		this.myIp = myIp;
-		Command command = ProtocolCommandFactory.buildBootstrapCommand(myIp, myPort, dataPort);
+		MasterWorkerCommand command = ProtocolCommandFactory.buildBootstrapCommand(myIp, myPort, dataPort);
 		
 		LOG.info("Bootstrapping...");
 		comm.send_object_async(command, masterConn, k, retriesToMaster, retryBackOffMs);

@@ -14,7 +14,7 @@ public class QueryDeployCommand implements CommandType {
 	
 	@Override
 	public short type() {
-		return ProtocolAPI.QUERYDEPLOY.type();
+		return MasterWorkerProtocolAPI.QUERYDEPLOY.type();
 	}
 	
 	public PhysicalSeepQuery getQuery(){

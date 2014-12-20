@@ -7,7 +7,7 @@ public class StartQueryCommand implements CommandType {
 	
 	@Override
 	public short type() {
-		return ProtocolAPI.STARTQUERY.type();
+		return MasterWorkerProtocolAPI.STARTQUERY.type();
 	}
 
 }

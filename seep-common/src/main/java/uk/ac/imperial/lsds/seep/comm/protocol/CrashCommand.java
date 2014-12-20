@@ -6,7 +6,7 @@ public class CrashCommand implements CommandType {
 	
 	@Override
 	public short type() {
-		return ProtocolAPI.CRASH.type();
+		return MasterWorkerProtocolAPI.CRASH.type();
 	}
 
 }

@@ -14,7 +14,7 @@ public class CodeCommand implements CommandType {
 
 	@Override
 	public short type() {
-		return ProtocolAPI.CODE.type();
+		return MasterWorkerProtocolAPI.CODE.type();
 	}
 	
 	public int getDataSize(){

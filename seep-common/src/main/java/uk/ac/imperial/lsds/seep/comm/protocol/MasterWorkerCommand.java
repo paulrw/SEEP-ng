@@ -1,6 +1,6 @@
 package uk.ac.imperial.lsds.seep.comm.protocol;
 
-public class Command {
+public class MasterWorkerCommand {
 
 	private short type;
 	
@@ -8,34 +8,30 @@ public class Command {
 	private CrashCommand cc;
 	private CodeCommand coc;
 	private QueryDeployCommand qdc;
-	private StartRuntimeCommand src;
 	private StartQueryCommand sqc;
 	private StopQueryCommand stqc;
 	
-	public Command(){}
+	public MasterWorkerCommand(){}
 	
-	public Command(CommandType ct){
+	public MasterWorkerCommand(CommandType ct){
 		short type = ct.type();
 		this.type = type;
-		if(type == ProtocolAPI.BOOTSTRAP.type()){
+		if(type == MasterWorkerProtocolAPI.BOOTSTRAP.type()){
 			this.bc = (BootstrapCommand)ct;
 		}
-		else if(type == ProtocolAPI.CRASH.type()){
+		else if(type == MasterWorkerProtocolAPI.CRASH.type()){
 			this.cc = (CrashCommand)ct;
 		}
-		else if(type == ProtocolAPI.CODE.type()){
+		else if(type == MasterWorkerProtocolAPI.CODE.type()){
 			this.coc = (CodeCommand)ct;
 		}
-		else if(type == ProtocolAPI.QUERYDEPLOY.type()){
+		else if(type == MasterWorkerProtocolAPI.QUERYDEPLOY.type()){
 			this.qdc = (QueryDeployCommand)ct;
 		}
-		else if(type == ProtocolAPI.STARTRUNTIME.type()){
-			this.src = (StartRuntimeCommand)ct;
-		}
-		else if(type == ProtocolAPI.STARTQUERY.type()){
+		else if(type == MasterWorkerProtocolAPI.STARTQUERY.type()){
 			this.sqc = (StartQueryCommand)ct;
 		}
-		else if(type == ProtocolAPI.STOPQUERY.type()){
+		else if(type == MasterWorkerProtocolAPI.STOPQUERY.type()){
 			this.stqc = (StopQueryCommand)ct;
 		}
 		else{
@@ -66,10 +62,6 @@ public class Command {
 	
 	public QueryDeployCommand getQueryDeployCommand(){
 		return qdc;
-	}
-	
-	public StartRuntimeCommand getStartRuntimeCommand(){
-		return src;
 	}
 	
 	public StartQueryCommand getStartQueryCommand(){

@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.BootstrapCommand;
-import uk.ac.imperial.lsds.seep.comm.protocol.Command;
-import uk.ac.imperial.lsds.seep.comm.protocol.ProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
+import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerProtocolAPI;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -69,15 +69,15 @@ public class MasterWorkerCommManager {
 					InputStream is = incomingSocket.getInputStream();
 					i = new Input(is);
 					
-					Command command = k.readObject(i, Command.class);
+					MasterWorkerCommand command = k.readObject(i, MasterWorkerCommand.class);
 					short type = command.type();
 					
-					if(type == ProtocolAPI.BOOTSTRAP.type()){
+					if(type == MasterWorkerProtocolAPI.BOOTSTRAP.type()){
 						LOG.info("RX-> Bootstrap command");
 						BootstrapCommand bc = command.getBootstrapCommand();
 						api.bootstrapCommand(bc);
 					}
-					else if(type == ProtocolAPI.CRASH.type()){
+					else if(type == MasterWorkerProtocolAPI.CRASH.type()){
 						LOG.info("RX-> Crash command");
 					}
 				}

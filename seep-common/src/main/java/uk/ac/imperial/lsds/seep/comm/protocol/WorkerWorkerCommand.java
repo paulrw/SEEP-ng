@@ -1,21 +1,21 @@
 package uk.ac.imperial.lsds.seep.comm.protocol;
 
-public class WWCommand {
+public class WorkerWorkerCommand {
 
 	private short type;
 	
 	private AckCommand ac;
 	private CrashCommand cc;
 	
-	public WWCommand(){}
+	public WorkerWorkerCommand(){}
 	
-	public WWCommand(CommandType ct){
+	public WorkerWorkerCommand(CommandType ct){
 		short type = ct.type();
 		this.type = type;
-		if(type == WWProtocolAPI.ACK.type()){
+		if(type == WorkerWorkerProtocolAPI.ACK.type()){
 			this.ac = (AckCommand)ct;
 		}
-		else if(type == WWProtocolAPI.CRASH.type()){
+		else if(type == WorkerWorkerProtocolAPI.CRASH.type()){
 			this.cc = (CrashCommand)ct;
 		}
 		else{

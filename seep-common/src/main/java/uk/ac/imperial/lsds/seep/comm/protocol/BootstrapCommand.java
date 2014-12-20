@@ -16,7 +16,7 @@ public class BootstrapCommand implements CommandType {
 	
 	@Override
 	public short type() {
-		return ProtocolAPI.BOOTSTRAP.type();
+		return MasterWorkerProtocolAPI.BOOTSTRAP.type();
 	}
 	
 	public String getIp(){

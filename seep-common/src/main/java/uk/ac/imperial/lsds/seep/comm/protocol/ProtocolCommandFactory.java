@@ -4,39 +4,33 @@ import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 
 public class ProtocolCommandFactory {
 	
-	public static Command buildBootstrapCommand(String ip, int port, int dataPort){
+	public static MasterWorkerCommand buildBootstrapCommand(String ip, int port, int dataPort){
 		BootstrapCommand bc = new BootstrapCommand(ip, port, dataPort);
-		Command c = new Command(bc);
+		MasterWorkerCommand c = new MasterWorkerCommand(bc);
 		return c;
 	}
 	
-	public static Command buildCodeCommand(byte[] data){
+	public static MasterWorkerCommand buildCodeCommand(byte[] data){
 		CodeCommand cc = new CodeCommand(data);
-		Command c = new Command(cc);
+		MasterWorkerCommand c = new MasterWorkerCommand(cc);
 		return c;
 	}
 
-	public static Command buildQueryDeployCommand(PhysicalSeepQuery originalQuery) {
+	public static MasterWorkerCommand buildQueryDeployCommand(PhysicalSeepQuery originalQuery) {
 		QueryDeployCommand qdc = new QueryDeployCommand(originalQuery);
-		Command c = new Command(qdc);
+		MasterWorkerCommand c = new MasterWorkerCommand(qdc);
 		return c;
 	}
 	
-	public static Command buildStartRuntimeCommand(){
-		StartRuntimeCommand src = new StartRuntimeCommand();
-		Command c = new Command(src);
-		return c;
-	}
-	
-	public static Command buildStartQueryCommand(){
+	public static MasterWorkerCommand buildStartQueryCommand(){
 		StartQueryCommand sqc = new StartQueryCommand();
-		Command c = new Command(sqc);
+		MasterWorkerCommand c = new MasterWorkerCommand(sqc);
 		return c;
 	}
 	
-	public static Command buildStopQueryCommand(){
+	public static MasterWorkerCommand buildStopQueryCommand(){
 		StopQueryCommand sqc = new StopQueryCommand();
-		Command c = new Command(sqc);
+		MasterWorkerCommand c = new MasterWorkerCommand(sqc);
 		return c;
 	}
 	
