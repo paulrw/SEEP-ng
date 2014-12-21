@@ -12,6 +12,7 @@ dependencies {
 	compile 'javassist:javassist:3.12.1.GA'
 	compile group: 'it.uniroma1.dis.wsngroup.gexf4j', name: 'gexf4j', version: '0.4.4-BETA'
 	compile name: 'soot-2.5.0' //local lib
+	compile 'org.codehaus.janino:janino:2.7.7'
 }
 
 
