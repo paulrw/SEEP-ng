@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seep.api;
 import java.util.List;
 
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
@@ -11,7 +12,7 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	private int opId;
 	private String name;
 	private SeepTask seepTask;
-	private LogicalState state;
+	private SeepState state;
 	private boolean stateful = false;
 	private List<DownstreamConnection> downstreamConnections;
 	private List<UpstreamConnection> upstreamConnections;
@@ -19,7 +20,7 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	
 	
 	private SeepQueryPhysicalOperator(int opId, String name, SeepTask seepTask, 
-									LogicalState state, List<DownstreamConnection> downstreamConnections, 
+									SeepState state, List<DownstreamConnection> downstreamConnections, 
 									List<UpstreamConnection> upstreamConnections, EndPoint ep) {
 		this.opId = opId;
 		this.name = name;
@@ -58,7 +59,7 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	}
 
 	@Override
-	public LogicalState getState() {
+	public SeepState getState() {
 		return state;
 	}
 

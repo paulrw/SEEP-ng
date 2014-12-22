@@ -21,6 +21,7 @@ import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
 public class SeepMap<K,V> implements Map<K,V>, Checkpoint, Partitionable, Mergeable, Streamable, Versionable, SeepState {
 
 	// Main map
+	private int owner;
 	private Map<K, V> map;
 	
 	// Support for dirtyState
@@ -32,6 +33,17 @@ public class SeepMap<K,V> implements Map<K,V>, Checkpoint, Partitionable, Mergea
 	public SeepMap(){
 		this.map = new HashMap<>();
 		this.snapshotMode = new AtomicBoolean(false);
+	}
+	
+	/** Implement SeepState interface **/
+	@Override
+	public void setOwner(int owner){
+		this.owner = owner;
+	}
+	
+	@Override
+	public int getOwner(){
+		return owner;
 	}
 	
 	/** Implement Map<K,V> interface **/

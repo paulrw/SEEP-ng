@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.imperial.lsds.seep.api.data.Schema;
+import uk.ac.imperial.lsds.seep.api.state.SeepState;
 import uk.ac.imperial.lsds.seep.util.Utils;
 
 public class SeepQueryLogicalOperator implements LogicalOperator {
@@ -12,7 +13,7 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 	private String name;
 	private boolean stateful;
 	private SeepTask task;
-	private LogicalState state;
+	private SeepState state;
 	
 	
 	private List<DownstreamConnection> downstream = new ArrayList<DownstreamConnection>();
@@ -25,7 +26,7 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 		this.stateful = false;
 	}
 	
-	private SeepQueryLogicalOperator(int opId, SeepTask task, LogicalState state, String name){
+	private SeepQueryLogicalOperator(int opId, SeepTask task, SeepState state, String name){
 		this.opId = opId;
 		this.task = task;
 		this.name = name;
@@ -42,12 +43,12 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 		return new SeepQueryLogicalOperator(opId, task, name);
 	}
 	
-	public static LogicalOperator newStatefulOperator(int opId, SeepTask task, LogicalState state){
+	public static LogicalOperator newStatefulOperator(int opId, SeepTask task, SeepState state){
 		String name = new Integer(opId).toString();
 		return SeepQueryLogicalOperator.newStatefulOperator(opId, task, state, name);
 	}
 	
-	public static LogicalOperator newStatefulOperator(int opId, SeepTask task, LogicalState state, String name){
+	public static LogicalOperator newStatefulOperator(int opId, SeepTask task, SeepState state, String name){
 		return new SeepQueryLogicalOperator(opId, task, state, name);
 	}
 	
@@ -67,7 +68,7 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 	}
 	
 	@Override
-	public LogicalState getState() {
+	public SeepState getState() {
 		return state;
 	}
 

@@ -30,7 +30,7 @@ public class LogicalSeepQuery {
 	private List<Operator> logicalOperators = new ArrayList<>();
 	private List<Operator> sources = new ArrayList<>();
 	private Operator sink;
-	private List<LogicalState> logicalStates = new ArrayList<>();
+	private List<SeepState> states = new ArrayList<>();
 	private Map<Integer, Integer> initialPhysicalInstancesPerOperator = new HashMap<>();
 	
 	public List<Operator> getAllOperators(){
@@ -62,8 +62,8 @@ public class LogicalSeepQuery {
 		}
 	}
 	
-	public List<LogicalState> getAllStates(){
-		return logicalStates;
+	public List<SeepState> getAllStates(){
+		return states;
 	}
 	
 	public List<Operator> getSources(){
@@ -93,7 +93,7 @@ public class LogicalSeepQuery {
 		return initialPhysicalInstancesPerOperator.containsKey(opId);
 	}
 	
-	public LogicalOperator newStatefulSource(SeepTask seepTask, LogicalState state, int opId){
+	public LogicalOperator newStatefulSource(SeepTask seepTask, SeepState state, int opId){
 		LogicalOperator lo = newStatefulOperator(seepTask, state, opId);
 		this.sources.add(lo);
 		return lo;
@@ -105,10 +105,10 @@ public class LogicalSeepQuery {
 		return lo;
 	}
 	
-	public LogicalOperator newStatefulOperator(SeepTask seepTask, LogicalState state, int opId){
+	public LogicalOperator newStatefulOperator(SeepTask seepTask, SeepState state, int opId){
 		LogicalOperator lo = SeepQueryLogicalOperator.newStatefulOperator(opId, seepTask, state);
 		logicalOperators.add(lo);
-		logicalStates.add(state);
+		states.add(state);
 		return lo;
 	}
 	
@@ -118,7 +118,7 @@ public class LogicalSeepQuery {
 		return lo;
 	}
 	
-	public LogicalOperator newStatefulSink(SeepTask seepTask, LogicalState state, int opId){
+	public LogicalOperator newStatefulSink(SeepTask seepTask, SeepState state, int opId){
 		LogicalOperator lo = newStatefulOperator(seepTask, state, opId);
 		this.sink = lo;
 		return lo;
@@ -128,10 +128,6 @@ public class LogicalSeepQuery {
 		LogicalOperator lo = newStatelessOperator(seepTask, opId);
 		this.sink = lo;
 		return lo;
-	}
-	
-	public LogicalState newLogicalState(SeepState state, int ownerId){
-		return SeepQueryOperatorState.newState(state, ownerId);
 	}
 	
 	@Override
@@ -146,7 +142,7 @@ public class LogicalSeepQuery {
 		sb.append(ls);
 		sb.append("#Operators(including-sources): "+this.logicalOperators.size());
 		sb.append(ls);
-		sb.append("#States: "+this.logicalStates.size());
+		sb.append("#States: "+this.states.size());
 		sb.append(ls);
 		return sb.toString();
 	}

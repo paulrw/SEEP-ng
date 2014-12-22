@@ -52,7 +52,7 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public List<LogicalState> getQueryState() {
+	public List<SeepState> getQueryState() {
 		return qp.getAllStates();
 	}
 
@@ -72,7 +72,8 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulSource(SeepTask seepTask,	LogicalState state, int opId) {
+	public LogicalOperator newStatefulSource(SeepTask seepTask,	SeepState state, int opId) {
+		state.setOwner(opId);
 		return qp.newStatefulSource(seepTask, state, opId);
 	}
 
@@ -82,7 +83,8 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulOperator(SeepTask seepTask, LogicalState state, int opId) {
+	public LogicalOperator newStatefulOperator(SeepTask seepTask, SeepState state, int opId) {
+		state.setOwner(opId);
 		return qp.newStatefulOperator(seepTask, state, opId);
 	}
 
@@ -92,7 +94,8 @@ public class QueryBuilder implements QueryAPI {
 	}
 
 	@Override
-	public LogicalOperator newStatefulSink(SeepTask seepTask, LogicalState state, int opId) {
+	public LogicalOperator newStatefulSink(SeepTask seepTask, SeepState state, int opId) {
+		state.setOwner(opId);
 		return qp.newStatefulSink(seepTask, state, opId);
 	}
 
@@ -106,8 +109,8 @@ public class QueryBuilder implements QueryAPI {
 		qp.setInitialPhysicalInstancesPerLogicalOperator(opId, numInstances);
 	}
 
-	@Override
-	public LogicalState newLogicalState(SeepState state, int ownerId) {
-		return qp.newLogicalState(state, ownerId);
-	}
+//	@Override
+//	public LogicalState newLogicalState(SeepState state, int ownerId) {
+//		return qp.newLogicalState(state, ownerId);
+//	}
 }
