@@ -13,6 +13,7 @@ import uk.ac.imperial.lsds.seep.api.DataOriginType;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
+import uk.ac.imperial.lsds.seep.api.StatefulSeepTask;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.api.state.SeepState;
 import uk.ac.imperial.lsds.seep.errors.NotImplementedException;
@@ -68,8 +69,12 @@ public class Conductor {
 		this.o = o;
 		this.task = o.getSeepTask();
 		LOG.info("Configuring local task: {}", task.toString());
-		// TODO: set up state if any
-		
+		// set up state if any
+		if(o.isStateful()){
+			this.state = o.getState();
+			LOG.info("Configuring state of local task: {}", state.toString());
+			((StatefulSeepTask)task).setState(state);
+		}
 		// This creates one inputAdapter per upstream stream Id
 		coreInput = CoreInputFactory.buildCoreInputForOperator(wc, o);
 		// This creates one outputAdapter per downstream stream Id

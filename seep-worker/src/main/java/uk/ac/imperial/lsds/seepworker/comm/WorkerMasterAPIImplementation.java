@@ -65,17 +65,6 @@ public class WorkerMasterAPIImplementation {
 		int myOwnId = Utils.computeIdFromIpAndPort(ip, myPort);
 		PhysicalSeepQuery query = qdc.getQuery();
 		
-		/**	OLD STUFF WE USED TO DO:
-		 * things to do:
-		 * - build operator out of physicalOperator
-		 * - configure router statically
-		 * - make data ingestion local to op
-		 * - same for sink
-		 * - create star topology and push it
-		 * - instantiation of one operator
-		 * - initialization of one operator
-		 */
-		
 		// We don't know yet what is this for anyway...
 		Set<EndPoint> meshTopology = query.getMeshTopology(myOwnId);
 		
