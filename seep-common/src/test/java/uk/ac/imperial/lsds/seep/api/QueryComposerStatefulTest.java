@@ -1,15 +1,15 @@
 package uk.ac.imperial.lsds.seep.api;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class QueryComposerTest {
+public class QueryComposerStatefulTest {
 
 	@Test
 	public void testBase() {
 		//Create Base class
-		BaseTest bt = new BaseTest();
+		StatefulBaseTest bt = new StatefulBaseTest();
 		//Get logical seep query by composing the base class
 		LogicalSeepQuery lsq = bt.compose();
 		System.out.println(lsq.toString());

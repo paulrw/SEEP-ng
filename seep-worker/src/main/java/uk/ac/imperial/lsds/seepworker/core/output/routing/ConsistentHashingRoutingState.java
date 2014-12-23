@@ -7,7 +7,6 @@ import java.util.zip.CRC32;
 
 import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 
 public class ConsistentHashingRoutingState implements RoutingState {
@@ -16,7 +15,9 @@ public class ConsistentHashingRoutingState implements RoutingState {
 	
 	private List<DownstreamConnection> cons;
 	
+	// each downstream id
 	private List<Integer> ids;
+	// subspace per downstream id
 	private List<Integer> subspaceFrontiers;
 	
 	public ConsistentHashingRoutingState(List<DownstreamConnection> cons){
@@ -24,18 +25,19 @@ public class ConsistentHashingRoutingState implements RoutingState {
 		this.cons = cons;
 		this.ids = new ArrayList<>();
 		this.subspaceFrontiers = new ArrayList<>();
+		int numSpaces = cons.size();
 		// split initial space into the number of cons
-		int numSplits = cons.size() - 1;
+		int numSplits = (numSpaces > 1) ? numSpaces - 1 : 1;
 		// calculate span of each subrange of the space
-		long entireSpace = Integer.MAX_VALUE * 2;
+		int entireSpace = Integer.MAX_VALUE;
 		
-		long initialSpaceRange = entireSpace/numSplits;
+		int initialSubspaceSize = entireSpace/numSplits;
 
 		int horizon = Integer.MIN_VALUE;
-		for(int i = 0; i < cons.size(); i++){
+		for(int i = 0; i < numSpaces; i++){
 			// get id to which we'll assign this subspace
 			int id = cons.get(i).getDownstreamOperator().getOperatorId();
-			int frontier = horizon + (int)initialSpaceRange;
+			int frontier = horizon + initialSubspaceSize;
 			ids.add(id);
 			subspaceFrontiers.add(frontier);
 		}

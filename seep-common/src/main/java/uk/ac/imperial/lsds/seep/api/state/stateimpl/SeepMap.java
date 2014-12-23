@@ -3,6 +3,7 @@ package uk.ac.imperial.lsds.seep.api.state.stateimpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,10 @@ public class SeepMap<K,V> implements Map<K,V>, Checkpoint, Partitionable, Mergea
 	
 	public SeepMap(){
 		this.map = new HashMap<>();
+		this.dirtyState = new HashMap<>();
+		this.keysRemoved = new HashSet<>();
 		this.snapshotMode = new AtomicBoolean(false);
+		this.lock = new ReentrantLock();
 	}
 	
 	/** Implement SeepState interface **/

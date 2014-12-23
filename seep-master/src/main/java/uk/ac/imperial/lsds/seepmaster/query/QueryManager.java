@@ -114,9 +114,6 @@ public class QueryManager {
 		Set<Integer> involvedEUId = originalQuery.getIdOfEUInvolved();
 		Set<Connection> connections = inf.getConnectionsTo(involvedEUId);
 		sendQueryInformationToNodes(connections);
-		// after all nodes have operators, then send init (the one who activates connections)
-		// broadcast state so that they can register these states
-		// send SET-RUNTIME command
 	}
 	
 	public PhysicalSeepQuery createOriginalPhysicalQueryFrom(LogicalSeepQuery lsq){

@@ -69,7 +69,7 @@ public class WorkerMasterAPIImplementation {
 		Set<EndPoint> meshTopology = query.getMeshTopology(myOwnId);
 		
 		PhysicalOperator po = query.getOperatorLivingInExecutionUnitId(myOwnId);
-		LOG.info("Found PhysicalOperator: {} to execute in this executionUnit: {}", po.getOperatorName(), myOwnId);
+		LOG.info("Found PhysicalOperator: {} to execute in this executionUnit: {} stateful: {}", po.getOperatorName(), myOwnId, po.isStateful());
 		c.deployPhysicalOperator(po, query);
 	}
 
