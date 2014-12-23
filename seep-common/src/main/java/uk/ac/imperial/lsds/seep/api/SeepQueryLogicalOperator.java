@@ -15,7 +15,6 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 	private SeepTask task;
 	private SeepState state;
 	
-	
 	private List<DownstreamConnection> downstream = new ArrayList<DownstreamConnection>();
 	private List<UpstreamConnection> upstream = new ArrayList<UpstreamConnection>();
 	

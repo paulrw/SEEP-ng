@@ -85,6 +85,7 @@ public class Conductor {
 		
 		coreOutput.setEventAPI(ns);
 		
+		engine.setId(o.getOperatorId());
 		engine.setTask(task);
 		engine.setSeepState(state);
 		engine.setCoreInput(coreInput);

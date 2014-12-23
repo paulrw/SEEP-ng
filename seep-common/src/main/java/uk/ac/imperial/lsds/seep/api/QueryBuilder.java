@@ -109,8 +109,4 @@ public class QueryBuilder implements QueryAPI {
 		qp.setInitialPhysicalInstancesPerLogicalOperator(opId, numInstances);
 	}
 
-//	@Override
-//	public LogicalState newLogicalState(SeepState state, int ownerId) {
-//		return qp.newLogicalState(state, ownerId);
-//	}
 }

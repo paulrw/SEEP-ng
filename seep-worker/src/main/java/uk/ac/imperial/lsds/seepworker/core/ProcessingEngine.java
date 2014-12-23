@@ -7,6 +7,8 @@ import uk.ac.imperial.lsds.seepworker.core.output.CoreOutput;
 
 public interface ProcessingEngine {
 
+	public void setId(int id);
+	
 	public void setCoreInput(CoreInput coreInput);
 	public void setCoreOutput(CoreOutput coreOutput);
 	public void setTask(SeepTask task);

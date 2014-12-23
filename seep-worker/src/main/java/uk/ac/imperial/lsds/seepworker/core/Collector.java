@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.API;
+import uk.ac.imperial.lsds.seep.api.CommAPI;
+import uk.ac.imperial.lsds.seep.api.APIMetadata;
 import uk.ac.imperial.lsds.seep.errors.DoYouKnowWhatYouAreDoingException;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter2;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInformation;
@@ -14,11 +16,13 @@ public class Collector implements API {
 	private final boolean NOT_SEND_API;
 	private final boolean SINGLE_SEND_NOT_DEFINED;
 	
+	private int id;
 	private OutputAdapter2 outputAdapter;
 	private List<OutputAdapter2> outputAdapters;
 	private Map<Integer, OutputAdapter2> streamIdToOutputAdapter;
 	
-	public Collector(List<OutputAdapter2> outputAdapters){
+	public Collector(int id, List<OutputAdapter2> outputAdapters){
+		this.id = id;
 		int numOutputAdapters = outputAdapters.size();
 		if(numOutputAdapters > 0){
 			NOT_SEND_API = false;
@@ -49,6 +53,11 @@ public class Collector implements API {
 			tr.put(o.getStreamId(), o);
 		}
 		return tr;
+	}
+	
+	@Override
+	public int id(){
+		return id;
 	}
 	
 	@Override

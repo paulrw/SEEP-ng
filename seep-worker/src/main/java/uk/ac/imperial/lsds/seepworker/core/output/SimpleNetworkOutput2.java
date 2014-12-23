@@ -55,7 +55,7 @@ public class SimpleNetworkOutput2 implements OutputAdapter2 {
 
 	@Override
 	public void send(byte[] o) {
-		//OutputBuffer ob = outputBuffers.get(0);
+		
 		boolean canSend = ob.write(o); // unique outputBuffer
 		if(canSend){
 			eAPI.readyForWrite(ob.id());

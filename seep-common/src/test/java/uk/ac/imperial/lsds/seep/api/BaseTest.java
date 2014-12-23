@@ -12,12 +12,6 @@ public class BaseTest implements QueryComposer{
 		// Declare Source
 		LogicalOperator src = queryAPI.newStatelessSource(new Source(), -1);
 		
-		/**
-		 * Another option, coming from java2sdg
-		 */
-		int port = -1; // get data from java2sdg
-		LogicalOperator networkSrc = queryAPI.newStatelessSource(new SimpleNetworkSource(port), 100);
-		
 		// Declare processor
 		LogicalOperator p = queryAPI.newStatelessOperator(new Processor(), 1);
 		// Declare sink
@@ -26,20 +20,11 @@ public class BaseTest implements QueryComposer{
 		Schema srcSchema = queryAPI.schemaBuilder.newField(Type.SHORT, "id").build();
 		Schema pSchema = queryAPI.schemaBuilder.newField(Type.SHORT, "id").newField(Type.BYTES, "payload").build();
 		
-		System.out.println("SRC Schema: ");
-		System.out.println(srcSchema.toString());
-		System.out.println("Pro Schema: ");
-		System.out.println(pSchema.toString());
-		
 		/** Connect operators **/
 		src.connectTo(p, 0, srcSchema);
 		p.connectTo(snk, 0, pSchema);
 		
-		/**
-		 * Example of how to create a source with only java2sdg information
-		Schema networkSchema = ...; // got from java2sdg
-		networkSrc.connectTo(p, 0, networkSchema);
-		**/
+		queryAPI.setInitialPhysicalInstancesForLogicalOperator(1, 2);
 		
 		return QueryBuilder.build();
 	}

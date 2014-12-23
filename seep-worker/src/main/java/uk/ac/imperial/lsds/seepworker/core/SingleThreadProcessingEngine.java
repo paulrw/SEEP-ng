@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.imperial.lsds.seep.api.API;
+import uk.ac.imperial.lsds.seep.api.CommAPI;
 import uk.ac.imperial.lsds.seep.api.SeepTask;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
 import uk.ac.imperial.lsds.seep.api.state.SeepState;
@@ -19,11 +20,13 @@ import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter2;
 public class SingleThreadProcessingEngine implements ProcessingEngine {
 
 	final private Logger LOG = LoggerFactory.getLogger(SingleThreadProcessingEngine.class.getName());
+	// TODO: move value to a property in workerconfig
 	final private int MAX_BLOCKING_TIME_PER_INPUTADAPTER_MS = 500;
 	
 	private boolean working = false;
 	private Thread worker;
 	
+	private int id;
 	private CoreInput coreInput;
 	private CoreOutput coreOutput;
 	
@@ -33,6 +36,11 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 	public SingleThreadProcessingEngine(){
 		this.worker = new Thread(new Worker());
 		this.worker.setName(this.getClass().getSimpleName());
+	}
+	
+	@Override
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	@Override
@@ -78,7 +86,7 @@ public class SingleThreadProcessingEngine implements ProcessingEngine {
 			short many = InputAdapterReturnType.MANY.ofType();
 			List<OutputAdapter2> outputAdapters = coreOutput.getOutputAdapters();
 			LOG.info("Configuring SINGLETHREAD processing engine with {} outputAdapters", outputAdapters.size());
-			API api = new Collector(outputAdapters);
+			API api = new Collector(id, outputAdapters);
 			while(working){
 				while(it.hasNext()){
 					InputAdapter ia = it.next();

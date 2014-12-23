@@ -17,15 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.imperial.lsds.seep.api.state.SeepState;
 
 
 public class LogicalSeepQuery {
-	
-	final private Logger LOG = LoggerFactory.getLogger(LogicalSeepQuery.class);
 	
 	private List<Operator> logicalOperators = new ArrayList<>();
 	private List<Operator> sources = new ArrayList<>();
@@ -78,7 +73,15 @@ public class LogicalSeepQuery {
 		return sink;
 	}
 	
-	public void setInitialPhysicalInstancesPerLogicalOperator(int opId, int numInstances){
+	public void setInitialPhysicalInstancesPerLogicalOperator(int opId, int numInstances) {
+		// sanity check: check the operator exists
+		boolean exists = false;
+		for(Operator o : logicalOperators){
+			if(o.getOperatorId() == opId) exists = true;
+		}
+		if(! exists){
+			throw new InvalidQueryDefinitionException("Impossible to set num instances for non-existent op: "+opId);
+		}
 		this.initialPhysicalInstancesPerOperator.put(opId, numInstances);
 	}
 	
