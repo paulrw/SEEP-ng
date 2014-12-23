@@ -40,4 +40,7 @@ examples/simple-cycle-stateless-query/build/*
 examples/simple-sourcefile-stateless-query/.gitignore
 examples/simple-sourcefile-stateless-query/.settings/*
 examples/simple-sourcefile-stateless-query/build/*
+examples/simple-pipeline-stateful-query/.gitignore
+examples/simple-pipeline-stateful-query/.settings/*
+examples/simple-pipeline-stateful-query/build/*
 deploy/
