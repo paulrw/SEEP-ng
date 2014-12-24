@@ -32,7 +32,6 @@ import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.input.InputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 public class NetworkSelector implements EventAPI {
 

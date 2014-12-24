@@ -13,27 +13,27 @@ public class CoreOutput {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(CoreOutput.class);
 	
-	private List<OutputAdapter2> outputAdapters;
+	private List<OutputAdapter> outputAdapters;
 		
-	public CoreOutput(List<OutputAdapter2> outputAdapters){
+	public CoreOutput(List<OutputAdapter> outputAdapters){
 		this.outputAdapters = outputAdapters;
 		LOG.info("Configured CoreOutput with {} outputAdapters", outputAdapters.size());
 	}
 	
-	public List<OutputAdapter2> getOutputAdapters(){
+	public List<OutputAdapter> getOutputAdapters(){
 		return outputAdapters;
 	}
 	
-	public Set<OutputBuffer2> getOutputBuffers(){
-		Set<OutputBuffer2> cons = new HashSet<>();
-		for(OutputAdapter2 oa : outputAdapters){
+	public Set<OutputBuffer> getOutputBuffers(){
+		Set<OutputBuffer> cons = new HashSet<>();
+		for(OutputAdapter oa : outputAdapters){
 			cons.addAll(oa.getOutputBuffers().values());
 		}
 		return cons;
 	}
 	
 	public boolean requiresConfiguringNetworkWorker(){
-		for(OutputAdapter2 oa : outputAdapters){
+		for(OutputAdapter oa : outputAdapters){
 			if(oa.requiresNetwork())
 				return true;
 		}
@@ -41,7 +41,7 @@ public class CoreOutput {
 	}
 	
 	public boolean requiresConfiguringFileWorker(){
-		for(OutputAdapter2 oa : outputAdapters){
+		for(OutputAdapter oa : outputAdapters){
 			if(oa.requiresFile())
 				return true;
 		}
@@ -49,7 +49,7 @@ public class CoreOutput {
 	}
 	
 	public void setEventAPI(EventAPI eAPI){
-		for(OutputAdapter2 oa : outputAdapters){
+		for(OutputAdapter oa : outputAdapters){
 			oa.setEventAPI(eAPI);
 		}
 	}

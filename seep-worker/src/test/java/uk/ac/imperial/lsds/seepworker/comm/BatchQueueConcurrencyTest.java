@@ -1,21 +1,5 @@
 package uk.ac.imperial.lsds.seepworker.comm;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.Test;
-
-import uk.ac.imperial.lsds.seep.api.data.OTuple;
-import uk.ac.imperial.lsds.seep.api.data.Schema;
-import uk.ac.imperial.lsds.seep.api.data.Schema.SchemaBuilder;
-import uk.ac.imperial.lsds.seep.api.data.Type;
-import uk.ac.imperial.lsds.seep.comm.Connection;
-import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
-import uk.ac.imperial.lsds.seepworker.WorkerConfig;
-import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer2;
 
 public class BatchQueueConcurrencyTest {
 

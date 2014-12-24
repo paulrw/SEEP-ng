@@ -21,7 +21,7 @@ public class CoreOutputFactory {
 	
 	public static CoreOutput buildCoreOutputForOperator(WorkerConfig wc, PhysicalOperator o, PhysicalSeepQuery query){
 		LOG.info("Building coreOutput...");
-		List<OutputAdapter2> outputAdapters = new ArrayList<>();
+		List<OutputAdapter> outputAdapters = new ArrayList<>();
 		// Create an InputAdapter per upstream connection -> know with the streamId
 		Map<Integer, List<DownstreamConnection>> streamToOpConn = new HashMap<>();
 		for(DownstreamConnection dc : o.downstreamConnections()){
@@ -44,7 +44,7 @@ public class CoreOutputFactory {
 			List<DownstreamConnection> doCon = streamToOpConn.get(streamId);
 			DataOriginType dOriginType = doCon.get(0).getExpectedDataOriginTypeOfDownstream();
 			
-			OutputAdapter2 oa = null;
+			OutputAdapter oa = null;
 			if(dOriginType == DataOriginType.NETWORK){
 				// Create outputAdapter
 				LOG.info("Building outputAdapter for downstream streamId: {} of type: {}", streamId, "NETWORK");
