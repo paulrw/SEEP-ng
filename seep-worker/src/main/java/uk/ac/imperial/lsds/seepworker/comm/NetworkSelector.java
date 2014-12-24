@@ -52,6 +52,7 @@ public class NetworkSelector implements EventAPI {
 	private Thread[] writerWorkers;
 	private int numWriterWorkers;
 	
+	private int myId;
 	private Map<Integer, SelectionKey> writerKeys;
 	private Map<SelectionKey, Integer> readerKeys;
 	
@@ -59,7 +60,8 @@ public class NetworkSelector implements EventAPI {
 	private Map<Integer, InputAdapter> iapMap;
 	private int numUpstreamConnections;
 	
-	public NetworkSelector(WorkerConfig wc, Map<Integer, InputAdapter> iapMap) {
+	public NetworkSelector(WorkerConfig wc, int opId, Map<Integer, InputAdapter> iapMap) {
+		this.myId = opId;
 		this.writersConfiguredLatch = new CountDownLatch(0); // Initially non-defined, nobody waits here
 		this.iapMap = iapMap;
 		int expectedUpstream = 0;
@@ -102,7 +104,7 @@ public class NetworkSelector implements EventAPI {
 		}
 	}
 	
-	public static NetworkSelector makeNetworkSelectorWithMap(Map<Integer, InputAdapter> iapMap){
+	public static NetworkSelector makeNetworkSelectorWithMap(int myId, Map<Integer, InputAdapter> iapMap){
 		Properties p = new Properties();
 		p.setProperty(WorkerConfig.MASTER_IP, "127.0.0.1");
 		p.setProperty(WorkerConfig.PROPERTIES_FILE, "");
@@ -110,7 +112,7 @@ public class NetworkSelector implements EventAPI {
 		p.setProperty(WorkerConfig.NUM_NETWORK_WRITER_THREADS, "1");
 		p.setProperty(WorkerConfig.MAX_PENDING_NETWORK_CONNECTION_PER_THREAD, "1");
 		WorkerConfig wc = new WorkerConfig(p);
-		return new NetworkSelector(wc, iapMap);
+		return new NetworkSelector(wc, myId, iapMap);
 	}
 	
 	public void configureAccept(InetAddress myIp, int dataPort){
@@ -455,7 +457,7 @@ public class NetworkSelector implements EventAPI {
 							SocketChannel channel = (SocketChannel)key.channel();
 							
 							if(needsToSendIdentifier){
-								handleSendIdentifier(ob.getStreamId(), channel);
+								handleSendIdentifier(myId, channel);
 								unsetWritable(key);
 								needsToSendIdentifier = false;
 								// Notify of a new configured connection
@@ -486,14 +488,13 @@ public class NetworkSelector implements EventAPI {
 					SelectionKey key = writerKeys.get(ob.id());
 					int interestOps = key.interestOps() | SelectionKey.OP_WRITE;
 					key.interestOps(interestOps);
-//					this.writeSelector.wakeup();
 				}
 			}
 		}
 		
-		private void handleSendIdentifier(int streamId, SocketChannel channel){
+		private void handleSendIdentifier(int opId, SocketChannel channel){
 			ByteBuffer bb = ByteBuffer.allocate(Integer.SIZE);
-			Type.INT.write(bb, streamId);
+			Type.INT.write(bb, opId);
 			bb.flip();
 			try {
 				int writtenBytes = channel.write(bb);
@@ -504,7 +505,7 @@ public class NetworkSelector implements EventAPI {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-			LOG.info("Sent connection identifier: {}", streamId);
+			LOG.info("Sent connection identifier: {}", opId);
 		}
 		
 		private void unsetWritable(SelectionKey key){

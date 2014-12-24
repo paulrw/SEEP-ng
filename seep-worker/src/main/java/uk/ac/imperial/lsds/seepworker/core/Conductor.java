@@ -102,12 +102,12 @@ public class Conductor {
 		NetworkSelector ns = null;
 		if(coreInput.requiresConfiguringNetworkWorker()){
 			LOG.info("Configuring networkSelector for input");
-			ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
+			ns = new NetworkSelector(wc, o.getOperatorId(), coreInput.getInputAdapterProvider());
 			ns.configureAccept(myIp, dataPort);
 		}
 		if(coreOutput.requiresConfiguringNetworkWorker()){
 			LOG.info("Configuring networkSelector for output");
-			if(ns == null) ns = new NetworkSelector(wc, coreInput.getInputAdapterProvider());
+			if(ns == null) ns = new NetworkSelector(wc, o.getOperatorId(), coreInput.getInputAdapterProvider());
 			Set<OutputBuffer> obufs = coreOutput.getOutputBuffers();
 			ns.configureConnect(obufs);
 		}
@@ -120,8 +120,9 @@ public class Conductor {
 			fs = new FileSelector(wc);
 			Map<Integer, DataOrigin> fileOrigins = new HashMap<>();
 			for(UpstreamConnection uc : o.upstreamConnections()){
+				int opId = uc.getUpstreamOperator().getOperatorId();
 				if(uc.getDataOriginType() == DataOriginType.FILE){
-					fileOrigins.put(uc.getStreamId(), uc.getDataOrigin());
+					fileOrigins.put(opId, uc.getDataOrigin());
 				}
 			}
 			fs.configureAccept(fileOrigins, coreInput.getInputAdapterProvider());

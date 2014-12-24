@@ -28,6 +28,7 @@ public class WorkerWorkerDataCommunicationTest {
 	public void test() {
 		// Create inputAdapter map that is used to configure networkselector
 		//int clientId = 100;
+		int opId = 99;
 		int streamId = 100;
 		Schema s = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
 		Map<Integer, InputAdapter> iapMap = null;
@@ -39,10 +40,10 @@ public class WorkerWorkerDataCommunicationTest {
 		p.setProperty("tx.buffer.size", "100000"); // 66 - 116 - 817
 		p.setProperty("properties.file", "");
 		WorkerConfig fake = new WorkerConfig(p);
-		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), streamId, s, null);
-		iapMap.put(streamId, nds);
+		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), opId, streamId, s);
+		iapMap.put(opId, nds);
 		// TODO: build this
-		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(iapMap);
+		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(opId, iapMap);
 		// Create client and server that will be interchanging data
 		InetAddress myIp = null;
 		try {
@@ -57,7 +58,7 @@ public class WorkerWorkerDataCommunicationTest {
 		
 		// create outputbuffer for the client
 		Connection c = new Connection(new EndPoint(streamId, myIp, listeningPort, dataPort));
-		OutputBuffer ob = new OutputBuffer(fake, streamId, c, streamId);
+		OutputBuffer ob = new OutputBuffer(fake, opId, c, streamId);
 		Set<OutputBuffer> obs = new HashSet<>();
 		obs.add(ob);
 		ds.configureConnect(obs);

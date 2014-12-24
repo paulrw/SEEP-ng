@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.imperial.lsds.seep.api.ConnectionType;
 import uk.ac.imperial.lsds.seep.api.DataOriginType;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
-import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 
@@ -50,18 +49,20 @@ public class CoreInputFactory {
 				}
 			}
 		}
-		// Build an input adapter per streamId
+		// Build an input adapter per opId grouped by streamId
 		for(Integer streamId : streamToOpConn.keySet()){
-			InputAdapter ia = null;
+			List<InputAdapter> ias = null;
 			List<UpstreamConnection> upCon = streamToOpConn.get(streamId);
 			DataOriginType dOriginType = upCon.get(0).getDataOriginType();
 			if(dOriginType.equals(DataOriginType.NETWORK)){
-				ia = InputAdapterFactory.buildInputAdapterOfTypeNetworkForOps(wc, streamId, upCon);
+				ias = InputAdapterFactory.buildInputAdapterOfTypeNetworkForOps(wc, streamId, upCon);
 			} 
 			else if(dOriginType.equals(DataOriginType.FILE)){
-				ia = InputAdapterFactory.buildInputAdapterOfTypeFileForOps(wc, streamId, upCon);
+				ias = InputAdapterFactory.buildInputAdapterOfTypeFileForOps(wc, streamId, upCon);
 			}
-			inputAdapters.add(ia);
+			if(ias != null){
+				inputAdapters.addAll(ias);
+			}
 		}
 		CoreInput cInput = new CoreInput(inputAdapters);
 		LOG.info("Building Core Input...OK");

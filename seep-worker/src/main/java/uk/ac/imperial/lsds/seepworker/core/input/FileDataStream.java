@@ -1,6 +1,7 @@
 package uk.ac.imperial.lsds.seepworker.core.input;
 
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -19,21 +20,26 @@ public class FileDataStream implements InputAdapter {
 	final private boolean REQUIRES_FILE = true;
 	
 	final private int streamId;
+	final private List<Integer> representedIds;
 	private ITuple iTuple;
 	
 	private InputBuffer buffer;
 	private BlockingQueue<byte[]> queue;
 	private int queueSize;
 	
-	public FileDataStream(WorkerConfig wc, int streamId, Schema expectedSchema, List<UpstreamConnection> upc){
+	public FileDataStream(WorkerConfig wc, int opId, int streamId, Schema expectedSchema){
 		this.streamId = streamId;
+		this.representedIds = new ArrayList<>();
+		this.representedIds.add(opId);
 		this.iTuple = new ITuple(expectedSchema);
 		this.queueSize = wc.getInt(WorkerConfig.SIMPLE_INPUT_QUEUE_LENGTH);
 		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
 		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE));
 	}
 	
-	private FileDataStream(int streamId, Schema expectedSchema, int inputQueueLength, int rxBufSize){
+	private FileDataStream(int opId, int streamId, Schema expectedSchema, int inputQueueLength, int rxBufSize){
+		this.representedIds = new ArrayList<>();
+		this.representedIds.add(opId);
 		this.streamId = streamId;
 		this.iTuple = new ITuple(expectedSchema);
 		this.queueSize = inputQueueLength;
@@ -41,8 +47,13 @@ public class FileDataStream implements InputAdapter {
 		this.buffer = new InputBuffer(rxBufSize);
 	}
 	
-	public static FileDataStream getFileDataStream_test(int streamId, Schema s, int qLength, int rxSize){
-		return new FileDataStream(streamId, s, qLength, rxSize);
+	public static FileDataStream getFileDataStream_test(int opId, int streamId, Schema s, int qLength, int rxSize){
+		return new FileDataStream(opId, streamId, s, qLength, rxSize);
+	}
+	
+	@Override
+	public List<Integer> getRepresentedOpId(){
+		return representedIds;
 	}
 	
 	@Override

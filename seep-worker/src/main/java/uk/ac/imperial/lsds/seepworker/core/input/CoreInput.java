@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.imperial.lsds.seep.api.DataOrigin;
 import uk.ac.imperial.lsds.seep.api.DataOriginType;
 
-
 public class CoreInput {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(CoreInput.class);
@@ -19,11 +18,14 @@ public class CoreInput {
 	private List<InputAdapter> inputAdapters;
 	private Map<Integer, InputAdapter> iapMap;
 	
-	public CoreInput(List<InputAdapter> inputAdapters){
+	public CoreInput(List<InputAdapter> inputAdapters) {
 		this.inputAdapters = inputAdapters;
 		iapMap = new HashMap<>();
-		for(InputAdapter ia : inputAdapters){
-			iapMap.put(ia.getStreamId(), ia);
+		for(InputAdapter ia : inputAdapters) {
+			for(Integer opId : ia.getRepresentedOpId()) {
+				LOG.debug("Configure IA for opId: {}", opId);
+				iapMap.put(opId, ia);
+			}
 		}
 		LOG.info("Configured CoreInput with {} inputAdapters", inputAdapters.size());
 	}

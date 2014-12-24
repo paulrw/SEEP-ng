@@ -28,6 +28,7 @@ public class BasicWorkerWorkerCommunicationTest {
 	@Test
 	public void testSendTuples() {
 		// Create inputAdapter map that is used to configure networkselector
+		int opId = 99;
 		int clientId = 100;
 		int streamId = 101;
 		Schema s = SchemaBuilder.getInstance().newField(Type.INT, "userId").newField(Type.LONG, "ts").build();
@@ -38,10 +39,10 @@ public class BasicWorkerWorkerCommunicationTest {
 		p.setProperty("batch.size", "10");
 		p.setProperty("properties.file", "");
 		WorkerConfig fake = new WorkerConfig(p);
-		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), clientId, s, null);
-		iapMap.put(clientId, nds);
+		NetworkDataStream nds = new NetworkDataStream(new WorkerConfig(p), opId, clientId, s);
+		iapMap.put(opId, nds);
 		// TODO: build this
-		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(iapMap);
+		NetworkSelector ds = NetworkSelector.makeNetworkSelectorWithMap(opId, iapMap);
 		// Create client and server that will be interchanging data
 		InetAddress myIp = null;
 		try {
@@ -55,7 +56,7 @@ public class BasicWorkerWorkerCommunicationTest {
 		
 		// create outputbuffer for the client
 		Connection c = new Connection(new EndPoint(clientId, myIp, listeningPort));
-		OutputBuffer ob = new OutputBuffer(fake, clientId, c, streamId);
+		OutputBuffer ob = new OutputBuffer(fake, opId, c, streamId);
 		Set<OutputBuffer> obs = new HashSet<>();
 		obs.add(ob);
 		ds.configureConnect(obs);

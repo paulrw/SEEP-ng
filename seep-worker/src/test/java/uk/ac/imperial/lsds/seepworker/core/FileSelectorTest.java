@@ -28,8 +28,9 @@ public class FileSelectorTest {
 		int targetSize = 1000000;
 		GenerateBinaryFile.createFile(s, path, targetSize);
 		
+		int opId = 99;
 		FileSelector fs = new FileSelector(null);
-		InputAdapter ia = FileDataStream.getFileDataStream_test(0, s, 100, 1000);
+		InputAdapter ia = FileDataStream.getFileDataStream_test(0, opId, s, 100, 1000);
 		Map<Integer, InputAdapter> dataAdapters = new HashMap<>();
 		dataAdapters.put(0, ia);
 		String absPath = Utils.absolutePath(path);

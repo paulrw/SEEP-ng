@@ -1,12 +1,12 @@
 package uk.ac.imperial.lsds.seepworker.core.input;
 
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.data.ITuple;
 import uk.ac.imperial.lsds.seep.api.data.Schema;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
@@ -21,14 +21,15 @@ public class NetworkDataStream implements InputAdapter{
 	private BlockingQueue<byte[]> queue;
 	private int queueSize;
 	
+	final private List<Integer> representedIds;
 	final private int streamId;
 	private ITuple iTuple;
-	private List<Operator> ops;
 	
-	public NetworkDataStream(WorkerConfig wc, int streamId, Schema expectedSchema, List<Operator> ops) {
+	public NetworkDataStream(WorkerConfig wc, int opId, int streamId, Schema expectedSchema) {
+		this.representedIds = new ArrayList<>();
+		this.representedIds.add(opId);
 		this.streamId = streamId;
 		this.iTuple = new ITuple(expectedSchema);
-		this.ops = ops;
 		this.queueSize = wc.getInt(WorkerConfig.SIMPLE_INPUT_QUEUE_LENGTH);
 		this.queue = new ArrayBlockingQueue<byte[]>(queueSize);
 		this.buffer = new InputBuffer(wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE));
@@ -47,6 +48,10 @@ public class NetworkDataStream implements InputAdapter{
 	@Override
 	public short returnType() {
 		return RETURN_TYPE;
+	}
+	
+	public List<Integer> getRepresentedOpId(){
+		return representedIds;
 	}
 	
 	@Override

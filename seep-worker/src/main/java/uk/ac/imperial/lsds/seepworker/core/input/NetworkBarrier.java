@@ -50,6 +50,11 @@ public class NetworkBarrier implements InputAdapter {
 	}
 
 	@Override
+	public List<Integer> getRepresentedOpId(){
+		return new ArrayList<Integer>(barrierMembers);
+	}
+	
+	@Override
 	public int getStreamId() {
 		return streamId;
 	}
@@ -76,14 +81,16 @@ public class NetworkBarrier implements InputAdapter {
 			InputBuffer buffer = inputBuffers.get(id);
 			buffer.readToInternalBuffer(channel, this);
 			// if data was fully read, then add member to arrived set
-			if(buffer.hasCompletedReads()){
+			if(buffer.hasCompletedReads()) {
 				membersArrivedInBarrier.add(id);
 				this.data.add(buffer.read());
 				
 				// Check whether all members already arrived
-				if(membersArrivedInBarrier.containsAll(barrierMembers)){
+				if(membersArrivedInBarrier.containsAll(barrierMembers)) {
 					// clean appropiately the structures and make data available for consumption
-					this.pushData(data);
+					// TODO: can avoid this copy?
+					List<byte[]> copy = new ArrayList<>(data);
+					this.pushData(copy);
 					data.clear();
 					membersArrivedInBarrier.clear();
 				}
