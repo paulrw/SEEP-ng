@@ -46,4 +46,7 @@ examples/simple-pipeline-stateful-query/build/*
 examples/static-scaleout-pipeline-stateless-query/.gitignore
 examples/static-scaleout-pipeline-stateless-query/.settings/*
 examples/static-scaleout-pipeline-stateless-query/build/*
+examples/simple-pipeline-stateless-barrier-query/.gitignore
+examples/simple-pipeline-stateless-barrier-query/.settings/*
+examples/simple-pipeline-stateless-barrier-query/build/*
 deploy/
