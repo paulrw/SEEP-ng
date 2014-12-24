@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
@@ -14,6 +15,7 @@ public class PhysicalSeepQuery {
 	private List<PhysicalOperator> physicalOperators;
 	private List<PhysicalOperator> sources;
 	private PhysicalOperator sink;
+	@Deprecated
 	private Map<PhysicalOperator, List<PhysicalOperator>> instancesPerOriginalOp;
 	
 	private PhysicalSeepQuery(List<PhysicalOperator> physicalOperators, List<PhysicalOperator> pSources, PhysicalOperator pSink,
@@ -35,6 +37,7 @@ public class PhysicalSeepQuery {
 				o.connectTo(dc.getDownstreamOperator(), dc.getStreamId(), dc.getSchema());
 			}
 		}
+		
 		List<PhysicalOperator> pOps = new ArrayList<>(physicalOperators);
 		List<PhysicalOperator> pSources = new ArrayList<>();
 		PhysicalOperator pSink = null;

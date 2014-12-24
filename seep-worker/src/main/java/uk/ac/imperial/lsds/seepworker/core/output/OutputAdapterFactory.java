@@ -10,13 +10,14 @@ import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seepworker.WorkerConfig;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
+import uk.ac.imperial.lsds.seepworker.core.output.routing.RouterFactory;
 
 public class OutputAdapterFactory {
 
 	public static OutputAdapter buildOutputAdapterOfTypeNetworkForOps(WorkerConfig wc, int streamId, 
 			List<DownstreamConnection> cons, PhysicalSeepQuery query){
 		// Create a router for the outputAdapter with the downstreamConn info
-		Router r = Router.buildRouterFor(cons);
+		Router r = RouterFactory.buildRouterFor(cons);
 
 		// Get a map of id-outputBuffer, where id is the downstream op id
 		Map<Integer, OutputBuffer> outputBuffers = new HashMap<>();

@@ -10,6 +10,8 @@ import uk.ac.imperial.lsds.seepworker.core.output.routing.Router;
 
 public class SimpleNetworkOutput implements OutputAdapter {
 
+	private final boolean SINGLE_SEND_NOT_DEFINED;
+	
 	final private boolean requiresNetworkWorker = true;
 	final private boolean requiresFileWorker = false;
 	
@@ -24,7 +26,11 @@ public class SimpleNetworkOutput implements OutputAdapter {
 		this.streamId = streamId;
 		this.outputBuffers = outputBuffers;
 		if(outputBuffers.size() == 1){
+			SINGLE_SEND_NOT_DEFINED = false;
 			ob = outputBuffers.values().iterator().next();
+		}
+		else{
+			SINGLE_SEND_NOT_DEFINED = true;
 		}
 	}
 	
@@ -55,9 +61,13 @@ public class SimpleNetworkOutput implements OutputAdapter {
 
 	@Override
 	public void send(byte[] o) {
-		boolean completed = ob.write(o);
+		OutputBuffer outB = ob;
+		if(SINGLE_SEND_NOT_DEFINED){
+			outB = this.router.route(outputBuffers);
+		}
+		boolean completed = outB.write(o);
 		if(completed){
-			eAPI.readyForWrite(ob.id());
+			eAPI.readyForWrite(outB.id());
 		}
 	}
 

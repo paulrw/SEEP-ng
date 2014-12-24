@@ -9,7 +9,7 @@ import uk.ac.imperial.lsds.seep.api.DownstreamConnection;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputBuffer;
 
 
-public class ConsistentHashingRoutingState implements RoutingState {
+public class ConsistentHashingRoutingState implements Router {
 
 	private CRC32 crc32;
 	
@@ -66,6 +66,12 @@ public class ConsistentHashingRoutingState implements RoutingState {
 	private int hashKey(String value){
 		int v = value.hashCode();
 		return hashKey(v);
+	}
+
+	@Override
+	public OutputBuffer route(Map<Integer, OutputBuffer> obufs) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

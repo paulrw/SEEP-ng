@@ -42,6 +42,11 @@ public class SeepQueryPhysicalOperator implements PhysicalOperator{
 	public static SeepQueryPhysicalOperator createPhysicalOperatorFromLogicalOperatorAndEndPoint(Operator lo, EndPoint ep){
 		return SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(lo.getOperatorId(), lo, ep);
 	}
+	
+	public static SeepQueryPhysicalOperator createPhysicalOperatorFromScratch(int opId, String opName, SeepTask st,
+			SeepState state, List<DownstreamConnection> downCons, List<UpstreamConnection> upCons, EndPoint ep){
+		return new SeepQueryPhysicalOperator(opId, opName, st, state, downCons, upCons, ep);
+	}
 
 	@Override
 	public int getOperatorId() {

@@ -20,11 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 
+import uk.ac.imperial.lsds.seep.api.LogicalOperator;
 import uk.ac.imperial.lsds.seep.api.LogicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.Operator;
 import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
 import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
 import uk.ac.imperial.lsds.seep.api.SeepQueryPhysicalOperator;
+import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
 import uk.ac.imperial.lsds.seep.comm.Comm;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seep.comm.KryoFactory;
@@ -143,18 +145,18 @@ public class QueryManager {
 				LOG.debug("LogicalOperator: {} will run on: {}", pOpId, ep.getId());
 				opToEndpointMapping.put(pOpId, ep);
 				physicalOperators.add(po);
-				// get number of replicas
-				int numInstances = lsq.getInitialPhysicalInstancesForLogicalOperator(lso.getOperatorId());
-				LOG.debug("LogicalOperator: {} requires {} executionUnits", lso.getOperatorId(), numInstances);
-				int originalOpId = lso.getOperatorId();
-				// Start with 1 because that's the minimum anyway
-				for(int i = 1; i < numInstances; i++) {
-					int instanceOpId = getNewOpIdForInstance(originalOpId, i);
-					ExecutionUnit euInstance = inf.getExecutionUnit();
-					SeepQueryPhysicalOperator poInstance = SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(instanceOpId, lso, euInstance.getEndPoint());
-					physicalOperators.add(poInstance);
-					addInstanceForOriginalOp(po, poInstance, instancesPerOriginalOp);
-				}
+//				// get number of replicas
+//				int numInstances = lsq.getInitialPhysicalInstancesForLogicalOperator(lso.getOperatorId());
+//				LOG.debug("LogicalOperator: {} requires {} executionUnits", lso.getOperatorId(), numInstances);
+//				int originalOpId = lso.getOperatorId();
+//				// Start with 1 because that's the minimum anyway
+//				for(int i = 1; i < numInstances; i++) {
+//					int instanceOpId = getNewOpIdForInstance(originalOpId, i);
+//					ExecutionUnit euInstance = inf.getExecutionUnit();
+//					SeepQueryPhysicalOperator poInstance = SeepQueryPhysicalOperator.createPhysicalOperatorFromLogicalOperatorAndEndPoint(instanceOpId, lso, euInstance.getEndPoint());
+//					physicalOperators.add(poInstance);
+//					addInstanceForOriginalOp(po, poInstance, instancesPerOriginalOp);
+//				}
 			}
 		}
 		PhysicalSeepQuery psq = PhysicalSeepQuery.buildPhysicalQueryFrom(physicalOperators, instancesPerOriginalOp, lsq);
@@ -178,22 +180,6 @@ public class QueryManager {
 	}
 	
 	private void sendQueryInformationToNodes(Set<Connection> connections){
-		
-		/**
-		 * what a worker expects
-		 * 
-		 * 1. send command "CODE"
-		 * 2. send actual code
-		 * 
-		 * 3. send starTopology
-		 * 4. send operator to only the specific node (instantiation)
-		 * 5. send in parallel the op id to specific node (initialization)
-		 * 6. broadcast state to all nodes
-		 * 
-		 * 7. sync. send command "SET-RUNTIME"
-		 * 
-		 */
-		
 		// Send data file to nodes
 		byte[] queryFile = Utils.readDataFromFile(pathToQuery);
 		LOG.info("Ready to send query file of size: {} bytes", queryFile.length);
@@ -226,18 +212,7 @@ public class QueryManager {
 	}
 	
 	private int computeRequiredExecutionUnits(LogicalSeepQuery lsq){
-		int totalInstances = 0;
-		for(Operator lo : lsq.getAllOperators()){
-			int opId = lo.getOperatorId();
-			if(lsq.hasSetInitialPhysicalInstances(opId)){
-				totalInstances += lsq.getInitialPhysicalInstancesForLogicalOperator(opId);
-			}
-			else{
-				// At least one is required
-				totalInstances++;
-			}
-		}
-		return totalInstances;
+		return lsq.getAllOperators().size();
 	}
 	
 	private LogicalSeepQuery executeComposeFromQuery(String pathToJar, String definitionClass){

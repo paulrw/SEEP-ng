@@ -74,15 +74,45 @@ public class LogicalSeepQuery {
 	}
 	
 	public void setInitialPhysicalInstancesPerLogicalOperator(int opId, int numInstances) {
-		// sanity check: check the operator exists
-		boolean exists = false;
-		for(Operator o : logicalOperators){
-			if(o.getOperatorId() == opId) exists = true;
+		if(numInstances - 1 < 1){
+			throw new InvalidQueryDefinitionException("Minimum num Instances per logicalOperator is 1");
 		}
-		if(! exists){
+		if(this.initialPhysicalInstancesPerOperator.containsKey(opId)){
+			throw new InvalidQueryDefinitionException("Illegal action. Can set up numInstances only once");
+		}
+		LogicalOperator lo = null;
+		for(Operator o : logicalOperators){
+			if(o.getOperatorId() == opId) lo = (LogicalOperator)o;
+		}
+		if(lo == null){
 			throw new InvalidQueryDefinitionException("Impossible to set num instances for non-existent op: "+opId);
 		}
+		// Create scale out and update numInstances per op
+		for(int instance = 0; instance < (numInstances-1); instance++) {
+			int instanceOpId = getNewOpIdForInstance(lo.getOperatorId(), instance);
+			LogicalOperator newInstance = null;
+			if(lo.isStateful()){
+				newInstance = this.newStatefulOperator(lo.getSeepTask(), lo.getState(), instanceOpId);
+			}
+			else{
+				newInstance = this.newStatelessOperator(lo.getSeepTask(), instanceOpId);
+			}
+			connectInstance(lo, newInstance);
+		}
 		this.initialPhysicalInstancesPerOperator.put(opId, numInstances);
+	}
+	
+	private void connectInstance(LogicalOperator original, LogicalOperator newInstance){
+		for(DownstreamConnection dc : original.downstreamConnections()){
+			newInstance.connectTo(dc.getDownstreamOperator(), dc.getStreamId(), dc.getSchema());
+		}
+		for(UpstreamConnection uc : original.upstreamConnections()){
+			uc.getUpstreamOperator().connectTo(newInstance, uc.getStreamId(), uc.getExpectedSchema());
+		}
+	}
+		
+	private int getNewOpIdForInstance(int opId, int it){
+		return opId * it + 1000;
 	}
 	
 	public int getInitialPhysicalInstancesForLogicalOperator(int opId){
@@ -109,6 +139,7 @@ public class LogicalSeepQuery {
 	}
 	
 	public LogicalOperator newStatefulOperator(SeepTask seepTask, SeepState state, int opId){
+		state.setOwner(opId);
 		LogicalOperator lo = SeepQueryLogicalOperator.newStatefulOperator(opId, seepTask, state);
 		logicalOperators.add(lo);
 		states.add(state);

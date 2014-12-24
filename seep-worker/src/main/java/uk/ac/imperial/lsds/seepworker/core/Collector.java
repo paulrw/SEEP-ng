@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.imperial.lsds.seep.api.API;
-import uk.ac.imperial.lsds.seep.api.CommAPI;
-import uk.ac.imperial.lsds.seep.api.APIMetadata;
 import uk.ac.imperial.lsds.seep.errors.DoYouKnowWhatYouAreDoingException;
 import uk.ac.imperial.lsds.seepworker.core.output.OutputAdapter;
 import uk.ac.imperial.lsds.seepworker.core.output.routing.NotEnoughRoutingInformation;
