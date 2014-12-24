@@ -43,4 +43,7 @@ examples/simple-sourcefile-stateless-query/build/*
 examples/simple-pipeline-stateful-query/.gitignore
 examples/simple-pipeline-stateful-query/.settings/*
 examples/simple-pipeline-stateful-query/build/*
+examples/static-scaleout-pipeline-stateless-query/.gitignore
+examples/static-scaleout-pipeline-stateless-query/.settings/*
+examples/static-scaleout-pipeline-stateless-query/build/*
 deploy/
