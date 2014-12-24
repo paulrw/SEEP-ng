@@ -227,7 +227,6 @@ public class QueryManager {
 			urls[0] = urlPathToQueryDefinition.toURI().toURL();
 		}
 		catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// First time it is created we pass the urls

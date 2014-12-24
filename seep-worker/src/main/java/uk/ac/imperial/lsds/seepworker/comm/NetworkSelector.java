@@ -336,7 +336,6 @@ public class NetworkSelector implements EventAPI {
 				}
 			} 
 			catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			dst.flip();
@@ -501,7 +500,7 @@ public class NetworkSelector implements EventAPI {
 				if(writtenBytes != Type.INT.sizeOf(null)){
 					// TODO: throw some type of error
 				}
-			} 
+			}
 			catch (IOException e) {
 				e.printStackTrace();
 			}

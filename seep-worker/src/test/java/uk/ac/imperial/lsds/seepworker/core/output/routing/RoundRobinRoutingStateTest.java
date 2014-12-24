@@ -32,7 +32,7 @@ public class RoundRobinRoutingStateTest {
 		Map<Integer, OutputBuffer> obufs = new HashMap<>();
 		// fill cons
 		for(int i = 0; i < 3; i++){
-			DownstreamConnection con = new DownstreamConnection(null, i, null, null);
+			DownstreamConnection con = new DownstreamConnection(null, i, null, null, null);
 			cons.add(con);
 			obufs.put(i, new OutputBuffer(fake, i, null, 0));
 		}

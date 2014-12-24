@@ -40,12 +40,12 @@ public class NetworkBarrier implements InputAdapter {
 		this.membersArrivedInBarrier = new HashSet<>();
 		this.barrierMembers = new HashSet<>();
 		int bufSize = wc.getInt(WorkerConfig.RECEIVE_APP_BUFFER_SIZE);
+		this.inputBuffers = new HashMap<>();
 		for(UpstreamConnection uc : upc){
 			int id = uc.getUpstreamOperator().getOperatorId();
 			barrierMembers.add(id);
 			inputBuffers.put(id, new InputBuffer(bufSize));
 		}
-		this.inputBuffers = new HashMap<>();
 		this.data = new ArrayList<>();
 	}
 

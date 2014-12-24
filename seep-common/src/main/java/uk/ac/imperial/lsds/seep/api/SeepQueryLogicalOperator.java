@@ -100,15 +100,15 @@ public class SeepQueryLogicalOperator implements LogicalOperator {
 	@Override
 	public void connectTo(Operator downstreamOperator, int streamId, Schema schema, ConnectionType connectionType, DataOrigin dSrc){
 		// Add downstream to this operator
-		this.addDownstream(downstreamOperator, streamId, schema, dSrc);
+		this.addDownstream(downstreamOperator, streamId, schema, connectionType, dSrc);
 		// Add this, as upstream, to the downstream operator
 		((SeepQueryLogicalOperator)downstreamOperator).addUpstream(this, connectionType, streamId, schema, dSrc);
 	}
 	
 	/* Methods to manage logicalOperator connections */
 	
-	private void addDownstream(Operator lo, int streamId, Schema schema, DataOrigin dSrc){
-		DownstreamConnection dc = new DownstreamConnection(lo, streamId, schema, dSrc);
+	private void addDownstream(Operator lo, int streamId, Schema schema, ConnectionType connectionType, DataOrigin dSrc){
+		DownstreamConnection dc = new DownstreamConnection(lo, streamId, schema, connectionType, dSrc);
 		this.downstream.add(dc);
 	}
 	
