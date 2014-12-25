@@ -1,6 +1,4 @@
-package uk.ac.imperial.lsds.seep.comm;
-
-import java.util.Set;
+package uk.ac.imperial.lsds.seep.comm.serialization;
 
 import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerProtocolAPI;
 import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerProtocolAPI;
@@ -13,7 +11,7 @@ public class KryoFactory {
 		return new Kryo();
 	}
 	
-	public static Kryo buildKryoWithRegistration(Set<Object> classToRegister){
+	public static Kryo buildKryoWithRegistration(Object... classToRegister){
 		Kryo k = new Kryo();
 		int registrationId = 0;
 		for(Object o : classToRegister){
@@ -23,7 +21,7 @@ public class KryoFactory {
 		return k;
 	}
 	
-	public static Kryo buildKryoWithRegistration(Set<Object> classToRegister, ClassLoader cl){
+	public static Kryo buildKryoWithRegistration(ClassLoader cl, Object... classToRegister){
 		Kryo k = new Kryo();
 		int registrationId = 0;
 		for(Object o : classToRegister){

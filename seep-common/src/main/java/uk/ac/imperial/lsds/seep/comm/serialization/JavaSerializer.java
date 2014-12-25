@@ -35,7 +35,7 @@ public class JavaSerializer implements Serializer{
 	}
 
 	@Override
-	public Object deserialize(byte[] data) {
+	public Object deserialize(byte[] data, Class type) {
 		Object o = null;
 		bais = new ByteArrayInputStream(data);
 		try{

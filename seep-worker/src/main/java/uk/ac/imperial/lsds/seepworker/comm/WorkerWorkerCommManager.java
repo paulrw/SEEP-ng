@@ -9,9 +9,9 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.imperial.lsds.seep.comm.KryoFactory;
 import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerCommand;
 import uk.ac.imperial.lsds.seep.comm.protocol.WorkerWorkerProtocolAPI;
+import uk.ac.imperial.lsds.seep.comm.serialization.KryoFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;

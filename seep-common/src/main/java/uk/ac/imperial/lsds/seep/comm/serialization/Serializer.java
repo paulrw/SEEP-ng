@@ -1,8 +1,8 @@
 package uk.ac.imperial.lsds.seep.comm.serialization;
 
-public interface Serializer {
+public interface Serializer<T> {
 
-	public byte[] serialize(Object object);
-	public Object deserialize(byte[] data);
+	public byte[] serialize(T object);
+	public T deserialize(byte[] data, Class<T> type);
 	
 }
