@@ -91,7 +91,7 @@ public class SchemaTest {
 		
 		buffer.clear();
 		
-		// String short
+		// String longer
 		String stringWrite2 = "asd;lf kl;qwe l;kajsdfw3efnmoj;al gwegq;glkqj fqfh;lkasdjf fqwphe;klh";
 		Type.STRING.write(buffer, stringWrite2);
 		buffer.position(0);
@@ -101,6 +101,17 @@ public class SchemaTest {
 		assertEquals(Type.STRING.sizeOf(stringWrite2), stringWrite2.length()+4);
 		
 		buffer.clear();
+		
+		// Array of Type
+		Integer[] w = new Integer[]{34, 56, 45, 01};
+		Array type = new Array(Type.INT);
+		type.write(buffer, w);
+		buffer.flip();
+		Object[] readW = type.read(buffer);
+		for(int i = 0; i<w.length; i++){
+			System.out.println("Original: "+w[i]+" read: "+readW[i]);
+			assertEquals(w[i], readW[i]);
+		}
 		
 		// bytes[]
 //		byte[] write = new byte[5];

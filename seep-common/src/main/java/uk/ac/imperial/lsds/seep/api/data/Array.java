@@ -17,7 +17,7 @@ public class Array extends Type {
 	
 	@Override
 	public String toString() {
-		return "@["+type.toString()+"]"; // @[INT]
+		return "@["+type.toString()+"]"; // for example: @[INT]
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class Array extends Type {
 	}
 
 	@Override
-	public Object read(ByteBuffer buffer) {
+	public Object[] read(ByteBuffer buffer) {
 		int size = buffer.getInt();
         Object[] objs = new Object[size];
         for (int i = 0; i < size; i++)
