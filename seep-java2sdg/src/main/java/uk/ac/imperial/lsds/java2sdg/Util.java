@@ -35,8 +35,7 @@ public class Util {
 
 	}
 
-	public static Map<String, InternalStateRepr> extractStateInformation(
-			Iterator<SootField> fieldsIterator) {
+	public static Map<String, InternalStateRepr> extractStateInformation(Iterator<SootField> fieldsIterator) {
 		int seId = 0;
 		Map<String, InternalStateRepr> stateElements = new HashMap<String, InternalStateRepr>();
 		while (fieldsIterator.hasNext()) {
@@ -45,9 +44,9 @@ public class Util {
 			SootClass sc = null;
 			try {
 				sc = Scene.v().loadClassAndSupport(fieldType.toString());
-			} catch (RuntimeException re) {
-				log.warning("Field: " + fieldType.toString()
-						+ " is not a valid class");
+			} 
+			catch (RuntimeException re) {
+				log.warning("Field: " + fieldType.toString()+ " is not a valid class");
 				continue;
 			}
 			Tag annotationTag = field.getTag("VisibilityAnnotationTag");
@@ -56,12 +55,11 @@ public class Util {
 				InternalStateRepr stateRepr = null;
 				// System.out.println("TestTag : "+rawAnnotationData );
 				if (rawAnnotationData.contains("Partitioned")) {
-					stateRepr = new InternalStateRepr(sc,
-							InternalStateRepr.StateLabel.PARTITIONED, seId);
+					stateRepr = new InternalStateRepr(sc, InternalStateRepr.StateLabel.PARTITIONED, seId);
 					seId++;
-				} else if (rawAnnotationData.contains("Partial")) {
-					stateRepr = new InternalStateRepr(sc,
-							InternalStateRepr.StateLabel.PARTIAL, seId);
+				} 
+				else if (rawAnnotationData.contains("Partial")) {
+					stateRepr = new InternalStateRepr(sc, InternalStateRepr.StateLabel.PARTIAL, seId);
 					seId++;
 				}
 				if (stateRepr != null) {

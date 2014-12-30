@@ -67,7 +67,8 @@ public class Main {
 		CommandLine cmd = null;
 		try {
 			cmd = parser.parse(options, args);
-		} catch (ParseException e) {
+		} 
+		catch (ParseException e) {
 			// TODO Auto-generated catch block
 			System.err.println("Parsing failed.  Reason: " + e.getMessage());
 		}
@@ -84,45 +85,45 @@ public class Main {
 				formatter.printHelp("java2sdg", options);
 				System.exit(0);
 			}
-		} else {
+		} 
+		else {
 			formatter.printHelp("java2sdg", options);
 			System.exit(0);
 		}
 		if (cmd.hasOption("cp")) {
 			pathToDriverFile = cmd.getOptionValue("cp");
 			if (pathToDriverFile == null) {
-				System.err
-						.println("cp parameter cannot be empty. Please specify the path to your classpath");
+				System.err.println("cp parameter cannot be empty. Please specify the path to your classpath");
 				System.exit(0);
 			}
-		} else {
+		} 
+		else {
 			pathToDriverFile = ".";
 		}
 		if (cmd.hasOption("o")) {
 			outputFileName = cmd.getOptionValue("o");
 			if (outputFileName == null) {
-				System.err
-						.println("o parameter cannot be empty. Please specify a name for the output file");
+				System.err.println("o parameter cannot be empty. Please specify a name for the output file");
 				System.exit(0);
 			}
-		} else {
+		} 
+		else {
 			formatter.printHelp("java2sdg", options);
 			System.exit(0);
 		}
 		if (cmd.hasOption("t")) {
 			outputTarget = cmd.getOptionValue("t");
 			if (outputTarget == null) {
-				System.err
-						.println("t parameter cannot be empty. Please specify a target, dot/seepjar");
+				System.err.println("t parameter cannot be empty. Please specify a target, dot/seepjar");
 				System.exit(0);
 			}
-			if (!(outputTarget.equals("dot") || outputTarget.equals("seepjar") || outputTarget
-					.equals("gexf"))) {
+			if (!(outputTarget.equals("dot") || outputTarget.equals("seepjar") || outputTarget.equals("gexf"))) {
 				System.err.println("Invalid target option");
 				formatter.printHelp("java2sdg", options);
 				System.exit(0);
 			}
-		} else {
+		} 
+		else {
 			outputTarget = "dot";
 		}
 
@@ -158,7 +159,8 @@ public class Main {
 			System.out.println();
 			c = Scene.v().loadClassAndSupport(className);
 			c.setApplicationClass();
-		} catch (CompilationDeathException cde) {
+		} 
+		catch (CompilationDeathException cde) {
 			System.out.println();
 			LOG.error(cde.getMessage());
 			System.exit(1);
