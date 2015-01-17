@@ -58,6 +58,7 @@ public class Main {
 		// Get Properties with command line configuration 
 		List<ConfigKey> configKeys = MasterConfig.getAllConfigKey();
 		OptionParser parser = new OptionParser();
+		// Unrecognized options are passed through to the query
 		parser.allowsUnrecognizedOptions();
 		parser.accepts(MasterConfig.QUERY_FILE, "Jar file with the compiled SEEP query").withRequiredArg().required();
 		parser.accepts(MasterConfig.BASECLASS_NAME, "Name of the Base Class").withRequiredArg().required();

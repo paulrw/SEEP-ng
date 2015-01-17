@@ -220,11 +220,14 @@ public class QueryManager {
 		URLClassLoader ucl = new URLClassLoader(urls);
 		try {
 			baseI = ucl.loadClass(definitionClass);
-			// Use the default constructor if no arguments are given for backwards compatibility
-			if (queryArgs.length > 0) {
+			// For backwards compatibility, use the default constructor if one with a string array argument is not found
+			try {
 				baseInstance = baseI.getConstructor(String[].class).newInstance((Object)queryArgs);
-			} else {
+			} catch (NoSuchMethodException e)  {
 				baseInstance = baseI.newInstance();
+				if (queryArgs.length > 0) {
+					LOG.warn("Query arguments specified but Base class has no constructor taking a String[] argument");
+				}
 			}
 			// FIXME: eliminate hardcoded name
 			compose = baseI.getDeclaredMethod("compose", (Class<?>[])null);
