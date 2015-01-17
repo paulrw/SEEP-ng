@@ -1,32 +1,9 @@
 package uk.ac.imperial.lsds.seepmaster.query;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.esotericsoftware.kryo.Kryo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.Kryo;
-
-import uk.ac.imperial.lsds.seep.api.LogicalOperator;
-import uk.ac.imperial.lsds.seep.api.LogicalSeepQuery;
-import uk.ac.imperial.lsds.seep.api.Operator;
-import uk.ac.imperial.lsds.seep.api.PhysicalOperator;
-import uk.ac.imperial.lsds.seep.api.PhysicalSeepQuery;
-import uk.ac.imperial.lsds.seep.api.SeepQueryPhysicalOperator;
-import uk.ac.imperial.lsds.seep.api.UpstreamConnection;
+import uk.ac.imperial.lsds.seep.api.*;
 import uk.ac.imperial.lsds.seep.comm.Comm;
 import uk.ac.imperial.lsds.seep.comm.Connection;
 import uk.ac.imperial.lsds.seep.comm.protocol.MasterWorkerCommand;
@@ -36,6 +13,16 @@ import uk.ac.imperial.lsds.seep.infrastructure.EndPoint;
 import uk.ac.imperial.lsds.seep.util.Utils;
 import uk.ac.imperial.lsds.seepmaster.infrastructure.master.ExecutionUnit;
 import uk.ac.imperial.lsds.seepmaster.infrastructure.master.InfrastructureManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class QueryManager {
 
@@ -93,10 +80,10 @@ public class QueryManager {
 		return inf.executionUnitsAvailable() >= executionUnitsRequiredToStart;
 	}
 	
-	public void loadQueryFromFile(String pathToJar, String definitionClass){
+	public void loadQueryFromFile(String pathToJar, String definitionClass, String[] queryArgs){
 		this.pathToQuery = pathToJar;
 		// get logical query
-		this.lsq = executeComposeFromQuery(pathToJar, definitionClass);
+		this.lsq = executeComposeFromQuery(pathToJar, definitionClass, queryArgs);
 		LOG.debug("Logical query loaded: {}", lsq.toString());
 		// get *all* classes required by that query and store their names
 		this.executionUnitsRequiredToStart = this.computeRequiredExecutionUnits(lsq);
@@ -215,7 +202,7 @@ public class QueryManager {
 		return lsq.getAllOperators().size();
 	}
 	
-	private LogicalSeepQuery executeComposeFromQuery(String pathToJar, String definitionClass){
+	private LogicalSeepQuery executeComposeFromQuery(String pathToJar, String definitionClass, String[] queryArgs){
 		Class<?> baseI = null;
 		Object baseInstance = null;
 		Method compose = null;
@@ -233,7 +220,12 @@ public class QueryManager {
 		URLClassLoader ucl = new URLClassLoader(urls);
 		try {
 			baseI = ucl.loadClass(definitionClass);
-			baseInstance = baseI.newInstance();
+			// Use the default constructor if no arguments are given for backwards compatibility
+			if (queryArgs.length > 0) {
+				baseInstance = baseI.getConstructor(String[].class).newInstance((Object)queryArgs);
+			} else {
+				baseInstance = baseI.newInstance();
+			}
 			// FIXME: eliminate hardcoded name
 			compose = baseI.getDeclaredMethod("compose", (Class<?>[])null);
 			lsq = (LogicalSeepQuery) compose.invoke(baseInstance, (Object[])null);
